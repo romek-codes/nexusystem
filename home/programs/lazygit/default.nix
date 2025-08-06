@@ -7,23 +7,25 @@ in {
   programs.lazygit = {
     enable = true;
     settings = lib.mkForce {
+      quitOnTopLevelReturn = true;
       disableStartupPopups = true;
       notARepository = "skip";
-      promptToReturnFromSubprocess = false;
+      promptToReturnFromSubprocess = true;
       update.method = "never";
       git = {
-        commit.signOff = true;
+        # commit.signOff = true;
         parseEmoji = true;
+        overrideGpg = true;
       };
       gui = {
         theme = {
           activeBorderColor = [ accent "bold" ];
           inactiveBorderColor = [ muted ];
         };
-        showListFooter = false;
-        showRandomTip = false;
-        showCommandLog = false;
-        showBottomLine = false;
+        showListFooter = true;
+        showRandomTip = true;
+        showCommandLog = true;
+        showBottomLine = true;
         nerdFontsVersion = "3";
       };
     };

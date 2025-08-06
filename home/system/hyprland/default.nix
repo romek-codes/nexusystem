@@ -9,16 +9,16 @@ let
   rounding = config.theme.rounding;
   blur = config.theme.blur;
   keyboardLayout = config.var.keyboardLayout;
+  extraKeyboardLayouts = config.var.extraKeyboardLayouts;
   background = "rgb(" + config.lib.stylix.colors.base00 + ")";
+  monitorConfig = config.var.monitorConfig;
 in {
 
   imports = [
     ./animations.nix
     ./bindings.nix
     ./polkitagent.nix
-    ./keyboard-backlight.nix # CHANGEME: This is for my laptop only
-    # FIXME: Broken on unstable
-    # ./hyprspace.nix
+    ./split-monitor-workspaces.nix
   ];
 
   home.packages = with pkgs; [
@@ -44,6 +44,11 @@ in {
     meson
   ];
 
+  xdg.configFile."electron-flags.conf".text = ''
+    --enable-features=UseOzonePlatform
+    --ozone-platform=wayland
+  '';
+
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
@@ -58,21 +63,27 @@ in {
 
     settings = {
       "$mod" = "SUPER";
-      "$shiftMod" = "SUPER_SHIFT";
+      "$shiftMod" = "SUPERSHIFT";
+      "$ctrlMod" = "SUPERCTRL";
 
       exec-once = [
         "dbus-update-activation-environment --systemd --all &"
         "systemctl --user enable --now hyprpaper.service &"
         "systemctl --user enable --now hypridle.service &"
-        "systemctl --user enable --now nextcloud-client.service  &"
+        "systemctl --user enable --now hypridle.service &"
+        "foot --server"
       ];
 
       monitor = [
-        "eDP-2,highres,0x0,1" # My internal laptop screen
-        "desc:AOC U34G2G1 0x00000E06,3440x1440@99.98,auto,1" # My external monitor
-        "desc:United Microelectr Corporation UMC SHARP,3840x2160,auto,2" # TV
-        ",prefered,auto,1" # default
-      ];
+        ",prefered,auto,1" # default for when monitor is not yet defined
+
+        # Some random tv's etc.
+        "desc:Ancor Communications Inc VS248 EALMQS050867,1920x1080@60.00000,3840x0,1"
+        "desc:Ancor Communications Inc VS248 H8LMQS119474,1920x1080@60.00000,1920x0,1"
+        "desc:CTV CTV 0x00000001,preferred,1920x0,1"
+        "desc:Samsung Electric Company SAMSUNG 0x00000001,preferred,1920x0,1"
+        "desc:Avolites Ltd HDTV,preferred,1920x0,1"
+      ] ++ monitorConfig;
 
       env = [
         "XDG_CURRENT_DESKTOP,Hyprland"
@@ -96,7 +107,8 @@ in {
         "WLR_NO_HARDWARE_CURSORS,1"
         "SDL_VIDEODRIVER,wayland"
         "CLUTTER_BACKEND,wayland"
-        "AQ_DRM_DEVICES,/dev/dri/card2:/dev/dri/card1" # CHANGEME: Related to the GPU
+        "GRIMBLAST_HIDE_CURSOR, 0"
+        # "AQ_DRM_DEVICES,/dev/dri/card2:/dev/dri/card1" # CHANGEME: Related to the GPU
       ];
 
       cursor = {
@@ -109,7 +121,6 @@ in {
         gaps_in = gaps-in;
         gaps_out = gaps-out;
         border_size = border-size;
-        layout = "master";
         "col.inactive_border" = lib.mkForce background;
       };
 
@@ -129,9 +140,8 @@ in {
       };
 
       master = {
-        new_status = true;
-        allow_small_split = true;
-        mfact = 0.5;
+        orientation = "center";
+        smart_resizing = true;
       };
 
       gestures = { workspace_swipe = true; };
@@ -145,15 +155,12 @@ in {
         new_window_takes_over_fullscreen = 2;
       };
 
-      windowrulev2 = [
+      windowrule = [
         "float, tag:modal"
         "pin, tag:modal"
         "center, tag:modal"
         # telegram media viewer
         "float, title:^(Media viewer)$"
-
-        # Bitwarden extension
-        "float, title:^(.*Bitwarden Password Manager.*)$"
 
         # gnome calculator
         "float, class:^(org.gnome.Calculator)$"
@@ -168,6 +175,16 @@ in {
         "idleinhibit focus, class:^(zen)$, title:^(.*YouTube.*)$"
         "idleinhibit fullscreen, class:^(zen)$"
 
+        "stayfocused,class:^(pinentry)$"
+        "stayfocused,class:^(gcr-prompter)$"
+        "stayfocused,class:^(Gimp-2.10)$,title:.*Export Image as PNG.*"
+        "stayfocused,class:^(Gimp-2.10)$,title:.*Save Image.*"
+
+        "group,class:^(Gimp-2.10)"
+        "float,class:^(Gimp-2.10)$,title:.*Save Image.*"
+        "center 1,class:^(Gimp-2.10)$,title:.*Exposure.*"
+        "center 1,class:^(Gimp-2.10)$,title:.*Sharpen.*"
+
         "dimaround, class:^(gcr-prompter)$"
         "dimaround, class:^(xdg-desktop-portal-gtk)$"
         "dimaround, class:^(polkit-gnome-authentication-agent-1)$"
@@ -179,10 +196,19 @@ in {
         "size 640 400, class:^(.*jetbrains.*)$, title:^(splash)$"
       ];
 
+      # TODO: This causes workspaces 2 and 10 to open on my left vertical monitor,
+      # probably need to define which is the main monitor?
+      # workspace = [
+      #   "name:1,desc:Acer Technologies X28 ##GTIYMxgwAAt+" # doesnt work?
+      #   "1,on-created-empty:uwsm app -- ${pkgs.zen-beta-bin}/bin/zen-beta"
+      #   "2,on-created-empty:uwsm app -- ${pkgs.kitty}/bin/kitty"
+      #   "10,on-created-empty:uwsm app -- ${pkgs.kitty}/bin/kitty btop"
+      # ];
+
       layerrule = [ "noanim, launcher" "noanim, ^ags-.*" ];
 
       input = {
-        kb_layout = keyboardLayout;
+        kb_layout = "${keyboardLayout}${extraKeyboardLayouts}";
 
         kb_options = "caps:escape";
         follow_mouse = 1;

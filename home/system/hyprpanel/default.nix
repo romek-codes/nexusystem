@@ -1,6 +1,11 @@
 # Hyprpanel is the bar on top of the screen
 # Display informations like workspaces, battery, wifi, ...
-{ inputs, config, ... }:
+{
+  inputs,
+  config,
+  lib,
+  ...
+}:
 let
   transparentButtons = config.theme.bar.transparentButtons;
 
@@ -26,7 +31,22 @@ let
   notificationOpacity = 90;
 
   location = config.var.location;
-in {
+  isLaptop = config.var.isLaptop or false;
+
+  rightItems =
+    [
+      "systray"
+      "volume"
+      "bluetooth"
+    ]
+    ++ (lib.optional isLaptop "battery")
+    ++ [
+      "network"
+      "clock"
+      "notifications"
+    ];
+in
+{
 
   imports = [ inputs.hyprpanel.homeManagerModules.hyprpanel ];
 
@@ -40,17 +60,16 @@ in {
       layout = {
         "bar.layouts" = {
           "*" = {
-            "left" = [ "dashboard" "workspaces" "windowtitle" ];
-            "middle" = [ "media" "cava" ];
-            "right" = [
-              "systray"
-              "volume"
-              "bluetooth"
-              "battery"
-              "network"
-              "clock"
-              "notifications"
+            "left" = [
+              "dashboard"
+              "workspaces"
+              "windowtitle"
             ];
+            "middle" = [
+              "media"
+              "cava"
+            ];
+            "right" = rightItems;
           };
         };
       };
@@ -58,29 +77,23 @@ in {
       theme.font.name = font;
       theme.font.size = fontSizeForHyprpanel;
 
-      theme.bar.outer_spacing =
-        if floating && transparent then "0px" else "8px";
-      theme.bar.buttons.y_margins =
-        if floating && transparent then "0px" else "8px";
+      theme.bar.outer_spacing = if floating && transparent then "8px" else "8px";
+      theme.bar.buttons.y_margins = if floating && transparent then "8px" else "8px";
       theme.bar.buttons.spacing = "0.3em";
-      theme.bar.buttons.radius =
-        (if transparent then toString rounding else toString (rounding - 8))
-        + "px";
+      theme.bar.buttons.radius = (if transparent then toString rounding else toString rounding) + "px";
       theme.bar.floating = floating;
       theme.bar.buttons.padding_x = "0.8rem";
       theme.bar.buttons.padding_y = "0.4rem";
 
-      theme.bar.margin_top =
-        (if position == "top" then toString (gaps-in * 2) else "0") + "px";
-      theme.bar.margin_bottom =
-        (if position == "top" then "0" else toString (gaps-in * 2)) + "px";
+      theme.bar.margin_top = (if position == "top" then toString (gaps-in) else "0") + "px";
+      theme.bar.margin_bottom = (if position == "top" then "0" else toString (gaps-in)) + "px";
       theme.bar.margin_sides = toString gaps-out + "px";
+
       theme.bar.border_radius = toString rounding + "px";
       theme.bar.transparent = transparent;
       theme.bar.location = position;
       theme.bar.dropdownGap = "4.5em";
-      theme.bar.menus.shadow =
-        if transparent then "0 0 0 0" else "0px 0px 3px 1px #16161e";
+      theme.bar.menus.shadow = if transparent then "0 0 0 0" else "0px 0px 3px 1px #16161e";
       theme.bar.buttons.style = "default";
       theme.bar.buttons.monochrome = true;
       theme.bar.menus.monochrome = true;
@@ -90,11 +103,11 @@ in {
       theme.bar.menus.menu.media.card.tint = 90;
 
       bar.launcher.icon = "";
-      bar.workspaces.show_numbered = false;
-      bar.workspaces.workspaces = 5;
+      bar.workspaces.workspaces = 1;
       bar.workspaces.numbered_active_indicator = "color";
-      bar.workspaces.monitorSpecific = false;
+      bar.workspaces.monitorSpecific = true;
       bar.workspaces.applicationIconEmptyWorkspace = "";
+      bar.workspaces.show_numbered = false;
       bar.workspaces.showApplicationIcons = true;
       bar.workspaces.showWsIcons = true;
 
@@ -102,7 +115,7 @@ in {
       bar.volume.label = false;
       bar.network.truncation_size = 12;
       bar.bluetooth.label = false;
-      bar.clock.format = "%a %b %d  %I:%M %p";
+      bar.clock.format = "%a %b %d  %H:%M:%S";
       bar.notifications.show_total = true;
       bar.media.show_active_only = true;
 
@@ -133,11 +146,11 @@ in {
       menus.dashboard.shortcuts.left.shortcut1.command = "zen";
       menus.dashboard.shortcuts.left.shortcut1.tooltip = "Zen";
       menus.dashboard.shortcuts.left.shortcut2.icon = "󰅶";
-      menus.dashboard.shortcuts.left.shortcut2.command = "caffeine";
-      menus.dashboard.shortcuts.left.shortcut2.tooltip = "Caffeine";
+      menus.dashboard.shortcuts.left.shortcut2.command = "suspend-and-screen-lock";
+      menus.dashboard.shortcuts.left.shortcut2.tooltip = "Suspend and screen lock";
       menus.dashboard.shortcuts.left.shortcut3.icon = "󰖔";
-      menus.dashboard.shortcuts.left.shortcut3.command = "night-shift";
-      menus.dashboard.shortcuts.left.shortcut3.tooltip = "Night-shift";
+      menus.dashboard.shortcuts.left.shortcut3.command = "blue-light-filter";
+      menus.dashboard.shortcuts.left.shortcut3.tooltip = "Blue light filter";
       menus.dashboard.shortcuts.left.shortcut4.icon = "";
       menus.dashboard.shortcuts.left.shortcut4.command = "menu";
       menus.dashboard.shortcuts.left.shortcut4.tooltip = "Search Apps";
@@ -146,8 +159,7 @@ in {
       menus.dashboard.shortcuts.right.shortcut1.command = "hyprpicker -a";
       menus.dashboard.shortcuts.right.shortcut1.tooltip = "Color Picker";
       menus.dashboard.shortcuts.right.shortcut3.icon = "󰄀";
-      menus.dashboard.shortcuts.right.shortcut3.command =
-        "screenshot region swappy";
+      menus.dashboard.shortcuts.right.shortcut3.command = "screenshot region swappy";
       menus.dashboard.shortcuts.right.shortcut3.tooltip = "Screenshot";
 
       menus.power.lowBatteryNotification = true;
@@ -182,15 +194,11 @@ in {
       "theme.bar.menus.dropdownmenu.background" = background-alt;
       "theme.bar.menus.dropdownmenu.text" = foreground;
 
-      "theme.bar.background" = background
-        + (if transparentButtons && transparent then "00" else "");
-      "theme.bar.buttons.text" = if transparent && transparentButtons then
-        foregroundOnWallpaper
-      else
-        foreground;
+      "theme.bar.background" = background + (if transparentButtons && transparent then "00" else "");
+      "theme.bar.buttons.text" =
+        if transparent && transparentButtons then foregroundOnWallpaper else foreground;
       "theme.bar.buttons.background" =
-        (if transparent then background else background-alt)
-        + (if transparentButtons then "00" else "");
+        (if transparent then background else background-alt) + (if transparentButtons then "00" else "");
       "theme.bar.buttons.icon" = accent;
 
       "theme.bar.buttons.notifications.background" = background-alt;

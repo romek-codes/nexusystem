@@ -1,24 +1,45 @@
 # Hyprlock is a lockscreen for Hyprland
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   foreground = "rgba(${config.theme.textColorOnWallpaper}ee)";
   font = config.stylix.fonts.serif.name;
-in {
+  image = config.theme.image;
+  animatedBackgroundImage = config.theme.animatedBackgroundImage;
+in
+{
+
   programs.hyprlock = {
     enable = true;
     settings = {
       general = {
-        grace = 5;
+        grace = 2;
         no_fade_in = false;
         disable_loading_bar = false;
+        hide_cursor = true;
+        before_sleep_cmd = "uwsm app -- ${pkgs.hyprlock}/bin/hyprlock";
       };
 
       # BACKGROUND
       background = {
+        path =
+          if animatedBackgroundImage != false then
+            # Use screenshot as animated images are not supported
+            lib.mkForce "screenshot"
+          else if image != false then
+            lib.mkForce "${toString image}"
+          else
+            lib.mkForce "screenshot";
         monitor = "";
-        blur_passes = 0;
+        blur_passes = 2;
+        blur_size = 5;
+        noise = "0.0117";
         contrast = 0.8916;
-        brightness = 0.7172;
+        brightness = 0.3;
         vibrancy = 0.1696;
         vibrancy_darkness = 0.0;
       };
@@ -76,7 +97,7 @@ in {
         font_color = foreground;
         fade_on_empty = false;
         font_family = font + " Bold";
-        placeholder_text = "<i>🔒 Enter Password</i>";
+        placeholder_text = "";
         hide_input = false;
         position = "0, -250";
         halign = "center";

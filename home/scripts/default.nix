@@ -1,14 +1,14 @@
 {
   imports = [
-    ./nixy
+    ./command-palette
+    ./rofi-nix-helper
     ./sounds
     ./brightness
-    ./caffeine
+    ./suspend-and-screen-lock
     ./hyprpanel
     ./hyprfocus
-    ./night-shift
+    ./blue-light-filter
     ./screenshot
-    ./nerdfont-fzf
     ./notification
     ./system
     ./openvpn

@@ -24,6 +24,11 @@ let
           keyword decoration:inactive_opacity 1;\
           keyword decoration:active_opacity 1"
 
+      status=$(hyprpanel toggleDnd)
+      if [[ $status == "Disabled" ]]; then
+        hyprpanel toggleDnd
+      fi
+
       echo "1" > /tmp/hyprfocus
     '';
 
@@ -33,14 +38,25 @@ let
       hyprctl reload
       hyprpanel-show
       rm /tmp/hyprfocus
+
+      status=$(hyprpanel toggleDnd)
+      if [[ $status == "Enabled" ]]; then
+        hyprpanel toggleDnd
+      fi
     '';
 
   hyprfocus-toggle = pkgs.writeShellScriptBin "hyprfocus-toggle"
     # bash 
     ''
       if [ -f /tmp/hyprfocus ]; then
+        title="󰓠  Zen mode deactivated"
+        description="Zen mode is now deactivated! Do not disturb is disabled."
         hyprfocus-off
+        notif "Zen mode" "$title" "$description"
       else
+        title="󰝴  Zen mode activated"
+        description="Zen mode is now activated! Do not disturb is enabled."
+        notif "Zen mode" "$title" "$description"
         hyprfocus-on
       fi
     '';

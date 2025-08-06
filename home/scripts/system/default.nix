@@ -1,112 +1,9 @@
-# - ## System
-#- 
-#- Usefull quick scripts
-#-
-#- - `menu` - Open wofi with drun mode. (wofi)
-#- - `powermenu` - Open power dropdown menu. (wofi)
-#- - `quickmenu` - Open a dropdown menu with shortcuts and scripts. (wofi)
-#- - `lock` - Lock the screen. (hyprlock)
 { pkgs, ... }:
-
 let
-  menu = pkgs.writeShellScriptBin "menu"
+  changeKeyboardLayout = pkgs.writeShellScriptBin "change-keyboard-layout"
     # bash
     ''
-      if pgrep wofi; then
-      	pkill wofi
-      else
-      	wofi -p " Apps" --show drun &
-      	# # Quit when not focused anymore
-      	# sleep 0.2
-      	# while true; do
-      	# 	window=$(hyprctl activewindow | grep "wofi")
-      	# 	if [[ ! $window ]]; then
-      	# 		pkill wofi
-      	# 		break
-      	# 	fi
-      	# 	sleep 0.2
-      	# done
-      fi
-    '';
-
-  powermenu = pkgs.writeShellScriptBin "powermenu"
-    # bash
-    ''
-      if pgrep wofi; then
-      	pkill wofi
-      # if pgrep tofi; then
-      #   pkill tofi
-      else
-        options=(
-          "󰌾 Lock"
-          "󰍃 Logout"
-          " Suspend"
-          "󰑐 Reboot"
-          "󰿅 Shutdown"
-        )
-
-        selected=$(printf '%s\n' "''${options[@]}" | wofi -p " Powermenu" --dmenu)
-        # selected=$(printf '%s\n' "''${options[@]}" | tofi --prompt-text "> ")
-        selected=''${selected:2}
-
-        case $selected in
-          "Lock")
-            ${pkgs.hyprlock}/bin/hyprlock
-            ;;
-          "Logout")
-            hyprctl dispatch exit
-            ;;
-          "Suspend")
-            systemctl suspend
-            ;;
-          "Reboot")
-            systemctl reboot
-            ;;
-          "Shutdown")
-            systemctl poweroff
-            ;;
-        esac
-      fi
-    '';
-
-  quickmenu = pkgs.writeShellScriptBin "quickmenu"
-    # bash
-    ''
-      if pgrep wofi; then
-      	pkill wofi
-      # if pgrep tofi; then
-      #   pkill tofi
-      else
-        options=(
-          "󰅶 Caffeine"
-          "󰖔 Night-shift"
-          " Nixy"
-          "󰈊 Hyprpicker"
-          "󰖂 Toggle VPN"
-        )
-
-        selected=$(printf '%s\n' "''${options[@]}" | wofi -p " Quickmenu" --dmenu)
-        # selected=$(printf '%s\n' "''${options[@]}" | tofi --prompt-text "> ")
-        selected=''${selected:2}
-
-        case $selected in
-          "Caffeine")
-            caffeine
-            ;;
-          "Night-shift")
-            night-shift
-            ;;
-          "Nixy")
-            kitty zsh -c nixy
-            ;;
-          "Hyprpicker")
-            sleep 0.2 && ${pkgs.hyprpicker}/bin/hyprpicker -a
-            ;;
-          "Toggle VPN")
-            openvpn-toggle
-            ;;
-        esac
-      fi
+      switch=$(hyprctl devices -j | jq -r '.keyboards[] | .active_keymap' | uniq -c | [ $(wc -l) -eq 1 ] && echo "next" || echo "0"); for device in $(hyprctl devices -j | jq -r '.keyboards[] | .name'); do hyprctl switchxkblayout $device $switch; done; activeKeymap=$(hyprctl devices -j | jq -r '.keyboards[0] | .active_keymap'); if [ $switch == "0" ]; then resetStr="(reset)"; else resetStr=""; fi; hyprctl notify -1 1500 0 "$activeKeymap $resetStr"
     '';
 
   lock = pkgs.writeShellScriptBin "lock"
@@ -115,4 +12,10 @@ let
       ${pkgs.hyprlock}/bin/hyprlock
     '';
 
-in { home.packages = [ menu powermenu lock quickmenu ]; }
+  appMenu = pkgs.writeShellScriptBin "app-menu"
+    # bash
+    ''
+      rofi -show-icons -show drun -sort
+    '';
+
+in { home.packages = [ appMenu lock changeKeyboardLayout ]; }

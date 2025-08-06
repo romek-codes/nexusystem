@@ -8,33 +8,29 @@
 #- - `hyprpanel-reload` - Reload hyprpanel.
 { pkgs, ... }:
 let
+  # Handle up to 10 monitors (should be enough even for a stock broker.)
   hyprpanel-toggle = pkgs.writeShellScriptBin "hyprpanel-toggle" ''
-    hyprpanel toggleWindow bar-0
-    hyprpanel toggleWindow bar-1
-    hyprpanel toggleWindow bar-2
-    hyprpanel toggleWindow bar-3
+    for i in {0..9}; do
+      hyprpanel toggleWindow bar-$i
+    done
   '';
 
   hyprpanel-hide = pkgs.writeShellScriptBin "hyprpanel-hide" ''
-    status=$(hyprpanel isWindowVisible bar-0)
-    if [[ $status == "true" ]]; then
-      hyprpanel toggleWindow bar-0
-    fi
-    status=$(hyprpanel isWindowVisible bar-1)
-    if [[ $status == "true" ]]; then
-      hyprpanel toggleWindow bar-1
-    fi
+    for i in {0..9}; do
+      status=$(hyprpanel isWindowVisible bar-$i)
+      if [[ $status == "true" ]]; then
+        hyprpanel toggleWindow bar-$i
+      fi
+    done
   '';
 
   hyprpanel-show = pkgs.writeShellScriptBin "hyprpanel-show" ''
-    status=$(hyprpanel isWindowVisible bar-0)
-    if [[ $status == "false" ]]; then
-      hyprpanel toggleWindow bar-0
-    fi
-    status=$(hyprpanel isWindowVisible bar-1)
-    if [[ $status == "false" ]]; then
-      hyprpanel toggleWindow bar-1
-    fi
+    for i in {0..9}; do
+      status=$(hyprpanel isWindowVisible bar-$i)
+      if [[ $status == "false" ]]; then
+        hyprpanel toggleWindow bar-$i
+      fi
+    done
   '';
 
   hyprpanel-reload = pkgs.writeShellScriptBin "hyprpanel-reload" ''

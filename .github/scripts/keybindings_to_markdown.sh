@@ -7,14 +7,14 @@
 KEYBINDINGS_FILE="./docs/KEYBINDINGS-HYPRLAND.md"
 
 function getList() {
-  content=$1
-  name=$2
-  list_start=$(echo "$content" | sed "/$name = \[/!d;=;Q")
-  list=$(echo "$content" | tail +"$list_start")
-  list_end=$(echo "$list" | sed '/\]/!d;=;Q')
-  list=$(echo "$list" | head -n"$list_end")
+	content=$1
+	name=$2
+	list_start=$(echo "$content" | sed "/$name = \[/!d;=;Q")
+	list=$(echo "$content" | tail +"$list_start")
+	list_end=$(echo "$list" | sed '/\]/!d;=;Q')
+	list=$(echo "$list" | head -n"$list_end")
 
-  echo "$list"
+	echo "$list"
 }
 
 [[ -f "./home/system/hyprland/bindings.nix" ]] || (echo "File ./home/system/hyprland/bindings.nix not found" && exit 1)
@@ -40,21 +40,51 @@ echo "> [!NOTE]" >>"$KEYBINDINGS_FILE"
 echo "> SUPER is the windows key by default" >>"$KEYBINDINGS_FILE"
 echo "" >>"$KEYBINDINGS_FILE"
 
+echo "### System" >>"$KEYBINDINGS_FILE"
 echo "| Description | Keybinding |" >>"$KEYBINDINGS_FILE"
 echo "| -- | -- |" >>"$KEYBINDINGS_FILE"
+echo "| Open Command Palette | SUPER |" >>"$KEYBINDINGS_FILE"
 echo "| Switch Workspace | SUPER + {Number} |" >>"$KEYBINDINGS_FILE"
 echo "| Move app to Workspace | SHIFT + SUPER + {Number} |" >>"$KEYBINDINGS_FILE"
 echo "$keybindings" | while read -r line; do
-  comment=$(echo "$line" | cut -d\# -f2)
-  line=$(echo "$line" | cut -d\# -f1)
-  line=${line:1:${#line}-3}
-  mod=$(echo "$line" | cut -d, -f1)
-  key=$(echo "$line" | cut -d, -f2)
-  # dispatcher=$(echo "$line" | cut -d, -f3)
-  # params=$(echo "$line" | cut -d, -f4)
+	comment=$(echo "$line" | cut -d\# -f2)
+	line=$(echo "$line" | cut -d\# -f1)
+	line=${line:1:${#line}-3}
+	mod=$(echo "$line" | cut -d, -f1)
+	key=$(echo "$line" | cut -d, -f2)
+	# dispatcher=$(echo "$line" | cut -d, -f3)
+	# params=$(echo "$line" | cut -d, -f4)
 
-  [[ $mod == '$mod' ]] && mod="SUPER + "
-  [[ $mod == '$shiftMod' ]] && mod="SHIFT + SUPER + "
+	[[ $mod == '$mod' ]] && mod="SUPER + "
+	[[ $mod == '$shiftMod' ]] && mod="SHIFT + SUPER + "
+	[[ $mod == '$ctrlMod' ]] && mod="CTRL + SUPER + "
 
-  echo "| ${comment:1} | $mod$key |" >>"$KEYBINDINGS_FILE"
+	echo "| ${comment:1} | $mod$key |" >>"$KEYBINDINGS_FILE"
 done
+
+echo "" >>"$KEYBINDINGS_FILE"
+echo "### Tmux" >>"$KEYBINDINGS_FILE"
+echo "| Description | Keybinding |" >>"$KEYBINDINGS_FILE"
+echo "| -- | -- |" >>"$KEYBINDINGS_FILE"
+echo "| Tmux open new window | CTRL + SPACE, C |" >>"$KEYBINDINGS_FILE"
+echo "| Tmux go to window | CTRL + SPACE, {Number} |" >>"$KEYBINDINGS_FILE"
+echo "| Tmux close window | CTRL + SPACE, {Number} |" >>"$KEYBINDINGS_FILE"
+echo "| Tmux search text in vim mode | CTRL + SPACE, [ |" >>"$KEYBINDINGS_FILE"
+
+echo "" >>"$KEYBINDINGS_FILE"
+echo "### Browser (vimium)" >>"$KEYBINDINGS_FILE"
+echo "| Description | Keybinding |" >>"$KEYBINDINGS_FILE"
+echo "| -- | -- |" >>"$KEYBINDINGS_FILE"
+echo "| Omnibar (vimium) | SHIFT + T |" >>"$KEYBINDINGS_FILE"
+echo "| In browser select text (vimium) | y, v |" >>"$KEYBINDINGS_FILE"
+echo "| Cursor mode (vimium) | c |" >>"$KEYBINDINGS_FILE"
+echo "| Copy (vimium) | y |" >>"$KEYBINDINGS_FILE"
+echo "| Scroll left/down/up/right (vimium) | h / j / k / l |" >>"$KEYBINDINGS_FILE"
+echo "| Open link (vimium) | f |" >>"$KEYBINDINGS_FILE"
+echo "| Open link in new tab (vimium) | SHIFT + F |" >>"$KEYBINDINGS_FILE"
+echo "| Search in page (vimium) | / |" >>"$KEYBINDINGS_FILE"
+echo "| Next / Previous search (vimium) | n / SHIFT + N |" >>"$KEYBINDINGS_FILE"
+echo "| Next / Previous search (vimium) | n / SHIFT + N |" >>"$KEYBINDINGS_FILE"
+echo "| Back / Forward page (vimium) | SHIFT + H / SHIFT + L |" >>"$KEYBINDINGS_FILE"
+echo "| Back / Forward page (vimium) | SHIFT + H / SHIFT + L |" >>"$KEYBINDINGS_FILE"
+echo "| New tab (vimium) | t |" >>"$KEYBINDINGS_FILE"

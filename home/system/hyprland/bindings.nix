@@ -1,49 +1,65 @@
 { pkgs, ... }: {
   wayland.windowManager.hyprland.settings = {
     bind = [
-      "$mod,RETURN, exec, uwsm app -- ${pkgs.kitty}/bin/kitty" # Kitty
-      "$mod,E, exec,  uwsm app -- ${pkgs.xfce.thunar}/bin/thunar" # Thunar
-      "$mod,B, exec,  uwsm app -- zen-beta" # Zen Browser
-      "$mod,K, exec,  uwsm app -- ${pkgs.bitwarden}/bin/bitwarden" # Bitwarden
-      "$mod,L, exec,  uwsm app -- ${pkgs.hyprlock}/bin/hyprlock" # Lock
-      "$mod,X, exec, powermenu" # Powermenu
-      "$mod,SPACE, exec, menu" # Launcher
-      "$mod,C, exec, quickmenu" # Quickmenu
-      "$shiftMod,SPACE, exec, hyprfocus-toggle" # Toggle HyprFocus
-      "$mod,P, exec,  uwsm app -- ${pkgs.planify}/bin/io.github.alainm23.planify" # Planify
+      "$mod,RETURN, exec, footclient" # Terminal (footclient)
+      "$mod,E, exec,  uwsm app -- ${pkgs.xfce.thunar}/bin/thunar" # File explorer (thunar)
+      "$ctrlMod,L, exec,  uwsm app -- ${pkgs.hyprlock}/bin/hyprlock" # Lock
+      "$mod,P, exec, app-menu" # Launch an app
 
+      "$mod,TAB,exec,rofi -modes run,window -show window" # Search opened windows
+      "ALT,TAB,exec,rofi -modes run,window -show window" # Search opened windows
+      "$mod,B, exec, rofi-rbw" # Rofi-rbw (Bitwarden)
+      "$mod,C,exec,rofi -show calc -modi calc -no-show-match -no-sort" # Calculator
+      ''
+        $mod,SPACE,exec,switch=$(hyprctl devices -j | jq -r '.keyboards[] | .active_keymap' | uniq -c | [ $(wc -l) -eq 1 ] && echo "next" || echo "0"); for device in $(hyprctl devices -j | jq -r '.keyboards[] | .name'); do hyprctl switchxkblayout $device $switch; done; activeKeymap=$(hyprctl devices -j | jq -r '.keyboards[0] | .active_keymap'); if [ $switch == "0" ]; then resetStr="(reset)"; else resetStr=""; fi; hyprctl notify -1 1500 0 "$activeKeymap $resetStr"; # Change keyboard layout
+      ''
       "$mod,Q, killactive," # Close window
       "$mod,T, togglefloating," # Toggle Floating
       "$mod,F, fullscreen" # Toggle Fullscreen
+
+      "$mod,h, movefocus, l" # Move focus left
+      "$mod,j, movefocus, d" # Move focus down
+      "$mod,k, movefocus, u" # Move focus up
+      "$mod,l, movefocus, r" # Move focus right
+
+      "$shiftMod,h,movewindow,l" # Move window left
+      "$shiftMod,j,movewindow,d" # Move window down
+      "$shiftMod,k,movewindow,u" # Move window up
+      "$shiftMod,l,movewindow,r" # Move window right
+
+      # For arrows
       "$mod,left, movefocus, l" # Move focus left
-      "$mod,right, movefocus, r" # Move focus Right
-      "$mod,up, movefocus, u" # Move focus Up
-      "$mod,down, movefocus, d" # Move focus Down
-      "$shiftMod,up, focusmonitor, -1" # Focus previous monitor
-      "$shiftMod,down, focusmonitor, 1" # Focus next monitor
-      "$shiftMod,left, layoutmsg, addmaster" # Add to master
-      "$shiftMod,right, layoutmsg, removemaster" # Remove from master
+      "$mod,down, movefocus, d" # Move focus down
+      "$mod,up, movefocus, u" # Move focus up
+      "$mod,right, movefocus, r" # Move focus right
+
+      "$shiftMod,left,movewindow,l" # Move window left
+      "$shiftMod,down,movewindow,d" # Move window down
+      "$shiftMod,up,movewindow,u" # Move window up
+      "$shiftMod,right,movewindow,r" # Move window right
 
       "$mod,PRINT, exec, screenshot region" # Screenshot region
       ",PRINT, exec, screenshot monitor" # Screenshot monitor
       "$shiftMod,PRINT, exec, screenshot window" # Screenshot window
       "ALT,PRINT, exec, screenshot region swappy" # Screenshot region then edit
+      "$mod,A, exec,screenshot region swappy" # Screenshot region then edit
 
       "$shiftMod,T, exec, hyprpanel-toggle" # Toggle hyprpanel
-      "$shiftMod,C, exec, clipboard" # Clipboard picker with wofi
-      "$shiftMod,E, exec, ${pkgs.wofi-emoji}/bin/wofi-emoji" # Emoji picker with wofi
-      "$mod,F2, exec, night-shift" # Toggle night shift
-      "$mod,F3, exec, night-shift" # Toggle night shift
+      "$mod,V,exec,rofi-cliphist" # Clipboard history with rofi
+      "$shiftMod,E, exec, rofimoji -f geometric_shapes geometric_shapes_extended nerd_font emojis" # Nerdfont and emoji picker with rofi
+      "$mod,F2, exec, blue-light-filter" # Toggle blue light
     ] ++ (builtins.concatLists (builtins.genList (i:
-      let ws = i + 1;
+      let
+        ws = i + 1;
+        key = if ws == 10 then "0" else toString ws;
       in [
-        "$mod,code:1${toString i}, workspace, ${toString ws}"
-        "$mod SHIFT,code:1${toString i}, movetoworkspace, ${toString ws}"
-      ]) 9));
+        "$mod,${key}, split-workspace, ${toString ws}"
+        "$shiftMod,${key}, split-movetoworkspace, ${toString ws}"
+      ]) 10));
 
     bindm = [
-      "$mod,mouse:272, movewindow" # Move Window (mouse)
-      "$mod,R, resizewindow" # Resize Window (mouse)
+      "$mod,mouse:272, movewindow" # Move Window (mouse left click)
+      "$mod,mouse:273, resizewindow" # Resize Window (mouse right click)
     ];
 
     bindl = [
@@ -51,7 +67,11 @@
       ",XF86AudioPlay, exec, ${pkgs.playerctl}/bin/playerctl play-pause" # Play/Pause Song
       ",XF86AudioNext, exec, ${pkgs.playerctl}/bin/playerctl next" # Next Song
       ",XF86AudioPrev, exec, ${pkgs.playerctl}/bin/playerctl previous" # Previous Song
-      ",switch:Lid Switch, exec, ${pkgs.hyprlock}/bin/hyprlock" # Lock when closing Lid
+      ",switch:Lid Switch, exec, systemctl suspend" # Lock screen on lid closed (laptop)
+    ];
+
+    bindr = [
+      "SUPER, SUPER_L,exec, command-palette" # Command Palette
     ];
 
     bindle = [

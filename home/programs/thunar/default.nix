@@ -1,5 +1,5 @@
 # Thunar is a file explorer
-{ pkgs, config, ... }:
+{ pkgs, config, lib, ... }:
 let user = config.var.username;
 in {
   # ctrl + m to toggle the menubar
@@ -16,26 +16,30 @@ in {
 
   gtk = {
     iconTheme = {
-      name = "WhiteSur";
+      name = if config.stylix.polarity == "light" then
+        "WhiteSur-light"
+      else
+        "WhiteSur-dark";
       package = pkgs.whitesur-icon-theme.override {
         boldPanelIcons = true;
         alternativeIcons = true;
       };
     };
+    gtk3 = {
+      bookmarks = [
+        "file:///home/${user}/Downloads Downloads"
+        "file:///home/${user}/Pictures Pictures"
+        "file:///home/${user}/SyncthingMain SyncthingMain"
+        "file:///home/${user}/Workspace/dots dots"
+        "file:///home/${user}/Workspace Workspace"
+      ];
+    };
   };
 
   home.sessionVariables = {
+    DISPLAY = ":0";
     XDG_ICON_DIR = "${pkgs.whitesur-icon-theme}/share/icons/WhiteSur";
   };
-
-  # bookmarks for the side pane
-  gtk.gtk3.bookmarks = [
-    "file:///home/${user}/Downloads Downloads"
-    "file:///home/${user}/Pictures Pictures"
-    "file:///home/${user}/nextcloud Nextcloud"
-    "file:///home/${user}/.config/nixos NixOS"
-    "file:///home/${user}/dev Development"
-  ];
 
   home.file.".config/xarchiver/xarchiverrc".text = ''
     [xarchiver]
@@ -69,6 +73,7 @@ in {
     remove_files=false
   '';
 
+  home.file.".config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml".force = true;
   home.file.".config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml".text = ''
     <?xml version="1.0" encoding="UTF-8"?>
 

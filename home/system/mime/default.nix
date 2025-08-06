@@ -3,14 +3,14 @@ with lib;
 let
   defaultApps = {
     browser = [ "zen-beta.desktop" ];
-    text = [ "org.gnome.TextEditor.desktop" ];
+    text = [ "footclient nvim" ];
     image = [ "imv-dir.desktop" ];
     audio = [ "mpv.desktop" ];
     video = [ "mpv.desktop" ];
     directory = [ "thunar.desktop" ];
     office = [ "libreoffice.desktop" ];
     pdf = [ "zathura.desktop" ];
-    terminal = [ "kitty.desktop" ];
+    terminal = [ "foot.desktop" ];
     discord = [ "discord.desktop" ];
     archive = [ "xarchiver.desktop" ];
   };
@@ -78,11 +78,13 @@ let
     discord = [ "x-scheme-handler/discord" ];
   };
 
-  associations = with lists;
-    listToAttrs (flatten (mapAttrsToList
-      (key: map (type: attrsets.nameValuePair type defaultApps."${key}"))
-      mimeMap));
-in {
+  associations =
+    with lists;
+    listToAttrs (
+      flatten (mapAttrsToList (key: map (type: attrsets.nameValuePair type defaultApps."${key}")) mimeMap)
+    );
+in
+{
   xdg = {
     configFile."mimeapps.list".force = true;
     mimeApps = {

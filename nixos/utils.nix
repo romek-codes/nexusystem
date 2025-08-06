@@ -1,4 +1,9 @@
-{ pkgs, config, inputs, ... }:
+{
+  pkgs,
+  config,
+  inputs,
+  ...
+}:
 let
   hostname = config.var.hostname;
   keyboardLayout = config.var.keyboardLayout;
@@ -7,7 +12,8 @@ let
   defaultLocale = config.var.defaultLocale;
   extraLocale = config.var.extraLocale;
   autoUpgrade = config.var.autoUpgrade;
-in {
+in
+{
   networking.hostName = hostname;
 
   networking.networkmanager.enable = true;
@@ -17,22 +23,28 @@ in {
     enable = autoUpgrade;
     dates = "04:00";
     flake = "${configDir}";
-    flags = [ "--update-input" "nixpkgs" "--commit-lock-file" ];
+    flags = [
+      "--update-input"
+      "nixpkgs"
+      "--commit-lock-file"
+    ];
     allowReboot = false;
   };
 
-  time = { timeZone = timeZone; };
+  time = {
+    timeZone = timeZone;
+  };
   i18n.defaultLocale = defaultLocale;
   i18n.extraLocaleSettings = {
     LC_ADDRESS = extraLocale;
-    LC_IDENTIFICATION = extraLocale;
-    LC_MEASUREMENT = extraLocale;
+    LC_IDENTIFICATION = defaultLocale; # Changed to English
+    LC_MEASUREMENT = extraLocale; # Keep for metric
     LC_MONETARY = extraLocale;
     LC_NAME = extraLocale;
-    LC_NUMERIC = extraLocale;
-    LC_PAPER = extraLocale;
+    LC_NUMERIC = extraLocale; # Keep for metric decimal separators
+    LC_PAPER = extraLocale; # Keep for A4 paper
     LC_TELEPHONE = extraLocale;
-    LC_TIME = extraLocale;
+    LC_TIME = defaultLocale; # Changed to English for date formats
   };
 
   services = {
@@ -53,8 +65,8 @@ in {
     XDG_DATA_HOME = "$HOME/.local/share";
     PASSWORD_STORE_DIR = "$HOME/.local/share/password-store";
     EDITOR = "nvim";
-    TERMINAL = "kitty";
-    TERM = "kitty";
+    TERMINAL = "foot";
+    TERM = "foot";
     BROWSER = "zen-beta";
   };
 
@@ -64,11 +76,13 @@ in {
     dbus = {
       enable = true;
       implementation = "broker";
-      packages = with pkgs; [ gcr gnome-settings-daemon ];
+      packages = with pkgs; [
+        gcr
+        gnome-settings-daemon
+      ];
     };
     gvfs.enable = true;
     upower.enable = true;
-    power-profiles-daemon.enable = true;
     udisks2.enable = true;
   };
 
@@ -101,11 +115,14 @@ in {
     enable = true;
     xdgOpenUsePortal = true;
     config = {
-      common.default = [ "gtk" ];
-      hyprland.default = [ "gtk" "hyprland" ];
+      common.default = [ "hyprland" ];
+      hyprland.default = [
+        "gtk"
+        "hyprland"
+      ];
     };
 
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];
   };
 
   security = {

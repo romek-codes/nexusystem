@@ -1,58 +1,62 @@
 # Tmux is a terminal multiplexer that allows you to run multiple terminal sessions in a single window.
-{ pkgs, ... }:
+{ lib, pkgs, config, ... }:
 let
-  Config = pkgs.writeShellScriptBin "Config" ''
-    SESSION="Nixy Config"
+  dark = "#${config.lib.stylix.colors.base01}";
+  light = "#${config.lib.stylix.colors.base06}";
+  accent = "#${config.lib.stylix.colors.base0D}";
+  tmuxConf = lib.readFile ./tmux.conf;
+  # For overriding all the stylix styles.
+  styleConf = ''
+    set -g status-position bottom
+    set -g status-interval 5
+    set -g status-left "#{session_name} "
+    set -g status-left-length 50
+    set -g status-right "#{host} %H:%M"
+    set -g status-right-length 50
+    set -g window-status-format " #I|#W "
+    set -g window-status-current-format "#[fg=${accent},bg=${dark}] #I|#W* "
+    set-window-option -g window-status-style "fg=${light},bg=${dark}"
+    # bell
+    set-window-option -g window-status-bell-style "fg=${accent},bg=${dark}"
 
-    tmux has-session -t "$SESSION" 2>/dev/null
-
-    if [ $? == 0 ]; then
-      tmux attach -t "$SESSION"
-      exit 0
-    fi
-
-    tmux new-session -d -s "$SESSION"
-    tmux send-keys -t "$SESSION" "sleep 0.2 && clear && cd ~/.config/nixos/ && vim" C-m
-
-    tmux new-window -t "$SESSION" -n "nixy"
-    tmux send-keys -t "$SESSION":1 "sleep 0.2 && clear && cd ~/.config/nixos/ && nixy loop" C-m
-
-    tmux new-window -t "$SESSION" -n "lazygit"
-    tmux send-keys -t "$SESSION":2 "sleep 0.2 && clear && cd ~/.config/nixos/ && lazygit" C-m
-
-    tmux select-window -t "$SESSION":0
-    tmux select-pane -t 0
-    tmux attach -t "$SESSION"
+    # style for window titles with activity
+    set-window-option -g window-status-activity-style "fg=${accent},bg=${dark}"
   '';
+  fullTmuxConf = tmuxConf + styleConf;
 in {
+
   programs.tmux = {
     enable = true;
+    aggressiveResize = true;
     mouse = true;
     shell = "${pkgs.zsh}/bin/zsh";
-    prefix = "C-s";
-    terminal = "kitty";
+    baseIndex = 1;
+    escapeTime = 0;
     keyMode = "vi";
-
-    extraConfig = ''
-      bind-key h select-pane -L
-      bind-key j select-pane -D
-      bind-key k select-pane -U
-      bind-key l select-pane -R
-
-      set -gq allow-passthrough on
-      bind-key x kill-pane # skip "kill-pane 1? (y/n)" prompt
-
-      bind-key -n C-Tab next-window
-      bind-key -n C-S-Tab previous-window
-      bind-key -n M-Tab new-window
-    '';
+    clock24 = true;
+    extraConfig = lib.mkAfter fullTmuxConf;
+    terminal = "screen-256color";
 
     plugins = with pkgs; [
-      tmuxPlugins.vim-tmux-navigator
-      # tmuxPlugins.resurrect
+      {
+        plugin = tmuxPlugins.resurrect;
+        extraConfig = ''
+          set -g @resurrect-strategy-nvim 'session'
+          resurrect_dir=~/.tmux/resurrect/
+          set -g @resurrect-dir $resurrect_dir
+          set -g @resurrect-hook-post-save-all "sed -i 's| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/nix/store/.*/bin/||g' $(readlink -f $resurrect_dir/last)"
+        '';
+      }
+      tmuxPlugins.continuum
       tmuxPlugins.sensible
-      tmuxPlugins.tokyo-night-tmux
+      tmuxPlugins.yank
+      tmuxPlugins.tmux-which-key
     ];
   };
-  home.packages = [ Config ];
+
+  # stylix better looking status bar
+  home.sessionVariables = {
+    TINTED_TMUX_OPTION_ACTIVE = "1";
+    TINTED_TMUX_OPTION_STATUSBAR = "1";
+  };
 }
