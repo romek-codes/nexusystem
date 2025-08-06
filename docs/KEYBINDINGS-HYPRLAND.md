@@ -4,13 +4,15 @@
 > [!NOTE]
 > SUPER is the windows key by default
 
+### System
 | Description | Keybinding |
 | -- | -- |
+| Open Command Palette | SUPER |
 | Switch Workspace | SUPER + {Number} |
 | Move app to Workspace | SHIFT + SUPER + {Number} |
 | Terminal (footclient) | SUPER + RETURN |
 | File explorer (thunar) | SUPER + E |
-| Lock | $ctrlModL |
+| Lock | CTRL + SUPER + L |
 | Launch an app | SUPER + P |
 | Search opened windows | SUPER + TAB |
 | Search opened windows | ALTTAB |
@@ -28,3 +30,28 @@
 | Sound Down | XF86AudioLowerVolume |
 | Brightness Up | XF86MonBrightnessUp |
 | Brightness Down | XF86MonBrightnessDown |
+
+### Tmux
+| Description | Keybinding |
+| -- | -- |
+| Tmux open new window | CTRL + SPACE, C |
+| Tmux go to window | CTRL + SPACE, {Number} |
+| Tmux close window | CTRL + SPACE, {Number} |
+| Tmux search text in vim mode | CTRL + SPACE, [ |
+
+### Browser (vimium)
+| Description | Keybinding |
+| -- | -- |
+| Omnibar (vimium) | SHIFT + T |
+| In browser select text (vimium) | y, v |
+| Cursor mode (vimium) | c |
+| Copy (vimium) | y |
+| Scroll left/down/up/right (vimium) | h / j / k / l |
+| Open link (vimium) | f |
+| Open link in new tab (vimium) | SHIFT + F |
+| Search in page (vimium) | / |
+| Next / Previous search (vimium) | n / SHIFT + N |
+| Next / Previous search (vimium) | n / SHIFT + N |
+| Back / Forward page (vimium) | SHIFT + H / SHIFT + L |
+| Back / Forward page (vimium) | SHIFT + H / SHIFT + L |
+| New tab (vimium) | t |
