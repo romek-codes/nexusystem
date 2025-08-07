@@ -8,7 +8,7 @@
   config.var = {
     hostname = "work";
     username = "romek";
-    configDirectory = "/home/" + config.var.username + "/Workspace/dots"; # The path of the nixos configuration directory
+    configDirectory = "/home/" + config.var.username + "/Workspace/nexusystem"; # The path of the nixos configuration directory
 
     keyboardLayout = "us";
     extraKeyboardLayouts = ",de,pl";
