@@ -1,14 +1,14 @@
-{ config, lib, ... }:
-{
+{ config, lib, ... }: {
   imports = [
     # Choose your theme here:
-    ../../themes/pedro.nix
+    ../../themes/hazbin-hotel.nix
   ];
 
   config.var = {
     hostname = "lenovo-yoga";
     username = "romek";
-    configDirectory = "/home/" + config.var.username + "/Workspace/dots"; # The path of the nixos configuration directory
+    configDirectory = "/home/" + config.var.username
+      + "/Workspace/nexusystem"; # The path of the nixos configuration directory
 
     keyboardLayout = "us";
     extraKeyboardLayouts = ",de,pl";
