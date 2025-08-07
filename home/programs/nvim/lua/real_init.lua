@@ -144,6 +144,7 @@ require("lazy").setup({
 	ui = {
 		icons = {},
 	},
+	lockfile = vim.fn.stdpath("config") .. "/lua/lazy-lock.json",
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
