@@ -18,7 +18,35 @@
 | Search opened windows | ALTTAB |
 | Rofi-rbw (Bitwarden) | SUPER + B |
 | Calculator | SUPER + C |
-| Change keyboard layout | modSPACE |
+| Change keyboard layout | SUPER + SPACE |
+| Close window | SUPER + Q |
+| Toggle Floating | SUPER + T |
+| Toggle Fullscreen | SUPER + F |
+| Move focus left | SUPER + h |
+| Move focus down | SUPER + j |
+| Move focus up | SUPER + k |
+| Move focus right | SUPER + l |
+| Move window left | SHIFT + SUPER + h |
+| Move window down | SHIFT + SUPER + j |
+| Move window up | SHIFT + SUPER + k |
+| Move window right | SHIFT + SUPER + l |
+| Move focus left | SUPER + left |
+| Move focus down | SUPER + down |
+| Move focus up | SUPER + up |
+| Move focus right | SUPER + right |
+| Move window left | SHIFT + SUPER + left |
+| Move window down | SHIFT + SUPER + down |
+| Move window up | SHIFT + SUPER + up |
+| Move window right | SHIFT + SUPER + right |
+| Screenshot region | SUPER + PRINT |
+| Screenshot monitor | PRINT |
+| Screenshot window | SHIFT + SUPER + PRINT |
+| Screenshot region then edit | ALTPRINT |
+| Screenshot region then edit | SUPER + A |
+| Toggle hyprpanel | SHIFT + SUPER + T |
+| Clipboard history with rofi | SUPER + V |
+| Nerdfont and emoji picker with rofi | SHIFT + SUPER + E |
+| Toggle blue light | SUPER + F2 |
 | Move Window (mouse left click) | SUPER + mouse:272 |
 | Resize Window (mouse right click) | SUPER + mouse:273 |
 | Toggle Mute | XF86AudioMute |
