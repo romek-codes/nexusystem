@@ -14,14 +14,14 @@ let
     # bash 
     ''
       nmcli con up id ${id} passwd-file ${password-file}
-      notif "VPN" "VPN activated" "The OpenVPN connection to ${id} has been activated"
+      notify-send "VPN" "VPN activated" "The OpenVPN connection to ${id} has been activated"
     '';
 
   openvpn-down = pkgs.writeShellScriptBin "openvpn-down"
     # bash 
     ''
       nmcli con down id ${id}
-      notif "VPN" "VPN deactivated" "The OpenVPN connection to ${id} has been deactivated"
+      notify-send "VPN" "VPN deactivated" "The OpenVPN connection to ${id} has been deactivated"
     '';
 
   openvpn-toggle = pkgs.writeShellScriptBin "openvpn-toggle"

@@ -57,7 +57,6 @@
     lazydocker
     bruno # rest client
     # ranger # terminal file explorer
-    # ripgrep # fast grep
     # screenkey # shows keypresses on screen
   ];
 }

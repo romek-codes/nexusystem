@@ -6,13 +6,11 @@
       "$ctrlMod,L, exec,  uwsm app -- ${pkgs.hyprlock}/bin/hyprlock" # Lock
       "$mod,P, exec, app-menu" # Launch an app
 
-      "$mod,TAB,exec,rofi -modes run,window -show window" # Search opened windows
-      "ALT,TAB,exec,rofi -modes run,window -show window" # Search opened windows
+      "$mod,TAB,exec,opened-windows" # Search opened windows
+      "ALT,TAB,exec,opened-windows" # Search opened windows
       "$mod,B, exec, rofi-rbw" # Rofi-rbw (Bitwarden)
       "$mod,C,exec,rofi -show calc -modi calc -no-show-match -no-sort" # Calculator
-      ''
-        $mod,SPACE,exec,switch=$(hyprctl devices -j | jq -r '.keyboards[] | .active_keymap' | uniq -c | [ $(wc -l) -eq 1 ] && echo "next" || echo "0"); for device in $(hyprctl devices -j | jq -r '.keyboards[] | .name'); do hyprctl switchxkblayout $device $switch; done; activeKeymap=$(hyprctl devices -j | jq -r '.keyboards[0] | .active_keymap'); if [ $switch == "0" ]; then resetStr="(reset)"; else resetStr=""; fi; hyprctl notify -1 1500 0 "$activeKeymap $resetStr"; # Change keyboard layout
-      ''
+      "$mod,SPACE,exec,change-keyboard-layout" # Change keyboard layout
       "$mod,Q, killactive," # Close window
       "$mod,T, togglefloating," # Toggle Floating
       "$mod,F, fullscreen" # Toggle Fullscreen

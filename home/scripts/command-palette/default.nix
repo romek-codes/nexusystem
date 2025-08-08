@@ -202,7 +202,7 @@ let
       	change-keyboard-layout
       	command_found=1
       	elif [[ "$selected" == *"Toggle zen mode"* ]]; then
-      	hyprfocus-toggle
+      	zen-mode-toggle
       	command_found=1
       	elif [[ "$selected" == *"Network"* ]]; then
       	rofi-network-manager
@@ -278,12 +278,12 @@ let
           title="󰳙  Do not disturb activated"
           description="Do not disturb is now activated!"
           hyprpanel toggleDnd
-          notif "Zen mode" "$title" "$description"
+          notify-send "$title" "$description"
           hyprpanel toggleDnd
         else
           title="󰕦  Do not disturb deactivated"
           description="Do not disturb is now deactivated!"
-          notif "Zen mode" "$title" "$description"
+          notify-send "$title" "$description"
         fi
       	command_found=1
       	elif [[ "$selected" == *"Close window"* ]]; then

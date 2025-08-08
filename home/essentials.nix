@@ -1,10 +1,5 @@
 # Separate file for programs i want for iso.
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}: {
+{ pkgs, lib, config, ... }: {
   imports = [
     # Programs
     ./programs/foot
@@ -43,6 +38,7 @@
     pinentry-gnome3
 
     # Utils
+    libnotify
     zip
     unzip
     optipng
@@ -53,8 +49,7 @@
 
     gparted # partitions
     gnome-disk-utility # mounting iso
-    tldr # tldr manpages
     peazip # for zip and rar files
-    croc
+    croc # for sending files across devices
   ];
 }

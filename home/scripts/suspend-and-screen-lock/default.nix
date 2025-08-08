@@ -30,7 +30,7 @@ let
         description="Suspend and screen lock is now active! Your screen will turn off automatically."
       fi
 
-      notif "Suspend and screen lock" "$title" "$description"
+      notify-send "$title" "$description"
     '';
 
 in {

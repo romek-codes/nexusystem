@@ -296,6 +296,7 @@ return {
 			require("lazy-lsp").setup({
 				preferred_servers = {
 					php = { "phpactor" },
+					nix = { "nixd" },
 				},
 			})
 		end,

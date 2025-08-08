@@ -16,20 +16,20 @@ let
     # bash 
     ''
       ${pkgs.hyprsunset}/bin/hyprsunset -t ${value} &
-      title="󰖔  blue-light-filter Activated"
+      title="󰖔  Blue light filter activated"
       description="Blue light filter is now activated! Your screen will be warmer and easier on the eyes."
 
-      notif "blue-light-filter" "$title" "$description"
+      notify-send "$title" "$description"
     '';
 
   blue-light-filter-off = pkgs.writeShellScriptBin "blue-light-filter-off"
     # bash 
     ''
       pkill hyprsunset
-      title="󰖕  blue-light-filter Deactivated"
+      title="󰖕  Blue light filter deactivated"
       description="Blue light filter is now deactivated! Your screen will return to normal."
 
-      notif "blue-light-filter" "$title" "$description"
+      notify-send "$title" "$description"
     '';
 
   blue-light-filter = pkgs.writeShellScriptBin "blue-light-filter"

@@ -6,10 +6,9 @@
     ./brightness
     ./suspend-and-screen-lock
     ./hyprpanel
-    ./hyprfocus
+    ./zen-mode
     ./blue-light-filter
     ./screenshot
-    ./notification
     ./system
     ./openvpn
   ];
