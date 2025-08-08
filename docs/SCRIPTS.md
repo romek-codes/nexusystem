@@ -25,15 +25,6 @@ This module provides a set of scripts to control the brightness of the screen.
 
 
 
-## Hyprfocus
-
-A simple script to toggle focus on few windows in Hyprland.
-(disable gaps, border, shadow, opacity, etc.)
-
-- `hyprfocus-on` - Enable hyprfocus.
-- `hyprfocus-off` - Disable hyprfocus.
-- `hyprfocus-toggle` - Toggle hyprfocus.
-
 ## Hyprpanel
 
 Quick scripts to toggle, reload, hide & show hyprpanel.
@@ -42,8 +33,6 @@ Quick scripts to toggle, reload, hide & show hyprpanel.
 - `hyprpanel-show` - Show hyprpanel.
 - `hyprpanel-hide` - Hide hyprpanel.
 - `hyprpanel-reload` - Reload hyprpanel.
-
-
 
 ## OpenVPN
 
@@ -79,4 +68,13 @@ suspend-and-screen-lock is a simple script that toggles hypridle (disable suspen
 - `suspend-and-screen-lock` - Toggle hypridle.
 
 
+
+## Zen mode
+
+A simple script to toggle focus on few windows in Hyprland.
+(disable gaps, border, shadow, opacity, etc.)
+
+- `zen-mode-on` - Enable zen-mode.
+- `zen-mode-off` - Disable zen-mode.
+- `zen-mode-toggle` - Toggle zen-mode.
 
