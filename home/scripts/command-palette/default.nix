@@ -89,7 +89,7 @@ let
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Grab rogue windows" "window-restore-symbolic" ""
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
-      "Swap active workspaces" "window-restore-symbolic" ""
+      "Clear clipboard history" "document-cleanup-symbolic" ""
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Set brightness" "display-brightness-symbolic" "brightness sb screen display backlight"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
@@ -256,8 +256,8 @@ let
       	elif [[ "$selected" == *"Grab rogue windows"* ]]; then
       	hyprctl dispatch split:grabroguewindows
       	command_found=1
-      	elif [[ "$selected" == *"Swap active workspaces"* ]]; then
-      	hyprctl dispatch split:swapactiveworkspaces
+      	elif [[ "$selected" == *"Clear clipboard history"* ]]; then
+        cliphist wipe
       	command_found=1
       	elif [[ "$selected" == *"Set volume"* ]]; then
       	# Get volume value from user using rofi
