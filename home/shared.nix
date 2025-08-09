@@ -11,7 +11,6 @@
     ./system/zathura
     ./system/mime
     ./system/udiskie
-    ./system/cliphist
     ./system/php # Laravel <3
     # This will only be activated if withGames is set to true
     ./gaming.nix

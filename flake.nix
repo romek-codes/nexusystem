@@ -51,6 +51,9 @@
                 inherit (inputs.nixpkgs-old.legacyPackages.x86_64-linux)
                   gxml planify;
                 inherit (inputs.swww.packages.x86_64-linux) swww;
+                # Both of these are being overlayed to have support for --sensitive flag, to not save passwords to cliphist.
+                # Just take latest commit as release
+                # github.com/bugaevc/wl-clipboard/issues/260
                 wl-clipboard = prev.wl-clipboard.overrideAttrs (old: {
                   version = "24-04-25";
                   src = prev.fetchFromGitHub {
@@ -58,7 +61,18 @@
                     repo = "wl-clipboard";
                     rev = "aaa927ee7f7d91bcc25a3b68f60d01005d3b0f7f";
                     hash =
-                      "sha256-TQbx07vXjb1yNEaa80p+HbKKa58W2ICkY7QGA5PIvoM=";
+                      "sha256-V8JAai4gZ1nzia4kmQVeBwidQ+Sx5A5on3SJGSevrUU=";
+                  };
+                });
+                # github.com/fdw/rofi-rbw/commits/main/src/rofi_rbw/clipboarder/wlclip.py
+                # Reverted this feature because of no new release for wl-clipboard
+                rofi-rbw-wayland = prev.rofi-rbw-wayland.overrideAttrs (old: {
+                  src = prev.fetchFromGitHub {
+                    owner = "fdw";
+                    repo = "rofi-rbw";
+                    rev = "8d2834996c1b6e14bd5a284c87e705e79719ef8e";
+                    hash =
+                      "sha256-hhpzCehkQ1vsVJ3bwyvLZe9wIAXPLRuA6UclWihXwCg=";
                   };
                 });
               })

@@ -1,7 +1,7 @@
 { config, lib, ... }: {
   imports = [
     # Choose your theme here:
-    ../../themes/hazbin-hotel.nix
+    ../../themes/pedro.nix
   ];
 
   config.var = {

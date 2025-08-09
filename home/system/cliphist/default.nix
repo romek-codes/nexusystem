@@ -10,8 +10,7 @@ in {
   home.packages = with pkgs; [ cliphist rofi-cliphist ];
 
   wayland.windowManager.hyprland.settings.exec-once = [
-    # "wl-paste --type text --watch cliphist store # Stores only text data"
-    # "wl-paste --type image --watch cliphist store # Stores only image data"
-    "wl-paste --watch cliphist store"
+    "wl-paste --type text --watch cliphist store # Stores only text data"
+    "wl-paste --type image --watch cliphist store # Stores only image data"
   ];
 }
