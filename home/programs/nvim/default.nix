@@ -104,6 +104,7 @@
             markdown_inline
             bash
             regex
+            nix
           ])).dependencies;
       }
     }/parser";
