@@ -51,8 +51,8 @@
         ws = i + 1;
         key = if ws == 10 then "0" else toString ws;
       in [
-        "$mod,${key}, split-workspace, ${toString ws}"
-        "$shiftMod,${key}, split-movetoworkspace, ${toString ws}"
+        "$mod,${key}, split:workspace, ${toString ws}"
+        "$shiftMod,${key}, split:movetoworkspace, ${toString ws}"
       ]) 10));
 
     bindm = [

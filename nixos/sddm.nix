@@ -1,11 +1,5 @@
 # SDDM is a display manager for X11 and Wayland
-{
-  pkgs,
-  inputs,
-  config,
-  lib,
-  ...
-}:
+{ pkgs, inputs, config, lib, ... }:
 let
   foreground = config.theme.textColorOnWallpaper;
   background = config.theme.background;
@@ -14,13 +8,12 @@ let
   sddm-astronaut = pkgs.sddm-astronaut.override {
     embeddedTheme = "pixel_sakura";
     themeConfig = {
-      Background =
-        if animatedBackgroundImage != false then
-          "${toString animatedBackgroundImage}"
-        else if image != false then
-          "${toString image}"
-        else
-          "#${background}";
+      Background = if animatedBackgroundImage != false then
+        "${toString animatedBackgroundImage}"
+      else if image != false then
+        "${toString image}"
+      else
+        "#${background}";
       HeaderTextColor = "#${foreground}";
       DateTextColor = "#${foreground}";
       TimeTextColor = "#${foreground}";
@@ -37,8 +30,7 @@ let
       HighlightBackgroundColor = "#${foreground}";
     };
   };
-in
-{
+in {
   services.displayManager = {
     sddm = {
       package = pkgs.kdePackages.sddm;
@@ -46,14 +38,13 @@ in
       enable = true;
       wayland.enable = true;
       theme = "sddm-astronaut-theme";
-      settings = {
-        Wayland.SessionDir = "${inputs.hyprland.packages."${pkgs.system}".hyprland}/share/wayland-sessions";
-      };
+      # settings = {
+      #   Wayland.SessionDir = "${
+      #       inputs.hyprland.packages."${pkgs.system}".hyprland
+      #     }/share/wayland-sessions";
+      # };
     };
   };
 
   environment.systemPackages = [ sddm-astronaut ];
-
-  # To prevent getting stuck at shutdown
-  systemd.extraConfig = "DefaultTimeoutStopSec=10s";
 }

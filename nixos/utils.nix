@@ -1,9 +1,4 @@
-{
-  pkgs,
-  config,
-  inputs,
-  ...
-}:
+{ pkgs, config, inputs, ... }:
 let
   hostname = config.var.hostname;
   keyboardLayout = config.var.keyboardLayout;
@@ -12,8 +7,7 @@ let
   defaultLocale = config.var.defaultLocale;
   extraLocale = config.var.extraLocale;
   autoUpgrade = config.var.autoUpgrade;
-in
-{
+in {
   networking.hostName = hostname;
 
   networking.networkmanager.enable = true;
@@ -23,17 +17,11 @@ in
     enable = autoUpgrade;
     dates = "04:00";
     flake = "${configDir}";
-    flags = [
-      "--update-input"
-      "nixpkgs"
-      "--commit-lock-file"
-    ];
+    flags = [ "--update-input" "nixpkgs" "--commit-lock-file" ];
     allowReboot = false;
   };
 
-  time = {
-    timeZone = timeZone;
-  };
+  time = { timeZone = timeZone; };
   i18n.defaultLocale = defaultLocale;
   i18n.extraLocaleSettings = {
     LC_ADDRESS = extraLocale;
@@ -76,10 +64,7 @@ in
     dbus = {
       enable = true;
       implementation = "broker";
-      packages = with pkgs; [
-        gcr
-        gnome-settings-daemon
-      ];
+      packages = with pkgs; [ gcr gnome-settings-daemon ];
     };
     gvfs.enable = true;
     upower.enable = true;
@@ -116,10 +101,7 @@ in
     xdgOpenUsePortal = true;
     config = {
       common.default = [ "hyprland" ];
-      hyprland.default = [
-        "gtk"
-        "hyprland"
-      ];
+      hyprland.default = [ "gtk" "hyprland" ];
     };
 
     extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];

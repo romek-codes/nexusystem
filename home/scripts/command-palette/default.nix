@@ -87,6 +87,10 @@ let
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Jump to timestamp" "preferences-system-time-symbolic" "seek skip position timestamp jump media sound playerctl"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
+      "Grab rogue windows" "window-restore-symbolic" ""
+      printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
+      "Swap active workspaces" "window-restore-symbolic" ""
+      printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Set brightness" "display-brightness-symbolic" "brightness sb screen display backlight"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Clear notifications" "edit-clear-all-symbolic" "cn alerts notifications clear dismiss"
@@ -248,6 +252,12 @@ let
       	command_found=1
       	elif [[ "$selected" == *"Mute"* ]]; then
       	sound-toggle
+      	command_found=1
+      	elif [[ "$selected" == *"Grab rogue windows"* ]]; then
+      	hyprctl dispatch split:grabroguewindows
+      	command_found=1
+      	elif [[ "$selected" == *"Swap active workspaces"* ]]; then
+      	hyprctl dispatch split:swapactiveworkspaces
       	command_found=1
       	elif [[ "$selected" == *"Set volume"* ]]; then
       	# Get volume value from user using rofi

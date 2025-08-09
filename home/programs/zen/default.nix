@@ -1,17 +1,10 @@
-{
-  pkgs,
-  inputs,
-  lib,
-  config,
-  ...
-}:
+{ pkgs, inputs, lib, config, ... }:
 let
   customAddons = pkgs.callPackage ./addons.nix {
     inherit lib;
     inherit (inputs.firefox-addons.lib."x86_64-linux") buildFirefoxXpiAddon;
   };
-in
-{
+in {
   imports = [ inputs.zen-browser.homeModules.beta ];
 
   # config = {
@@ -24,8 +17,7 @@ in
       userContent = (import ./userContent.nix { inherit config; }).css;
       userChrome = (import ./userChrome.nix { inherit config; }).css;
 
-      extensions.packages =
-        with inputs.firefox-addons.packages."x86_64-linux";
+      extensions.packages = with inputs.firefox-addons.packages."x86_64-linux";
         [
           darkreader
           ublock-origin
@@ -37,11 +29,12 @@ in
           # decentraleyes
           # sidebery
           # firenvim
-        ]
-        ++ (with customAddons; [
-          # old-github-feed
-        ]);
+        ] ++ (with customAddons;
+          [
+            # old-github-feed
+          ]);
     };
+
     policies = {
       DisableAppUpdate = true;
       DisableTelemetry = true;

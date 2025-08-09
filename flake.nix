@@ -2,7 +2,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
-    hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
+    # // For some reason this is download version 0.50 while it should be 0.50.1? For now i'll just use nixpkgs version.
+    # hyprland.url = "github:hyprwm/Hyprland"; 
     hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
     stylix.url = "github:danth/stylix";
     apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
@@ -15,19 +16,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixvim = {
-      url = "github:nix-community/nixvim";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     spicetify-nix = {
       url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    split-monitor-workspaces = {
-      url = "github:Duckonaut/split-monitor-workspaces";
-      inputs.hyprland.follows = "hyprland";
-    };
-
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v0.4.2";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -55,11 +47,20 @@
         {
           nixpkgs = {
             overlays = [
-              inputs.hyprpanel.overlay
-              (_: _: {
+              (final: prev: {
                 inherit (inputs.nixpkgs-old.legacyPackages.x86_64-linux)
                   gxml planify;
                 inherit (inputs.swww.packages.x86_64-linux) swww;
+                wl-clipboard = prev.wl-clipboard.overrideAttrs (old: {
+                  version = "24-04-25";
+                  src = prev.fetchFromGitHub {
+                    owner = "bugaevc";
+                    repo = "wl-clipboard";
+                    rev = "aaa927ee7f7d91bcc25a3b68f60d01005d3b0f7f";
+                    hash =
+                      "sha256-TQbx07vXjb1yNEaa80p+HbKKa58W2ICkY7QGA5PIvoM=";
+                  };
+                });
               })
             ];
           };
@@ -72,10 +73,7 @@
     in {
       nixosConfigurations = {
         lenovo-yoga = nixpkgs.lib.nixosSystem {
-          modules = sharedModules ++ [
-            # inputs.nixos-hardware.nixosModules.omen-16-n0005ne # CHANGEME: check https://github.com/NixOS/nixos-hardware
-            ./hosts/lenovo-yoga/configuration.nix
-          ];
+          modules = sharedModules ++ [ ./hosts/lenovo-yoga/configuration.nix ];
         };
 
         meshify = nixpkgs.lib.nixosSystem {
@@ -86,7 +84,6 @@
           modules = sharedModules ++ [ ./hosts/work/configuration.nix ];
         };
 
-        # For generating an iso
         iso = nixpkgs.lib.nixosSystem {
           modules = sharedModules ++ [ ./hosts/iso/configuration.nix ];
         };
