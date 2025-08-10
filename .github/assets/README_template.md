@@ -148,6 +148,6 @@ Special thanks to the amazing people who made this configuration possible:
 
 - **[gvolpe](https://github.com/gvolpe)** - For helping me dive into the Nix ecosystem. His [configuration](https://github.com/gvolpe/nix-config) was the first I used and modified to create my [own](https://github.com/romek-codes/nix-config), serving as my gateway into the world of declarative system management.
 
-- **[anotherhadi](https://github.com/anotherhadi)** - For the beautiful foundation that became this configuration. His [dots repository](https://github.com/anotherhadi/dots) provided the elegant base that I've built upon and customized.
+- **[anotherhadi](https://github.com/anotherhadi)** - For the beautiful foundation that became this configuration. His [config](https://github.com/anotherhadi/nixy) provided the elegant base that I've built upon and customized.
 
 This project stands on the shoulders of these contributors and the broader NixOS community. 🙏
