@@ -4,8 +4,7 @@ let
   username = config.var.git.username;
   email = config.var.git.email;
   signingKey = config.var.git.signingKey;
-in
-{
+in {
   programs.git = {
     enable = true;
     userName = username;
@@ -35,6 +34,8 @@ in
     };
     aliases = { };
   };
+
+  home.packages = with pkgs; [ git-lfs ];
 
   programs.gpg.enable = true;
 

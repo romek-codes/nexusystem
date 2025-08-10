@@ -18,7 +18,7 @@
 
   home.packages = with pkgs; [
     # Apps
-    vlc # Video player
+    mpv # Video player
     blanket # White-noise app
     obsidian # Note taking app
     planify # Todolistsphp

@@ -9,7 +9,7 @@ Create a copy of one of the existing themes and change the variables.
 
 ## Gallery
 
-### Pedro
+### Example theme
 
 ![nvim / yt music](../.github/assets/images/nvim-yt-music.png)
 ![zen browser / command palette](../.github/assets/images/zen-browser-and-command-palette.png)

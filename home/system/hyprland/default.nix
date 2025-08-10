@@ -67,6 +67,7 @@ in {
       "$ctrlMod" = "SUPERCTRL";
 
       exec-once = [
+        "uwsm app -- ${pkgs.hyprlock}/bin/hyprlock" # pseudo display manager
         "dbus-update-activation-environment --systemd --all &"
         "systemctl --user enable --now hyprpaper.service &"
         "systemctl --user enable --now hypridle.service &"

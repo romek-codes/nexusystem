@@ -21,7 +21,7 @@ let
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Color picker" "color-picker" "cp pick color hex rgb design development"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
-      "File explorer (SUPER + E)" "system-file-manager" "fe files browse folder directory thunar manager explorer"
+      "File explorer (SUPER + E)" "system-file-manager" "browse folder directory thunar manager"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Search open windows (SUPER/ALT + TAB)" "window_list" "sow window switcher"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
