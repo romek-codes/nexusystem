@@ -2,14 +2,14 @@
 # Display informations like workspaces, battery, wifi, ...
 { inputs, config, lib, ... }:
 let
-  transparentButtons = config.theme.bar.transparentButtons;
+  transparentButtons = config.theme.bar-transparentButtons;
 
   accent = "#${config.lib.stylix.colors.base0D}";
   accent-alt = "#${config.lib.stylix.colors.base03}";
   background = "#${config.lib.stylix.colors.base00}";
   background-alt = "#${config.lib.stylix.colors.base01}";
   foreground = "#${config.lib.stylix.colors.base05}";
-  foregroundOnWallpaper = "#${config.theme.textColorOnWallpaper}";
+  foregroundOnWallpaper = "#${config.lib.stylix.colors.base06}";
   font = "${config.stylix.fonts.serif.name}";
   fontSizeForHyprpanel = "${toString config.stylix.fonts.sizes.desktop}px";
 
@@ -19,9 +19,9 @@ let
   gaps-out = config.theme.gaps-out;
   gaps-in = config.theme.gaps-in;
 
-  floating = config.theme.bar.floating;
-  transparent = config.theme.bar.transparent;
-  position = config.theme.bar.position; # "top" ou "bottom"
+  floating = config.theme.bar-floating;
+  transparent = config.theme.bar-transparent;
+  position = config.theme.bar-position; # "top" ou "bottom"
 
   notificationOpacity = 90;
 

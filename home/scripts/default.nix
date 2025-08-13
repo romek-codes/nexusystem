@@ -1,6 +1,7 @@
 {
   imports = [
     ./command-palette
+    ./reload-theme
     ./rofi-nix-helper
     ./sounds
     ./brightness

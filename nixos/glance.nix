@@ -31,12 +31,7 @@ in {
     glance = {
       enable = true;
       settings = {
-        theme = {
-          # TODO: Maybe theming?
-          # background-color = rgb-to-hsl "base0D";
-          # primary-color = rgb-to-hsl "base0D";
-          contrast-multiplier = lib.mkForce 1.4;
-        };
+        theme = { contrast-multiplier = lib.mkForce 1.4; };
         pages = [{
           hide-desktop-navigation = true;
           columns = [

@@ -3,7 +3,7 @@
     bind = [
       "$mod,RETURN, exec, footclient" # Terminal (footclient)
       "$mod,E, exec,  uwsm app -- ${pkgs.xfce.thunar}/bin/thunar" # File explorer (thunar)
-      "$ctrlMod,L, exec,  uwsm app -- ${pkgs.hyprlock}/bin/hyprlock" # Lock
+      "$ctrlMod,L, exec, lock"
       "$mod,P, exec, app-menu" # Launch an app
 
       "$mod,TAB,exec,opened-windows" # Search opened windows

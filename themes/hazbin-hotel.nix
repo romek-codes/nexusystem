@@ -2,8 +2,10 @@
   options.theme = lib.mkOption {
     type = lib.types.attrs;
     default = {
-      animatedBackgroundImage = false;
-      image = ../home/system/wallpaper/hazbin-hotel.jpeg;
+      backgroundImage = ../home/system/wallpaper/hazbin-hotel.jpeg;
+      # Will be generated from background image if empty
+      base16Scheme = null;
+      polarity = "dark";
       rounding = 10;
       gaps-in = 8;
       gaps-out = 16;
@@ -11,17 +13,13 @@
       inactive-opacity = 0.86;
       blur = true;
       border-size = 3;
-      animation-speed = "fast";
-      fetch = "none";
-      textColorOnWallpaper = config.lib.stylix.colors.base06;
-      background = config.lib.stylix.colors.base00;
+      animation-speed = "fast"; # "fast" | "medium" | "slow"
+      fetch = "none"; # "nerdfetch" | "neofetch" | "pfetch" | "none"
 
-      bar = {
-        position = "top";
-        transparent = true;
-        transparentButtons = false;
-        floating = true;
-      };
+      bar-position = "top"; # "top" | "bottom"
+      bar-transparent = true;
+      bar-transparentButtons = false;
+      bar-floating = true;
 
       plymouth = {
         enable = true;
@@ -29,42 +27,21 @@
         themePackages = with pkgs;
           [ (callPackage ./plymouth-themes/pedro-raccoon.nix { }) ];
       };
+
+      cursor-name = "phinger-cursors-light";
+      cursor-package = pkgs.phinger-cursors;
+      cursor-size = 20;
+      font-monospace-package = pkgs.nerd-fonts.jetbrains-mono;
+      font-monospace-name = "JetBrains Mono Nerd Font";
+      font-sansSerif-package = pkgs.source-sans-pro;
+      font-sansSerif-name = "Source Sans Pro";
+      font-emoji-package = pkgs.noto-fonts-emoji;
+      font-emoji-name = "Noto Color Emoji";
+      font-size-applications = 13;
+      font-size-desktop = 13;
+      font-size-popups = 13;
+      font-size-terminal = 13;
     };
     description = "Theme configuration options";
-  };
-
-  config.stylix = {
-    enable = true;
-    polarity = "dark";
-
-    cursor = {
-      name = "phinger-cursors-light";
-      package = pkgs.phinger-cursors;
-      size = 20;
-    };
-
-    fonts = {
-      monospace = {
-        package = pkgs.nerd-fonts.jetbrains-mono;
-        name = "JetBrains Mono Nerd Font";
-      };
-      sansSerif = {
-        package = pkgs.source-sans-pro;
-        name = "Source Sans Pro";
-      };
-      serif = config.stylix.fonts.sansSerif;
-      emoji = {
-        package = pkgs.noto-fonts-emoji;
-        name = "Noto Color Emoji";
-      };
-      sizes = {
-        applications = 13;
-        desktop = 13;
-        popups = 13;
-        terminal = 13;
-      };
-    };
-
-    image = config.theme.image;
   };
 }

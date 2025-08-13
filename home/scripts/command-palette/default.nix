@@ -1,5 +1,11 @@
-{ pkgs, ... }:
+{ pkgs, config, lib, ... }:
 let
+  helpers = import ../../../helpers { inherit lib; };
+  mainBrowser = builtins.head config.var.browsers;
+  mainBrowserIcon = helpers.getOrBasename helpers.browserIconMap mainBrowser;
+  mainBrowserBinary =
+    helpers.getOrBasename helpers.browserBinaryMap mainBrowser;
+
   commandPalette = pkgs.writeShellScriptBin "command-palette"
     # bash
     ''
@@ -9,7 +15,7 @@ let
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Nix helper" "nix-snowflake" "update upgrade clean rebuild system"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
-      "Open browser" "zen-browser" "zen firefox chrome web internet"
+      "Open browser" "${mainBrowserIcon}" "zen firefox chrome web internet"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Bitwarden (SUPER + B)" "bitwarden" "rbw bw passwords login auth security"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
@@ -36,6 +42,8 @@ let
       "Optimize disk space" "disk-usage-analyzer" "cw storage cleanup disk free space qdirstat"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Toggle suspend & screenlock" "caffeine" "sleep"
+      printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
+      "Reload theme" "style" "color wallpaper style"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Toggle VPN" "application-x-openvpn-profile" "security privacy network"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
@@ -122,7 +130,8 @@ let
       	footclient
       	command_found=1
       	elif [[ "$selected" == *"Open browser"* ]]; then
-      	uwsm app -- $BROWSER
+        # Not using $BROWSER variable here as it doesnt update directly if modified, needs pc reload, this will be instant after rebuild.
+      	uwsm app -- ${mainBrowserBinary}
       	command_found=1
       	elif [[ "$selected" == *"Optimize disk space"* ]]; then
       	uwsm app -- ${pkgs.qdirstat}/bin/qdirstat
@@ -181,6 +190,9 @@ let
       	elif [[ "$selected" == *"Color picker"* ]]; then
       	sleep 0.2 && hyprpicker -a
       	command_found=1
+      	elif [[ "$selected" == *"Reload theme"* ]]; then
+      	reload-theme
+      	command_found=1
       	elif [[ "$selected" == *"Toggle VPN"* ]]; then
       	openvpn-toggle
       	command_found=1
@@ -200,7 +212,7 @@ let
       	uwsm app -- ${pkgs.xfce.thunar}/bin/thunar
       	command_found=1
       	elif [[ "$selected" == *"Lock screen"* ]]; then
-      	uwsm app -- ${pkgs.hyprlock}/bin/hyprlock
+        lock
       	command_found=1
       	elif [[ "$selected" == *"Change keyboard layout"* ]]; then
       	change-keyboard-layout

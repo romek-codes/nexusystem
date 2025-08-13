@@ -1,5 +1,6 @@
-{ pkgs, config, inputs, ... }:
+{ pkgs, config, inputs, lib, ... }:
 let
+  helpers = import ../helpers { inherit lib; };
   hostname = config.var.hostname;
   keyboardLayout = config.var.keyboardLayout;
   configDir = config.var.configDirectory;
@@ -7,6 +8,11 @@ let
   defaultLocale = config.var.defaultLocale;
   extraLocale = config.var.extraLocale;
   autoUpgrade = config.var.autoUpgrade;
+  mainBrowser = builtins.head config.var.browsers;
+  mainBrowserBinary =
+    helpers.getOrBasename helpers.browserBinaryMap mainBrowser;
+  mainEditor = builtins.head config.var.editors;
+  mainEditorBinary = helpers.getOrBasename helpers.editorBinaryMap mainEditor;
 in {
   networking.hostName = hostname;
 
@@ -52,10 +58,10 @@ in {
   environment.variables = {
     XDG_DATA_HOME = "$HOME/.local/share";
     PASSWORD_STORE_DIR = "$HOME/.local/share/password-store";
-    EDITOR = "nvim";
+    EDITOR = mainEditorBinary;
     TERMINAL = "foot";
     TERM = "foot";
-    BROWSER = "zen-beta";
+    BROWSER = mainBrowserBinary;
   };
 
   services.libinput.enable = true;

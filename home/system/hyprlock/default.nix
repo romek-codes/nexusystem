@@ -1,17 +1,10 @@
 # Hyprlock is a lockscreen for Hyprland
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, lib, pkgs, ... }:
 let
-  foreground = "rgba(${config.theme.textColorOnWallpaper}ee)";
+  helpers = import ../../../helpers { inherit lib; };
+  foreground = "rgba(${config.lib.stylix.colors.base06}ee)";
   font = config.stylix.fonts.serif.name;
-  image = config.theme.image;
-  animatedBackgroundImage = config.theme.animatedBackgroundImage;
-in
-{
+in {
 
   programs.hyprlock = {
     enable = true;
@@ -21,49 +14,65 @@ in
         no_fade_in = false;
         disable_loading_bar = false;
         hide_cursor = true;
-        before_sleep_cmd = "uwsm app -- ${pkgs.hyprlock}/bin/hyprlock";
+        before_sleep_cmd = "lock";
       };
 
-      # BACKGROUND
-      background = {
-        path =
-          if animatedBackgroundImage != false then
-            # Use screenshot as animated images are not supported
-            lib.mkForce "screenshot"
-          else if image != false then
-            lib.mkForce "${toString image}"
-          else
-            lib.mkForce "screenshot";
-        monitor = "";
-        blur_passes = 2;
-        blur_size = 5;
-        noise = "0.0117";
-        contrast = 0.8916;
-        brightness = 0.3;
-        vibrancy = 0.1696;
-        vibrancy_darkness = 0.0;
-      };
+      # Hyprlock background configuration using helpers
+      background = let bgImage = config.theme.backgroundImage;
+      in if !helpers.isEmpty bgImage then
+        if !helpers.isStaticImage bgImage then
+        # Transparent background for animated wallpapers (handled by mpvpaper)
+          lib.mkForce {
+            color = "rgba(0, 0, 0, 0.5)";
+            noise = "0.0";
+          }
+        else
+        # Static image with effects
+        {
+          path = lib.mkForce (toString bgImage);
+          monitor = "";
+          blur_passes = 2;
+          blur_size = 5;
+          noise = "0.0117";
+          contrast = 0.8916;
+          brightness = 0.3;
+          vibrancy = 0.1696;
+          vibrancy_darkness = 0.0;
+        }
+      else
+      # Fallback to screenshot when no background is configured
+        lib.mkForce {
+          path = "screenshot";
+          monitor = "";
+          blur_passes = 2;
+          blur_size = 5;
+          noise = "0.0117";
+          contrast = 0.8916;
+          brightness = 0.3;
+          vibrancy = 0.1696;
+          vibrancy_darkness = 0.0;
+        };
 
       label = [
+        # Date
         {
-          # Day-Month-Date
           monitor = "";
-          text = ''cmd[update:1000] echo -e "$(date +"%A, %B %d")"'';
+          text = ''cmd[update:1000] echo -e "$(date +"%d.%m.%Y, %A")"'';
           color = foreground;
-          font_size = 28;
+          font_size = 36;
           font_family = font + " Bold";
-          position = "0, 490";
+          position = "0, 500";
           halign = "center";
           valign = "center";
         }
-        # Time
+        # Time  
         {
           monitor = "";
-          text = ''cmd[update:1000] echo "<span>$(date +"%I:%M")</span>"'';
+          text = ''cmd[update:1000] echo "<span>$(date +"%H:%M:%S")</span>"'';
           color = foreground;
-          font_size = 160;
-          font_family = "steelfish outline regular";
-          position = "0, 370";
+          font_size = 90;
+          font_family = font + " Bold";
+          position = "0, 420";
           halign = "center";
           valign = "center";
         }
@@ -78,7 +87,7 @@ in
           dots_center = true;
           font_size = 18;
           font_family = font + " Bold";
-          position = "0, -180";
+          position = "0, 0";
           halign = "center";
           valign = "center";
         }
@@ -92,14 +101,14 @@ in
         dots_size = 0.2; # Scale of input-field height, 0.2 - 0.8
         dots_spacing = 0.2; # Scale of dots' absolute size, 0.0 - 1.0
         dots_center = true;
-        outer_color = "rgba(25, 25, 25, 0)";
-        inner_color = "rgba(25, 25, 25, 0.1)";
+        outer_color = "rgba(0, 0, 0, 0)";
+        inner_color = "rgba(0, 0, 0, 0)";
         font_color = foreground;
         fade_on_empty = false;
         font_family = font + " Bold";
         placeholder_text = "";
         hide_input = false;
-        position = "0, -250";
+        position = "0, -70";
         halign = "center";
         valign = "center";
       };

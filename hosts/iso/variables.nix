@@ -1,14 +1,14 @@
-{ config, lib, ... }:
-{
+{ config, lib, ... }: {
   imports = [
     # Choose your theme here:
-    ../../themes/colorful_sliced.nix
+    ../../themes/colorful-sliced.nix
   ];
 
   config.var = {
     hostname = "ISO";
     username = "MY-USER";
-    configDirectory = "/home/" + config.var.username + "/Workspace/dots"; # The path of the nixos configuration directory
+    configDirectory = "/home/" + config.var.username
+      + "/Workspace/dots"; # The path of the nixos configuration directory
 
     keyboardLayout = "us";
     extraKeyboardLayouts = ",de,pl";
@@ -29,8 +29,7 @@
     isLaptop = true;
     withGames = false;
 
-    monitorConfig = [
-    ];
+    monitorConfig = [ ];
   };
 
   # Let this here

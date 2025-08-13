@@ -1,6 +1,7 @@
 # So best window tiling manager
 { pkgs, config, inputs, lib, ... }:
 let
+  helpers = import ../../../helpers { inherit lib; };
   border-size = config.theme.border-size;
   gaps-in = config.theme.gaps-in;
   gaps-out = config.theme.gaps-out;
@@ -67,13 +68,15 @@ in {
       "$ctrlMod" = "SUPERCTRL";
 
       exec-once = [
-        "uwsm app -- ${pkgs.hyprlock}/bin/hyprlock" # pseudo display manager
+        "lock" # pseudo display manager
         "dbus-update-activation-environment --systemd --all &"
-        "systemctl --user enable --now hyprpaper.service &"
         "systemctl --user enable --now hypridle.service &"
-        "systemctl --user enable --now hypridle.service &"
-        "foot --server"
-      ];
+        "foot --server & echo $! > /tmp/foot-server.pid"
+      ] ++ (if (!helpers.isEmpty config.theme.backgroundImage)
+      && (helpers.isStaticImage config.theme.backgroundImage) then
+        [ "systemctl --user enable --now hyprpaper.service &" ]
+      else
+        [ ]);
 
       monitor = [
         ",prefered,auto,1" # default for when monitor is not yet defined
@@ -154,6 +157,7 @@ in {
         disable_autoreload = true;
         focus_on_activate = true;
         new_window_takes_over_fullscreen = 2;
+        session_lock_xray = true; # Allows to see mpv background in hyprlock
       };
 
       windowrule = [
@@ -196,15 +200,6 @@ in {
         "center, class:^(.*jetbrains.*)$, title:^(Confirm Exit|Open Project|win424|win201|splash)$"
         "size 640 400, class:^(.*jetbrains.*)$, title:^(splash)$"
       ];
-
-      # TODO: This causes workspaces 2 and 10 to open on my left vertical monitor,
-      # probably need to define which is the main monitor?
-      # workspace = [
-      #   "name:1,desc:Acer Technologies X28 ##GTIYMxgwAAt+" # doesnt work?
-      #   "1,on-created-empty:uwsm app -- ${pkgs.zen-beta-bin}/bin/zen-beta"
-      #   "2,on-created-empty:uwsm app -- ${pkgs.kitty}/bin/kitty"
-      #   "10,on-created-empty:uwsm app -- ${pkgs.kitty}/bin/kitty btop"
-      # ];
 
       layerrule = [ "noanim, launcher" "noanim, ^ags-.*" ];
 
