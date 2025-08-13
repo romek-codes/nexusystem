@@ -12,7 +12,7 @@
 | Move app to Workspace | SHIFT + SUPER + {Number} |
 | Terminal (footclient) | SUPER + RETURN |
 | File explorer (thunar) | SUPER + E |
-| Lock | CTRL + SUPER + L |
+| $ctrlMod,L, exec, lock" | CTRL + SUPER + L |
 | Launch an app | SUPER + P |
 | Search opened windows | SUPER + TAB |
 | Search opened windows | ALTTAB |
