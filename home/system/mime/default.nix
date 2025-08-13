@@ -1,9 +1,18 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, config, ... }:
 with lib;
 let
+  helpers = import ../../../helpers { inherit lib; };
+
+  mainBrowser = builtins.head config.var.browsers;
+  mainBrowserBinary =
+    helpers.getOrBasename helpers.browserBinaryMap mainBrowser;
+
+  mainEditor = builtins.head config.var.editors;
+  mainEditorBinary = helpers.getOrBasename helpers.editorBinaryMap mainEditor;
+
   defaultApps = {
-    browser = [ "zen-beta.desktop" ];
-    text = [ "footclient nvim" ];
+    browser = [ "${mainBrowserBinary}.desktop" ];
+    text = [ "${mainEditorBinary}.desktop" ];
     image = [ "imv-dir.desktop" ];
     audio = [ "mpv.desktop" ];
     video = [ "mpv.desktop" ];
@@ -78,13 +87,11 @@ let
     discord = [ "x-scheme-handler/discord" ];
   };
 
-  associations =
-    with lists;
-    listToAttrs (
-      flatten (mapAttrsToList (key: map (type: attrsets.nameValuePair type defaultApps."${key}")) mimeMap)
-    );
-in
-{
+  associations = with lists;
+    listToAttrs (flatten (mapAttrsToList
+      (key: map (type: attrsets.nameValuePair type defaultApps."${key}"))
+      mimeMap));
+in {
   xdg = {
     configFile."mimeapps.list".force = true;
     mimeApps = {

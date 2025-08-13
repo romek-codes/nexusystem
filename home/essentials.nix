@@ -1,19 +1,17 @@
-# Separate file for programs i want for iso.
+# Only modify this file and included programs if you know what you're doing.
+# Otherwise i recommend modifying home/shared.nix
 { pkgs, lib, config, ... }: {
   imports = [
     # Programs
+    ./programs/browsers
+    ./programs/editors
+    ./programs/musicApps
     ./programs/foot
     ./programs/nh
-    ./programs/nvim
     ./programs/shell
     ./programs/fetch
     ./programs/git
-    # You can use firefox instead if you prefer.
-    # ./programs/firefox
-    ./programs/zen
     ./programs/thunar
-    ./programs/lazygit
-    ./programs/btop
 
     # Scripts
     ./scripts # All scripts
@@ -27,15 +25,19 @@
     ./system/mime
     ./system/udiskie
     ./system/cliphist
+    ./system/zathura # PDF Viewer
 
-    # Hyprpaper for stylix and static wallpapers, swww for animated wallpapers.
+    # Hyprpaper for stylix and static wallpapers, mpvpaper for animated wallpapers.
     ./system/wallpaper
+    # This will only be activated if withGames is set to true
+    ./gaming.nix
   ];
 
   home.packages = with pkgs; [
     # Apps
     rbw # Password manager
     pinentry-gnome3
+    planify # Todos / Todoist
 
     # Utils
     libnotify
@@ -50,6 +52,8 @@
     gparted # partitions
     gnome-disk-utility # mounting iso
     peazip # for zip and rar files
-    croc # for sending files across devices
+    qdirstat # Storage management
+    resources # Task manager
+    notepadqq # Notepad++
   ];
 }

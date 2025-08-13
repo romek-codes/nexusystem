@@ -1,7 +1,5 @@
-{ pkgs, config, specialArgs, inputs, ... }:
+{ pkgs, config, lib, inputs, ... }:
 let
-  # TODO: Setup extensions
-  # TODO: Setup theme from stylix
   #inherit (specialArgs) addons;
 
   #extensions = with addons;
@@ -75,10 +73,10 @@ let
     "general.autoScroll" = true;
     "general.useragent.locale" = "en-US";
 
-    "extensions.activeThemeID" = "nightfox-carbon-darker@mozilla.org";
+    # "extensions.activeThemeID" = "nightfox-carbon-darker@mozilla.org";
 
-    "extensions.extensions.activeThemeID" =
-      "nightfox-carbon-darker@mozilla.org";
+    # "extensions.extensions.activeThemeID" =
+    #   "nightfox-carbon-darker@mozilla.org";
     "extensions.update.enabled" = false;
     "extensions.webcompat.enable_picture_in_picture_overrides" = true;
     "extensions.webcompat.enable_shims" = true;
@@ -108,53 +106,63 @@ let
 in {
   imports = [ inputs.textfox.homeManagerModules.default ];
 
-  # For webdev & testing
-  programs.chromium.enable = true;
+  config = lib.mkIf (builtins.elem "firefox" config.var.browsers) {
+    programs.firefox = {
+      enable = true;
 
-  programs.firefox = {
-    enable = true;
-
-    package = pkgs.firefox-beta-bin;
-
-    profiles = {
-      default = {
+      profiles.default = {
         id = 0;
-        inherit settings userChrome;
-      };
-      #extensions 
 
-      sxm = {
-        id = 3;
-        inherit settings userChrome;
-        #extensions 
+        userContent = (import ./userContent.nix { inherit config; }).css;
+        userChrome = (import ./userChrome.nix { inherit config; }).css;
+
+        extensions.packages =
+          with inputs.firefox-addons.packages."x86_64-linux";
+          [
+            darkreader
+            ublock-origin
+            vimium-c
+            vue-js-devtools
+            # onetab
+            # firefox-color
+            # firefox-translations
+            # decentraleyes
+            # sidebery
+            # firenvim
+          ] ++ (with customAddons;
+            [
+              # old-github-feed
+            ]);
       };
     };
-  };
 
-  textfox = {
-    enable = true;
-    profile = "default";
-    config = {
-      background = { color = "#0C0C0C"; };
-      border = {
-        color = "#0C0C0C";
-        width = "2px";
-        transition = "0.2s ease";
-        radius = "0px";
-      };
-      displayWindowControls = false;
-      displayNavButtons = true;
-      displayUrlbarIcons = true;
-      displaySidebarTools = true;
-      displayTitles = true;
-      newtabLogo = "romek.codes";
-      font = {
-        family = "SF Mono";
-        size = "14px";
-        accent = "#f2f4f8";
-      };
-      tabs.vertical.margin = "0.5rem";
-    };
+    # https://github.com/adriankarlen/textfox
+    # TODO: Broken right now, when this is merged should work again.
+    # github.com/adriankarlen/textfox/pull/151
+    # textfox = {
+    #   enable = true;
+    #   profile = "default";
+    #   config = {
+    #     background = { color = "#${config.lib.stylix.colors.base00}"; };
+    #     border = {
+    #       color = "#${config.lib.stylix.colors.base00}";
+    #       width = "2px";
+    #       transition = "0.2s ease";
+    #       radius = "0px";
+    #     };
+    #     displayWindowControls = false;
+    #     displayNavButtons = true;
+    #     displayUrlbarIcons = true;
+    #     displaySidebarTools = true;
+    #     displayTitles = true;
+    #     newtabLogo = "Hi ${config.var.username}";
+    #     font = {
+    #       family = "SF Mono";
+    #       size = "14px";
+    #       accent = "#${config.lib.stylix.colors.base0D}";
+    #     };
+    #     tabs.vertical.margin = "0.5rem";
+    #   };
+    # };
   };
-
 }

@@ -1,8 +1,5 @@
 { config, lib, ... }: {
-  imports = [
-    # Choose your theme here:
-    ../../themes/cat_rain.nix
-  ];
+  imports = [ ../../themes/example.nix ];
 
   config.var = {
     hostname = "lenovo-yoga";

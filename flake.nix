@@ -7,7 +7,6 @@
     hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
     stylix.url = "github:danth/stylix";
     apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
-    # nixcord.url = "github:kaylorben/nixcord"; #TODO: Maybe get this working properly sometime else, this just keeps causing issues.
     sops-nix.url = "github:Mic92/sops-nix";
     nixarr.url = "github:rasmus-kirk/nixarr";
     anyrun.url = "github:fufexan/anyrun/launch-prefix";
@@ -34,11 +33,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # TODO: Remove when fixed
-    nixpkgs-old.url =
-      "github:NixOS/nixpkgs/?rev=c792c60b8a97daa7efe41a6e4954497ae410e0c1";
+    nurpkgs.url = "github:nix-community/NUR";
 
-    swww.url = "github:LGFae/swww";
+    # # TODO: Remove when fixed
+    # nixpkgs-old.url =
+    #   "github:NixOS/nixpkgs/?rev=c792c60b8a97daa7efe41a6e4954497ae410e0c1";
   };
 
   outputs = inputs@{ nixpkgs, ... }:
@@ -48,9 +47,8 @@
           nixpkgs = {
             overlays = [
               (final: prev: {
-                inherit (inputs.nixpkgs-old.legacyPackages.x86_64-linux)
-                  gxml planify;
-                inherit (inputs.swww.packages.x86_64-linux) swww;
+                # inherit (inputs.nixpkgs-old.legacyPackages.x86_64-linux)
+                #   gxml planify;
                 # Both of these are being overlayed to have support for --sensitive flag, to not save passwords to cliphist.
                 # Just take latest commit as release
                 # github.com/bugaevc/wl-clipboard/issues/260

@@ -1,5 +1,6 @@
-{ pkgs, ... }:
+{ pkgs, config, lib, ... }:
 let
+  helpers = import ../../../helpers { inherit lib; };
   changeKeyboardLayout = pkgs.writeShellScriptBin "change-keyboard-layout"
     # bash
     ''
@@ -13,7 +14,19 @@ let
   lock = pkgs.writeShellScriptBin "lock"
     # bash
     ''
-      ${pkgs.hyprlock}/bin/hyprlock
+      ${if (!helpers.isEmpty config.theme.backgroundImage)
+      && (!helpers.isStaticImage config.theme.backgroundImage) then ''
+        # Animated background - use mpvpaper overlay
+        uwsm app -- ${pkgs.mpvpaper}/bin/mpvpaper -vs -o "no-audio --loop --panscan=1.0" --layer overlay ALL ${
+          toString config.theme.backgroundImage
+        } & OVERLAY_PID=$!;
+        sleep 0.5 # Sleep so that mpvpaper starts before hyprlock, otherwise it looks weird.
+        uwsm app -- ${pkgs.hyprlock}/bin/hyprlock
+        kill $OVERLAY_PID
+      '' else ''
+        # Static image or no background - just run hyprlock
+        uwsm app -- ${pkgs.hyprlock}/bin/hyprlock
+      ''}
     '';
 
   appMenu = pkgs.writeShellScriptBin "app-menu"

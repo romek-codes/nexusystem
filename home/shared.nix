@@ -1,51 +1,31 @@
 { pkgs, ... }: {
+  # Modify this to your hearts content.
+  # This is where you should define what programs to install etc.
+  # You can find programs here:
+  # https://search.nixos.org/packages
+  # home-manager-options.extranix.com/?query=&release=master
+
   imports = [
-    # Programs
-    # Uncomment if wanna use spotify instead of yt-music
-    # ./programs/spicetify
-    ./programs/youtube-music
     ./programs/discord
     ./programs/lazygit
-    ./programs/photogimp
+    ./programs/photogimp # Gimp with photoshop like UI
     ./programs/obs-studio
-    ./system/zathura
-    ./system/mime
-    ./system/udiskie
+    ./programs/btop
     ./system/php # Laravel <3
-    # This will only be activated if withGames is set to true
-    ./gaming.nix
   ];
 
   home.packages = with pkgs; [
-    # Apps
     mpv # Video player
     blanket # White-noise app
     obsidian # Note taking app
-    planify # Todolistsphp
     gnome-calendar # Calendar
-    textpieces # Manipulate texts
-    curtail # Compress images
-    resources
     gnome-clocks
-    gnome-text-editor
-    qdirstat # Storage management
     dbgate # DBMS
-
+    croc # for sending files across devices
     # Dev
     nodejs
     python3
     pnpm
-
-    # Just cool
-    # peaclock
-    # cbonsai
-    # pipes
-    # cmatrix
-    # nyancat
-
-    # Dev & Testing
-    chromium
-
     calibre # ebooks
     onlyoffice-bin # Office stuff
     kdePackages.kdenlive # Video editor
@@ -57,5 +37,13 @@
     bruno # rest client
     # ranger # terminal file explorer
     # screenkey # shows keypresses on screen
+    # textpieces # Manipulate texts
+    # curtail # Compress images
+    # Just cool visuals
+    # peaclock
+    # cbonsai
+    # pipes
+    # cmatrix
+    # nyancat
   ];
 }
