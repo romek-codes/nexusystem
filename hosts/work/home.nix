@@ -6,7 +6,8 @@
     inherit (config.var) username;
     homeDirectory = "/home/" + config.var.username;
 
-    packages = with pkgs; [ slack vscode ];
+    # Only install slack on this host
+    packages = with pkgs; [ slack ];
 
     file.".face.icon" = { source = ../profile_picture.png; };
 

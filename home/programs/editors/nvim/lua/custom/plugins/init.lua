@@ -295,9 +295,13 @@ return {
 
 			require("lazy-lsp").setup({
 				preferred_servers = {
-					php = { "phpactor" },
+					-- github.com/phpactor/phpactor/issues/807
+					-- github.com/phpactor/phpactor/issues/2420
+					-- php = { "phpactor" },
+					php = { "intelephense" },
 					nix = { "nixd" },
 				},
+				prefer_local = true,
 			})
 		end,
 	},
@@ -750,8 +754,19 @@ return {
 	},
 	{
 		"goolord/alpha-nvim",
-		opts = function()
+		event = "VimEnter",
+		-- Cool random ascii art, might be interesting if you want a different header.
+		-- dependencies = {
+		-- 	"nhattVim/alpha-ascii.nvim",
+		-- 	opts = { header = "random" },
+		-- },
+		config = function()
+			local alpha = require("alpha")
 			local dashboard = require("alpha.themes.dashboard")
+
+			dashboard.section.buttons.val = {
+				dashboard.button("SPC", "Get shit done.", ""),
+			}
 
 			dashboard.section.header.val = {
 				[[                                __                             __                   ]],
@@ -763,7 +778,21 @@ return {
 				[[  \/_/ \/___/  \/_/\/_/\/_/\/____/ \/_/\/_/\/_/\/____/\/___/  \/__,_ /\/____/\/___/ ]],
 			}
 
-			return dashboard.config
+			vim.api.nvim_create_autocmd("User", {
+				once = true,
+				pattern = "LazyVimStarted",
+				callback = function()
+					local stats = require("lazy").stats()
+					local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
+					dashboard.section.footer.val = {
+						" ",
+						" Loaded " .. stats.loaded .. "/" .. stats.count .. " plugins  in " .. ms .. " ms ",
+					}
+					pcall(vim.cmd.AlphaRedraw)
+				end,
+			})
+
+			alpha.setup(dashboard.opts)
 		end,
 	},
 	{
