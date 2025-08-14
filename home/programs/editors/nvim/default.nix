@@ -28,6 +28,7 @@
         rustywind
         shfmt
         stylua
+        intelephense
       ];
     };
 

@@ -10,6 +10,12 @@
     configDirectory = "/home/" + config.var.username
       + "/Workspace/nexusystem"; # The path of the nixos configuration directory
 
+    browsers = [ "zen" "ungoogled-chromium" ];
+
+    editors = [ "nvim" "vscode" ];
+
+    musicApps = [ "youtube-music" ];
+
     keyboardLayout = "us";
     extraKeyboardLayouts = ",de,pl";
 

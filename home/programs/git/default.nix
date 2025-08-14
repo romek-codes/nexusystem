@@ -7,6 +7,7 @@ let
 in {
   programs.git = {
     enable = true;
+    lfs.enable = true;
     userName = username;
     userEmail = email;
     signing = {
@@ -35,7 +36,7 @@ in {
     aliases = { };
   };
 
-  home.packages = with pkgs; [ git-lfs ];
+  # home.packages = with pkgs; [ git-lfs ];
 
   programs.gpg.enable = true;
 

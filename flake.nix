@@ -36,8 +36,8 @@
     nurpkgs.url = "github:nix-community/NUR";
 
     # # TODO: Remove when fixed
-    # nixpkgs-old.url =
-    #   "github:NixOS/nixpkgs/?rev=c792c60b8a97daa7efe41a6e4954497ae410e0c1";
+    nixpkgs-old.url =
+      "github:NixOS/nixpkgs/?rev=c792c60b8a97daa7efe41a6e4954497ae410e0c1";
   };
 
   outputs = inputs@{ nixpkgs, ... }:
@@ -47,8 +47,8 @@
           nixpkgs = {
             overlays = [
               (final: prev: {
-                # inherit (inputs.nixpkgs-old.legacyPackages.x86_64-linux)
-                #   gxml planify;
+                # [0814/143805.904351:FATAL:v8_initializer.cc(620)] Error mapping V8 startup snapshot file ?
+                inherit (inputs.nixpkgs-old.legacyPackages.x86_64-linux) dbgate;
                 # Both of these are being overlayed to have support for --sensitive flag, to not save passwords to cliphist.
                 # Just take latest commit as release
                 # github.com/bugaevc/wl-clipboard/issues/260
