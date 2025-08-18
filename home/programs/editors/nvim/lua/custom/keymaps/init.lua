@@ -42,15 +42,28 @@ vim.keymap.set("", "<leader>tf", function()
 		print("Auto-format enabled")
 	end
 end, { desc = "[f]ormat on save" })
-vim.keymap.set("", "<Leader>e", "<cmd>lua MiniFiles.open()<cr>", { desc = "[e]xplorer" })
-vim.keymap.set("", "<Leader>of", "<cmd>ObsidianSearch<cr>", { desc = "[f]ind" })
-vim.keymap.set("", "<Leader>oo", "<cmd>ObsidianOpen<cr>", { desc = "[o]pen" })
-vim.keymap.set("", "<Leader>ot", "<cmd>ObsidianTags<cr>", { desc = "[t]ags" })
-vim.keymap.set("", "<Leader>on", "<cmd>ObsidianNew<cr>", { desc = "[n]ew note" })
-vim.keymap.set("", "<Leader>og", "<cmd>ObsidianFollowLink<cr>", { desc = "[g]o to note" })
+vim.keymap.set(
+	"",
+	"<Leader>e",
+	-- "<cmd>lua MiniFiles.open()<cr>",
+	-- Open focused on current file
+	function()
+		local MiniFiles = require("mini.files")
+		local _ = MiniFiles.close() or MiniFiles.open(vim.api.nvim_buf_get_name(0), false)
+		MiniFiles.reveal_cwd()
+	end,
+	{ desc = "[e]xplorer" }
+)
+vim.keymap.set("n", "<Leader>ow", "<cmd>Obsidian workspace<cr>", { desc = "[w]orkspace" })
+vim.keymap.set("n", "<Leader>of", "<cmd>Obsidian search<cr>", { desc = "[f]ind" })
+vim.keymap.set("n", "<Leader>oo", "<cmd>Obsidian open<cr>", { desc = "[o]pen" })
+vim.keymap.set("n", "<Leader>ot", "<cmd>Obsidian tags<cr>", { desc = "[t]ags" })
+vim.keymap.set("n", "<Leader>on", "<cmd>Obsidian new<cr>", { desc = "[n]ew note" })
+vim.keymap.set("n", "<Leader>og", "<cmd>Obsidian follow_link<cr>", { desc = "[g]o to note" })
 vim.keymap.set("", "<Leader>br", "<cmd>BrunoRun<cr>", { desc = "[r]un" })
+vim.keymap.set("", "<Leader>bt", "<cmd>BrunoToggleFormat<cr>", { desc = "[t]oggle format" })
 vim.keymap.set("", "<Leader>be", "<cmd>BrunoEnv<cr>", { desc = "[e]nvironment" })
-vim.keymap.set("", "<Leader>bs", "<cmd>BrunoSearch<cr>", { desc = "[s]earch" })
+vim.keymap.set("", "<Leader>bf", "<cmd>BrunoSearch<cr>", { desc = "[f]ind" })
 vim.keymap.set("n", "<Leader>tt", "<cmd>ToggleTerm direction=float<cr>", { desc = "[t]erminal" })
 vim.keymap.set("n", "<Leader>tc", "<cmd>TSContext toggle<cr>", { desc = "[c]ontext (treesitter)" })
 vim.keymap.set({ "n", "x" }, "<leader>lc", vim.lsp.buf.code_action, { desc = "[c]ode action", silent = false })
