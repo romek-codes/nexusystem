@@ -35,6 +35,7 @@
     godot_4 # Gamedev
     lazydocker
     bruno # rest client
+    bruno-cli # cli for bruno, needed for bruno.nvim
     # ranger # terminal file explorer
     # screenkey # shows keypresses on screen
     # textpieces # Manipulate texts
