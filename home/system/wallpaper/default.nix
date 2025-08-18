@@ -31,4 +31,7 @@ in {
 
   # Disable hyprpaper when using animated backgrounds
   stylix.targets.hyprland.hyprpaper.enable = lib.mkIf isAnimated false;
+
+  home.file.".config/wallpaper/${builtins.baseNameOf backgroundImage}".source =
+    backgroundImage;
 }

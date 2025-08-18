@@ -77,7 +77,7 @@ let
       "application/rtf"
     ];
     pdf = [ "application/pdf" ];
-    terminal = [ "terminal" ];
+    terminal = [ "x-scheme-handler/terminal" ];
     archive = [
       "application/zip"
       "application/rar"

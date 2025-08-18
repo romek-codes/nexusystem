@@ -5,6 +5,7 @@
       main = {
         shell = "${pkgs.zsh}/bin/zsh";
         selection-target = "both";
+        term = "xterm-256color";
       };
     };
   };
