@@ -145,6 +145,9 @@ require("lazy").setup({
 		icons = {},
 	},
 	lockfile = vim.fn.stdpath("config") .. "/lua/lazy-lock.json",
+	git = {
+		timeout = 360, -- because of fff.nvim
+	},
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`

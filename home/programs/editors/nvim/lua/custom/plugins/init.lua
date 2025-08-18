@@ -1,8 +1,3 @@
--- You can add your own plugins here or in other files in this directory!
---  I promise not to create any merge conflicts in this directory :)
---
--- See the kickstart.nvim README for more information
-
 local Path = require("plenary.path")
 local workspacePaths = {
 	{ name = "personal", path = "/home/romek/notes/personal" },
@@ -301,7 +296,6 @@ return {
 					php = { "intelephense" },
 					nix = { "nixd" },
 				},
-				prefer_local = true,
 			})
 		end,
 	},
@@ -550,7 +544,10 @@ return {
 				javascript = { "prettierd" },
 				json = { "prettierd" },
 				lua = { "stylua" },
-				markdown = { "mdformat", "injected" },
+				-- github.com/obsidian-nvim/obsidian.nvim/issues/358
+				-- mdformat causes weird frontmatter issue
+				-- markdown = { "mdformat", "injected" },
+				markdown = { "injected" },
 				nix = { "nixfmt" },
 				php = { "pint" },
 				python = { "black", "isort" },
@@ -741,12 +738,13 @@ return {
 		end,
 	},
 	{
-		"epwalsh/obsidian.nvim",
+		"obsidian-nvim/obsidian.nvim",
 		version = "*",
 		opts = {
 			workspaces = workspaces,
+			legacy_commands = false,
 			-- ui = { enable = false },
-			disable_frontmatter = true,
+			-- disable_frontmatter = true,
 		},
 		lazy = false,
 		ft = "markdown",
@@ -768,14 +766,39 @@ return {
 				dashboard.button("SPC", "Get shit done.", ""),
 			}
 
+			-- Font: ANSI Shadow
+			-- dashboard.section.header.val = {
+			-- 	[[██████╗  ██████╗ ███╗   ███╗███████╗██╗  ██╗    ██████╗ ██████╗ ██████╗ ███████╗███████╗]],
+			-- 	[[██╔══██╗██╔═══██╗████╗ ████║██╔════╝██║ ██╔╝   ██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔════╝]],
+			-- 	[[██████╔╝██║   ██║██╔████╔██║█████╗  █████╔╝    ██║     ██║   ██║██║  ██║█████╗  ███████╗]],
+			-- 	[[██╔══██╗██║   ██║██║╚██╔╝██║██╔══╝  ██╔═██╗    ██║     ██║   ██║██║  ██║██╔══╝  ╚════██║]],
+			-- 	[[██║  ██║╚██████╔╝██║ ╚═╝ ██║███████╗██║  ██╗██╗╚██████╗╚██████╔╝██████╔╝███████╗███████║]],
+			-- 	[[╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚══════╝]],
+			-- }
+
+			-- # From: https://github.com/Chick2D/neofetch-themes/
 			dashboard.section.header.val = {
-				[[                                __                             __                   ]],
-				[[                               /\ \                           /\ \                  ]],
-				[[ _ __   ___     ___ ___      __\ \ \/'\         ___    ___    \_\ \     __    ____  ]],
-				[[/\`'__\/ __`\ /' __` __`\  /'__`\ \ , <        /'___\ / __`\  /'_` \  /'__`\ /',__\ ]],
-				[[\ \ \//\ \L\ \/\ \/\ \/\ \/\  __/\ \ \\`\   __/\ \__//\ \L\ \/\ \L\ \/\  __//\__, `\]],
-				[[ \ \_\\ \____/\ \_\ \_\ \_\ \____\\ \_\ \_\/\_\ \____\ \____/\ \___,_\ \____\/\____/]],
-				[[  \/_/ \/___/  \/_/\/_/\/_/\/____/ \/_/\/_/\/_/\/____/\/___/  \/__,_ /\/____/\/___/ ]],
+				"███╗   ██╗██╗   ██╗██╗███╗   ███╗",
+				"████╗  ██║██║   ██║██║████╗ ████║",
+				"██╔██╗ ██║██║   ██║██║██╔████╔██║",
+				"██║╚██╗██║╚██╗ ██╔╝██║██║╚██╔╝██║",
+				"██║ ╚████║ ╚████╔╝ ██║██║ ╚═╝ ██║",
+				"╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═╝     ╚═╝",
+				"",
+				" ⣇⣿⠘⣿⣿⣿⡿⡿⣟⣟⢟⢟⢝⠵⡝⣿⡿⢂⣼⣿⣷⣌⠩⡫⡻⣝⠹⢿⣿⣿⣿",
+				" ⡆⣿⣆⠱⣝⡵⣝⢅⠙⣿⢕⢕⢕⢕⢝⣥⢒⠅⣿⣿⣿⡿⣳⣌⠪⡪⣡⢑⢝⢝⣿",
+				" ⡆⣿⣿⣦⠹⣳⣳⣕⢅⠈⢗⢕⢕⢕⢕⢕⢈⢆⠟⠋⠉⠁⠉⠉⠁⠈⠼⢐⢕⢕⢽",
+				" ⡗⢰⣶⣶⣦⣝⢝⢕⢕⠅⡆⢕⢕⢕⢕⢕⣴⠏⣠⡶⠛⡉⡉⡛⢶⣦⡀⠐⣕⣕⢕",
+				" ⡝⡄⢻⢟⣿⣿⣷⣕⣕⣅⣿⣔⣕⣵⣵⣿⣿⢠⣿⢠⣮⡈⣌⠨⠅⠹⣷⡀⢱⢕⢕",
+				" ⡝⡵⠟⠈⢀⣀⣀⡀⠉⢿⣿⣿⣿⣿⣿⣿⣿⣼⣿⢈⡋⠴⢿⡟⣡⡇⣿⡇⡀⢕⢕",
+				" ⡝⠁⣠⣾⠟⡉⡉⡉⠻⣦⣻⣿⣿⣿⣿⣿⣿⣿⣿⣧⠸⣿⣦⣥⣿⡇⡿⣰⢗⢄⢄",
+				" ⠁⢰⣿⡏⣴⣌⠈⣌⠡⠈⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣬⣉⣉⣁⣄⢖⢕⢕⢕⢕",
+				" ⡀⢻⣿⡇⢙⠁⠴⢿⡟⣡⡆⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣵⣵⣿⣿",
+				" ⡻⣄⣻⣿⣌⠘⢿⣷⣥⣿⠇⣿⣿⣿⣿⣿⣿⠛⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿",
+				" ⣷⢄⠻⣿⣟⠿⠦⠍⠉⣡⣾⣿⣿⣿⣿⣿⣿⢸⣿⣦⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟",
+				" ⡕⡑⣑⣈⣻⢗⢟⢞⢝⣻⣿⣿⣿⣿⣿⣿⣿⠸⣿⠿⠃⣿⣿⣿⣿⣿⣿⣿⡿⠁⣠",
+				" ⡝⡵⡈⢟⢕⢕⢕⢕⣵⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣿⣿⣿⣿⣿⣿⠿⠋⣀⣈⠙",
+				" ⡝⡵⡕⡀⠑⠳⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢉⡠⡲⡫⡪⡪⡣",
 			}
 
 			vim.api.nvim_create_autocmd("User", {
@@ -815,9 +838,8 @@ return {
 		config = function()
 			require("bruno").setup({
 				collection_paths = {
-					{ name = "Nix", path = "/home/romek/bruno" },
 					{ name = "Nix", path = "/home/romek/Bruno" },
-					{ name = "Nix-work", path = "/home/romek/notes/work/Bruno" },
+					-- { name = "Nix-work", path = "/home/romek/notes/work/Bruno" },
 				},
 			})
 		end,
@@ -1095,6 +1117,15 @@ return {
 	      { "<leader>s", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "[s]elect (treesitter)" },
 	    },
 	},
+	{
+		"vyfor/cord.nvim",
+		build = ":Cord update",
+		-- opts = {}
+	},
+	{
+		"tpope/vim-eunuch",
+	},
+
 	-- require 'kickstart.plugins.debug',
 	-- require 'kickstart.plugins.lint',
 }
