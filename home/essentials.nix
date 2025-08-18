@@ -9,7 +9,7 @@
     ./programs/foot
     ./programs/nh
     ./programs/shell
-    ./programs/fetch
+    ./programs/fastfetch
     ./programs/git
     ./programs/thunar
 
@@ -45,8 +45,6 @@
     unzip
     optipng
     jpegoptim
-    pfetch
-    fastfetch
     rmtrash
 
     gparted # partitions
