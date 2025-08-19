@@ -522,6 +522,9 @@ return {
 			--	end
 			--	end,
 			format_after_save = function(bufnr)
+				if vim.g.disable_autoformat then
+					return nil
+				end
 				-- Disable "format_on_save lsp_fallback" for languages that don't
 				-- have a well standardized coding style. You can add additional
 				-- languages here or re-enable it for the disabled ones.
@@ -839,7 +842,7 @@ return {
 			require("bruno").setup({
 				collection_paths = {
 					{ name = "Nix", path = "/home/romek/Bruno" },
-					-- { name = "Nix-work", path = "/home/romek/notes/work/Bruno" },
+					{ name = "Nix-work", path = "/home/romek/notes/work/Bruno" },
 				},
 			})
 		end,
