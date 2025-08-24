@@ -1,6 +1,8 @@
 # Thunar is a file explorer
 { pkgs, config, lib, ... }:
-let user = config.var.username;
+let
+  user = config.var.username;
+  configDirectory = config.var.configDirectory;
 in {
   # ctrl + m to toggle the menubar
   home.packages = with pkgs; [
@@ -29,9 +31,8 @@ in {
       bookmarks = [
         "file:///home/${user}/Downloads Downloads"
         "file:///home/${user}/Pictures Pictures"
-        "file:///home/${user}/SyncthingMain SyncthingMain"
-        "file:///home/${user}/Workspace/dots dots"
-        "file:///home/${user}/Workspace Workspace"
+        "file:///home/${user}/Documents Documents"
+        "file://${configDirectory} Nexusystem"
       ];
     };
   };
