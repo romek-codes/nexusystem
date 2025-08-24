@@ -13,6 +13,7 @@
         # Shortcuts (MPRIS)
         # Synced lyrics
         # Video quality changer
+        # Discord rich presence
       ];
   };
 }
