@@ -11,7 +11,8 @@
       + "/.var/app/org.gimp.GIMP/config/GIMP/2.10"; # update path when gimp 3.0 is in nixpkgs
   };
 
-  # TODO: Setup theming somehow
+  # TODO: Fix permission and dynamically linked executable errors.
+  # TODO: Maybe trying gimp3 might be a good idea? Might get automatically fixed.
   home.packages = with pkgs;
     [
       gimp # gnu image manipulation program
