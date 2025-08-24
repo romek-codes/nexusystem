@@ -34,6 +34,8 @@ Quick scripts to toggle, reload, hide & show hyprpanel.
 - `hyprpanel-hide` - Hide hyprpanel.
 - `hyprpanel-reload` - Reload hyprpanel.
 
+
+
 ## OpenVPN
 
 OpenVPN allows you to connect/disconnect quickly to a openVPN server
@@ -41,6 +43,8 @@ OpenVPN allows you to connect/disconnect quickly to a openVPN server
 - `openvpn-up` turn on the vpn
 - `openvpn-down` turn down the vpn
 - `openvpn-toggle` toggle the vpn
+
+
 
 
 
