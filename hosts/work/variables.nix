@@ -24,6 +24,11 @@
     defaultLocale = "en_US.UTF-8";
     extraLocale = "de_DE.UTF-8";
 
+    gpu = {
+      type = "none";
+      dedicated = false;
+    };
+
     git = {
       username = "Roman Juszczyk";
       email = "roman.juszczyk@zoxs.de";
