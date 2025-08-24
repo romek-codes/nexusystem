@@ -12,5 +12,6 @@
     ./screenshot
     ./system
     ./openvpn
+    ./lazycommit
   ];
 }
