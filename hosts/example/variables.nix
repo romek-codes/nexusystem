@@ -51,6 +51,13 @@
       defaultLocale = "en_US.UTF-8";
       extraLocale = "de_DE.UTF-8";
 
+      gpu = {
+        type = "amd"; # "amd", "nvidia", "none"
+        # If your host has dedicated gpu.
+        # If you're using a laptop it probably doesnt.
+        dedicated = true;
+      };
+
       git = {
         username = "romek";
         email = "contact@romek.codes";

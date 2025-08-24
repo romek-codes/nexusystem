@@ -1,5 +1,5 @@
 { config, lib, ... }: {
-  imports = [ ../../themes/berserk-eclipse.nix ];
+  imports = [ ../../themes/initial-d.nix ];
 
   options.var = lib.mkOption {
     type = lib.types.attrs;
@@ -22,6 +22,11 @@
       timeZone = "Europe/Berlin";
       defaultLocale = "en_US.UTF-8";
       extraLocale = "de_DE.UTF-8";
+
+      gpu = {
+        type = "amd";
+        dedicated = true;
+      };
 
       git = {
         username = "romek";
