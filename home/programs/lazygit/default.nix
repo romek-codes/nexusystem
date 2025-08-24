@@ -1,5 +1,5 @@
 # Lazygit is a simple terminal UI for git commands.
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 let
   accent = "#${config.lib.stylix.colors.base0D}";
   muted = "#${config.lib.stylix.colors.base03}";
@@ -28,6 +28,14 @@ in {
         showBottomLine = true;
         nerdFontsVersion = "3";
       };
+      # For the very lazy, with this you can generate a commit message :)
+      customCommands = [{
+        key = "<c-a>";
+        description = "Generate AI commit message";
+        command = "lazycommit";
+        context = "files";
+        output = "terminal";
+      }];
     };
   };
 }
