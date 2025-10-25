@@ -83,11 +83,39 @@ vim.keymap.set(
 )
 
 vim.keymap.set({ "v", "n", "o", "x" }, "<leader>/", function()
-	local count = vim.v.count
-	vim.cmd.norm((count > 0 and count or "") .. "gcc")
+	local is_blade = vim.fn.expand("%"):match("%.blade%.php$")
+
+	if is_blade then
+		local mode = vim.fn.mode()
+		if mode == "v" or mode == "V" or mode == "\22" then
+			local start_line = vim.fn.line("v")
+			local end_line = vim.fn.line(".")
+			if start_line > end_line then
+				start_line, end_line = end_line, start_line
+			end
+
+			-- Check if first line is commented
+			local first_line = vim.fn.getline(start_line)
+			if first_line:match("^%s*{{%-%-.*%-%-}}%s*$") then
+				vim.cmd(string.format("%d,%ds/^\\(\\s*\\){{-- \\(.*\\) --}}/\\1\\2/", start_line, end_line))
+			else
+				vim.cmd(string.format("%d,%ds/^\\(\\s*\\)\\(.*\\)/\\1{{-- \\2 --}}/", start_line, end_line))
+			end
+		else
+			local line = vim.fn.getline(".")
+			if line:match("^%s*{{%-%-.*%-%-}}%s*$") then
+				vim.cmd("s/^\\(\\s*\\){{-- \\(.*\\) --}}/\\1\\2/")
+			else
+				vim.cmd("s/^\\(\\s*\\)\\(.*\\)/\\1{{-- \\2 --}}/")
+			end
+		end
+		vim.cmd("nohlsearch")
+	else
+		local count = vim.v.count
+		vim.cmd.norm((count > 0 and count or "") .. "gcc")
+	end
 end, { desc = "toggle comment" })
 
--- Make sure that '//' comments are used for php files.
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = "php",
 	callback = function()
