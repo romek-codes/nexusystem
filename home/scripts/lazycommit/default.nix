@@ -190,6 +190,7 @@ let
       RESPONSE=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions" \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer $API_KEY" \
+          -H "X-Title: lazycommit" \
           -d "$JSON_DATA")
 
       rm -f "$JSON_FILE"

@@ -29,6 +29,29 @@ in {
     } & echo $! > /tmp/mpvpaper.pid
   ''];
 
+  # Image rotation in case somebody wants it
+  # wayland.windowManager.hyprland.settings.exec-once = lib.mkIf isAnimated [
+  #   (pkgs.writeShellScript "rotate-wallpaper" ''
+  #     wallpapers=(
+  #       "${./berserk-eclipse.mp4}"
+  #       "${./berserk.mp4}"
+  #       "${./galaxy-cat.mp4}"
+  #       "${./initial-d.mp4}"
+  #       "${./one-piece.mp4}"
+  #       "${./pink-lofi.mp4}"
+  #       "${./touch-grass.mp4}"
+  #     )
+  #
+  #     while true; do
+  #       for wp in "''${wallpapers[@]}"; do
+  #         pkill -f mpvpaper
+  #         mpvpaper -o "no-audio --loop --panscan=1.0" ALL "$wp" &
+  #         sleep 5
+  #       done
+  #     done
+  #   '')
+  # ];
+
   # Disable hyprpaper when using animated backgrounds
   stylix.targets.hyprland.hyprpaper.enable = lib.mkIf isAnimated false;
 
