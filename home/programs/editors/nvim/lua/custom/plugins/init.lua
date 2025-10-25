@@ -296,6 +296,7 @@ return {
 					php = { "intelephense" },
 					nix = { "nixd" },
 				},
+				use_vim_lsp_config = true,
 			})
 		end,
 	},
@@ -832,18 +833,26 @@ return {
 		config = true,
 		version = "*",
 	},
-
 	{
-		-- When developing
+		-- For development
 		-- dir = "~/Workspace/bruno.nvim",
 		"romek-codes/bruno.nvim",
-		dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-telescope/telescope.nvim",
+			-- "ibhagwan/fzf-lua",
+			-- {
+			-- 	"folke/snacks.nvim",
+			-- 	opts = { picker = { enabled = true } },
+			-- },
+		},
 		config = function()
 			require("bruno").setup({
 				collection_paths = {
 					{ name = "Nix", path = "/home/romek/Bruno" },
 					{ name = "Nix-work", path = "/home/romek/notes/work/Bruno" },
 				},
+				-- picker = "fzf-lua",
 			})
 		end,
 	},
@@ -1128,7 +1137,10 @@ return {
 	{
 		"tpope/vim-eunuch",
 	},
-
+	{
+		"nvim-neotest/nvim-nio",
+		lazy = true,
+	},
 	-- require 'kickstart.plugins.debug',
 	-- require 'kickstart.plugins.lint',
 }

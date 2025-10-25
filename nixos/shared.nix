@@ -3,6 +3,7 @@
     # Mostly system related configuration
     ./audio.nix
     ./bluetooth.nix
+    ./printers.nix
     ./fonts.nix
     ./home-manager.nix
     ./docker.nix
