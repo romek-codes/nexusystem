@@ -3,7 +3,7 @@
     type = lib.types.attrs;
     default = {
       backgroundImage = ../home/system/wallpaper/one-piece.mp4;
-      base16Scheme = "blueish";
+      base16Scheme = "vice";
       polarity = "dark";
       rounding = 10;
       gaps-in = 8;

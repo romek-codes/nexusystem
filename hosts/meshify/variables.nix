@@ -1,4 +1,5 @@
 { config, lib, ... }: {
+  # imports = [ ../../themes/initial-d.nix ];
   imports = [ ../../themes/initial-d.nix ];
 
   options.var = lib.mkOption {
@@ -9,7 +10,7 @@
       configDirectory = "/home/" + config.var.username
         + "/Workspace/nexusystem"; # The path of the nixos configuration directory
 
-      browsers = [ "zen" "ungoogled-chromium" ];
+      browsers = [ "zen" "firefox" "ungoogled-chromium" ];
 
       editors = [ "nvim" ];
 
