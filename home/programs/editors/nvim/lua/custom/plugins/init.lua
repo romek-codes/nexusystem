@@ -957,7 +957,13 @@ return {
 		},
 		cmd = { "Laravel" },
 		keys = {
-			{ "<leader>L", "<cmd>Laravel<cr>", desc = "[L]aravel" },
+			{
+				"<leader>L",
+				function()
+					Laravel.pickers.laravel()
+				end,
+				desc = "[L]aravel",
+			},
 		},
 		event = "VeryLazy",
 		opts = {},
