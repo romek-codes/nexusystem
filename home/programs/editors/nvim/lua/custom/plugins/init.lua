@@ -181,6 +181,7 @@ return {
 				"L3MON4D3/LuaSnip",
 				"saadparwaiz1/cmp_luasnip",
 				"ray-x/cmp-sql",
+				"adalessa/laravel.nvim",
 			},
 
 			config = function()
@@ -189,6 +190,7 @@ return {
 				cmp.setup({
 					sources = {
 						{ group_index = 0, name = "lazydev" },
+						{ name = "laravel" },
 						{ name = "nvim_lsp" },
 						{ name = "nvim_lsp_document_symbol" },
 						{ name = "nvim_lsp_signature_help" },
