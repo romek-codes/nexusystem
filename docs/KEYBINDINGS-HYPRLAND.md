@@ -47,6 +47,7 @@
 | Clipboard history with rofi | SUPER + V |
 | Nerdfont and emoji picker with rofi | SHIFT + SUPER + E |
 | Toggle blue light | SUPER + F2 |
+| , gesture:3:horizontal, workspace, e+1" |  gesture:3:horizontal |
 | Move Window (mouse left click) | SUPER + mouse:272 |
 | Resize Window (mouse right click) | SUPER + mouse:273 |
 | Toggle Mute | XF86AudioMute |
