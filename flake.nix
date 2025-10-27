@@ -48,7 +48,8 @@
             overlays = [
               (final: prev: {
                 # [0814/143805.904351:FATAL:v8_initializer.cc(620)] Error mapping V8 startup snapshot file ?
-                inherit (inputs.nixpkgs-old.legacyPackages.x86_64-linux) dbgate;
+                inherit (inputs.nixpkgs-old.legacyPackages.x86_64-linux)
+                  dbgate rpcs3;
                 # Both of these are being overlayed to have support for --sensitive flag, to not save passwords to cliphist.
                 # Just take latest commit as release
                 # github.com/bugaevc/wl-clipboard/issues/260

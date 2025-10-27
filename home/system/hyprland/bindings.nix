@@ -46,6 +46,7 @@
       "$mod,V,exec,rofi-cliphist" # Clipboard history with rofi
       "$shiftMod,E, exec, rofimoji -f geometric_shapes geometric_shapes_extended nerd_font emojis" # Nerdfont and emoji picker with rofi
       "$mod,F2, exec, blue-light-filter" # Toggle blue light
+      ", gesture:3:horizontal, workspace, e+1"
     ] ++ (builtins.concatLists (builtins.genList (i:
       let
         ws = i + 1;

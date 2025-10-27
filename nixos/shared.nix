@@ -23,5 +23,6 @@
     ./steam.nix
     ./gamemode.nix
     ./stylix.nix
+    ./waydroid.nix
   ];
 }

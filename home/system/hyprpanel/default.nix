@@ -49,40 +49,6 @@ in {
         };
       };
 
-      theme.font.name = font;
-      theme.font.size = fontSizeForHyprpanel;
-
-      theme.bar.outer_spacing =
-        if floating && transparent then "8px" else "8px";
-      theme.bar.buttons.y_margins =
-        if floating && transparent then "8px" else "8px";
-      theme.bar.buttons.spacing = "0.3em";
-      theme.bar.buttons.radius =
-        (if transparent then toString rounding else toString rounding) + "px";
-      theme.bar.floating = floating;
-      theme.bar.buttons.padding_x = "0.8rem";
-      theme.bar.buttons.padding_y = "0.4rem";
-
-      theme.bar.margin_top =
-        (if position == "top" then toString (gaps-in) else "0") + "px";
-      theme.bar.margin_bottom =
-        (if position == "top" then "0" else toString (gaps-in)) + "px";
-      theme.bar.margin_sides = toString gaps-out + "px";
-
-      theme.bar.border_radius = toString rounding + "px";
-      theme.bar.transparent = transparent;
-      theme.bar.location = position;
-      theme.bar.dropdownGap = "4.5em";
-      theme.bar.menus.shadow =
-        if transparent then "0 0 0 0" else "0px 0px 3px 1px #16161e";
-      theme.bar.buttons.style = "default";
-      theme.bar.buttons.monochrome = true;
-      theme.bar.menus.monochrome = true;
-      theme.bar.menus.card_radius = toString rounding + "px";
-      theme.bar.menus.border.size = toString border-size + "px";
-      theme.bar.menus.border.radius = toString rounding + "px";
-      theme.bar.menus.menu.media.card.tint = 90;
-
       bar.launcher.icon = "";
       bar.workspaces.workspaces = 1;
       bar.workspaces.numbered_active_indicator = "color";
@@ -107,16 +73,6 @@ in {
 
       notifications.position = "top right";
       notifications.showActionsOnHover = true;
-      theme.notification.opacity = notificationOpacity;
-      theme.notification.enableShadow = true;
-      theme.notification.border_radius = toString rounding + "px";
-
-      theme.osd.enable = true;
-      theme.osd.orientation = "vertical";
-      theme.osd.location = "left";
-      theme.osd.radius = toString rounding + "px";
-      theme.osd.margins = "0px 0px 0px 10px";
-      theme.osd.muted_zero = true;
 
       menus.clock.weather.location = location;
       menus.clock.weather.unit = "metric";
@@ -174,68 +130,115 @@ in {
 
       wallpaper.enable = false;
 
-      theme.bar.buttons.workspaces.hover = accent-alt;
-      theme.bar.buttons.workspaces.active = accent;
-      theme.bar.buttons.workspaces.available = accent-alt;
-      theme.bar.buttons.workspaces.occupied = accent-alt;
+      theme = lib.mkForce {
 
-      theme.bar.menus.background = background;
-      theme.bar.menus.cards = background-alt;
-      theme.bar.menus.label = foreground;
-      theme.bar.menus.text = foreground;
-      theme.bar.menus.border.color = accent;
-      theme.bar.menus.popover.text = foreground;
-      theme.bar.menus.popover.background = background-alt;
-      theme.bar.menus.listitems.active = accent;
-      theme.bar.menus.icons.active = accent;
-      theme.bar.menus.switch.enabled = accent;
-      theme.bar.menus.check_radio_button.active = accent;
-      theme.bar.menus.buttons.default = accent;
-      theme.bar.menus.buttons.active = accent;
-      theme.bar.menus.iconbuttons.active = accent;
-      theme.bar.menus.progressbar.foreground = accent;
-      theme.bar.menus.slider.primary = accent;
-      theme.bar.menus.tooltip.background = background-alt;
-      theme.bar.menus.tooltip.text = foreground;
-      theme.bar.menus.dropdownmenu.background = background-alt;
-      theme.bar.menus.dropdownmenu.text = foreground;
+        font.name = font;
+        font.size = fontSizeForHyprpanel;
 
-      theme.bar.background = background
-        + (if transparentButtons && transparent then "00" else "");
-      theme.bar.buttons.text = if transparent && transparentButtons then
-        foregroundOnWallpaper
-      else
-        foreground;
-      theme.bar.buttons.background =
-        (if transparent then background else background-alt)
-        + (if transparentButtons then "00" else "");
-      theme.bar.buttons.icon = accent;
+        bar.outer_spacing = if floating && transparent then "8px" else "8px";
+        bar.buttons.y_margins =
+          if floating && transparent then "8px" else "8px";
+        bar.buttons.spacing = "0.3em";
+        bar.buttons.radius =
+          (if transparent then toString rounding else toString rounding) + "px";
+        bar.floating = floating;
+        bar.buttons.padding_x = "0.8rem";
+        bar.buttons.padding_y = "0.4rem";
 
-      theme.bar.buttons.notifications.background = background-alt;
-      theme.bar.buttons.hover = background;
-      theme.bar.buttons.notifications.hover = background;
-      theme.bar.buttons.notifications.total = accent;
-      theme.bar.buttons.notifications.icon = accent;
+        bar.margin_top = (if position == "top" then toString (gaps-in) else "0")
+          + "px";
+        bar.margin_bottom =
+          (if position == "top" then "0" else toString (gaps-in)) + "px";
+        bar.margin_sides = toString gaps-out + "px";
 
-      theme.osd.bar_color = accent;
-      theme.osd.bar_overflow_color = accent-alt;
-      theme.osd.icon = background;
-      theme.osd.icon_container = accent;
-      theme.osd.label = accent;
-      theme.osd.bar_container = background-alt;
+        bar.border_radius = toString rounding + "px";
+        bar.transparent = transparent;
+        bar.location = position;
+        bar.dropdownGap = "4.5em";
+        bar.menus.shadow =
+          if transparent then "0 0 0 0" else "0px 0px 3px 1px #16161e";
+        bar.buttons.style = "default";
+        bar.buttons.monochrome = true;
+        bar.menus.monochrome = true;
+        bar.menus.card_radius = toString rounding + "px";
+        bar.menus.border.size = toString border-size + "px";
+        bar.menus.border.radius = toString rounding + "px";
+        bar.menus.menu.media.card.tint = 90;
 
-      theme.bar.menus.menu.media.background.color = background-alt;
-      theme.bar.menus.menu.media.card.color = background-alt;
+        notification.opacity = notificationOpacity;
+        notification.enableShadow = true;
+        notification.border_radius = toString rounding + "px";
 
-      theme.notification.background = background-alt;
-      theme.notification.actions.background = accent;
-      theme.notification.actions.text = foreground;
-      theme.notification.label = accent;
-      theme.notification.border = background-alt;
-      theme.notification.text = foreground;
-      theme.notification.labelicon = accent;
-      theme.notification.close_button.background = background-alt;
-      theme.notification.close_button.label = "#f38ba8";
+        osd.enable = true;
+        osd.orientation = "vertical";
+        osd.location = "left";
+        osd.radius = toString rounding + "px";
+        osd.margins = "0px 0px 0px 10px";
+        osd.muted_zero = true;
+
+        bar.buttons.workspaces.hover = accent-alt;
+        bar.buttons.workspaces.active = accent;
+        bar.buttons.workspaces.available = accent-alt;
+        bar.buttons.workspaces.occupied = accent-alt;
+
+        bar.menus.background = background;
+        bar.menus.cards = background-alt;
+        bar.menus.label = foreground;
+        bar.menus.text = foreground;
+        bar.menus.border.color = accent;
+        bar.menus.popover.text = foreground;
+        bar.menus.popover.background = background-alt;
+        bar.menus.listitems.active = accent;
+        bar.menus.icons.active = accent;
+        bar.menus.switch.enabled = accent;
+        bar.menus.check_radio_button.active = accent;
+        bar.menus.buttons.default = accent;
+        bar.menus.buttons.active = accent;
+        bar.menus.iconbuttons.active = accent;
+        bar.menus.progressbar.foreground = accent;
+        bar.menus.slider.primary = accent;
+        bar.menus.tooltip.background = background-alt;
+        bar.menus.tooltip.text = foreground;
+        bar.menus.dropdownmenu.background = background-alt;
+        bar.menus.dropdownmenu.text = foreground;
+
+        bar.background = background
+          + (if transparentButtons && transparent then "00" else "");
+        bar.buttons.text = if transparent && transparentButtons then
+          foregroundOnWallpaper
+        else
+          foreground;
+        bar.buttons.background =
+          (if transparent then background else background-alt)
+          + (if transparentButtons then "00" else "");
+        bar.buttons.icon = accent;
+
+        bar.buttons.notifications.background = background-alt;
+        bar.buttons.hover = background;
+        bar.buttons.notifications.hover = background;
+        bar.buttons.notifications.total = accent;
+        bar.buttons.notifications.icon = accent;
+
+        osd.bar_color = accent;
+        osd.bar_overflow_color = accent-alt;
+        osd.icon = background;
+        osd.icon_container = accent;
+        osd.label = accent;
+        osd.bar_container = background-alt;
+
+        bar.menus.menu.media.background.color = background-alt;
+        bar.menus.menu.media.card.color = background-alt;
+
+        notification.background = background-alt;
+        notification.actions.background = accent;
+        notification.actions.text = foreground;
+        notification.label = accent;
+        notification.border = background-alt;
+        notification.text = foreground;
+        notification.labelicon = accent;
+        notification.close_button.background = background-alt;
+        notification.close_button.label = "#f38ba8";
+      };
     };
   };
 }

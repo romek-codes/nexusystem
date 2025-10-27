@@ -52,6 +52,6 @@
     peazip # for zip and rar files
     qdirstat # Storage management
     resources # Task manager
-    notepadqq # Notepad++
+    # notepadqq # Notepad++
   ];
 }
