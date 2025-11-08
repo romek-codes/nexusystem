@@ -31,7 +31,12 @@ in {
     glance = {
       enable = true;
       settings = {
-        theme = { contrast-multiplier = lib.mkForce 1.4; };
+        theme = {
+          background-color = lib.mkForce (rgb-to-hsl "base01");
+          primary-color = lib.mkForce (rgb-to-hsl "base05");
+          negative-color = lib.mkForce "358 100 68";
+          contrast-multiplier = lib.mkForce 1.2;
+        };
         pages = [{
           hide-desktop-navigation = true;
           columns = [
