@@ -27,7 +27,7 @@
     python3
     pnpm
     calibre # ebooks
-    onlyoffice-bin # Office stuff
+    onlyoffice-desktopeditors # Office stuff
     kdePackages.kdenlive # Video editor
     kdePackages.breeze # Dark mode and theming with stylix for kdenlive
     solaar # Logitech device manager
@@ -39,6 +39,7 @@
     crush
     wineWowPackages.stable
     winetricks
+    python313Packages.pyclip # for waydroid copy & paste support
     # ranger # terminal file explorer
     # screenkey # shows keypresses on screen
     # textpieces # Manipulate texts

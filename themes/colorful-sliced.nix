@@ -38,7 +38,7 @@
       font-monospace-name = "JetBrains Mono Nerd Font";
       font-sansSerif-package = pkgs.source-sans-pro;
       font-sansSerif-name = "Source Sans Pro";
-      font-emoji-package = pkgs.noto-fonts-emoji;
+      font-emoji-package = pkgs.noto-fonts-color-emoji;
       font-emoji-name = "Noto Color Emoji";
       font-size-applications = 13;
       font-size-desktop = 13;
