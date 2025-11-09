@@ -13,5 +13,6 @@
     ./system
     ./openvpn
     ./lazycommit
+    ./fileinfo
   ];
 }
