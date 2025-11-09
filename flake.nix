@@ -32,6 +32,7 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    optmz.url = "github:romek-codes/optmz";
 
     nurpkgs.url = "github:nix-community/NUR";
 

@@ -25,6 +25,8 @@ This module provides a set of scripts to control the brightness of the screen.
 
 
 
+
+
 ## Hyprpanel
 
 Quick scripts to toggle, reload, hide & show hyprpanel.

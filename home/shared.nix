@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, inputs, ... }: {
   # Modify this to your hearts content.
   # This is where you should define what programs to install etc.
   # You can find programs here:
@@ -40,6 +40,7 @@
     wineWowPackages.stable
     winetricks
     python313Packages.pyclip # for waydroid copy & paste support
+    inputs.optmz.packages.x86_64-linux.default
     # ranger # terminal file explorer
     # screenkey # shows keypresses on screen
     # textpieces # Manipulate texts
