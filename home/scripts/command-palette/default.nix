@@ -184,20 +184,38 @@ let
       	command_found=1
 	elif [[ "$selected" == *"Toggle night mode"* ]]; then
 	state_file="/tmp/night_mode_state"
+	cache_file="/tmp/ddcutil_buses"
+
+	# Get or cache bus numbers
+	# IMPORTANT: If you have a new monitor you have to remove the cache file so night mode also works for it.
+	if [ ! -f "$cache_file" ]; then
+	  ddcutil detect | grep -oP 'I2C bus:\s+/dev/i2c-\K\d+' > "$cache_file"
+	fi
+
+	buses=($(cat "$cache_file"))
+
 	if [ -f "$state_file" ]; then
 	  # Day mode
-	  (ddcutil --display 1 setvcp 10 200 && ddcutil --display 1 setvcp 12 100) &
-	  (ddcutil --display 2 setvcp 10 200 && ddcutil --display 2 setvcp 12 100) &
+	  for bus in "''${buses[@]}"; do
+	    # Change brightness to 200
+	    ddcutil --noverify --sleep-multiplier 0.1 --bus "$bus" setvcp 10 200 &
+	    # Change contrast to 100
+	    ddcutil --noverify --sleep-multiplier 0.1 --bus "$bus" setvcp 12 150 &
+	  done
 	  wait
-	  blue-light-filter
+	  blue-light-filter-off
 	  rm "$state_file"
+	  notify-send "☀️  Day mode" "Brightness restored"
 	else
 	  # Night mode
-	  (ddcutil --display 1 setvcp 10 15 && ddcutil --display 1 setvcp 12 30) &
-	  (ddcutil --display 2 setvcp 10 15 && ddcutil --display 2 setvcp 12 30) &
+	  for bus in "''${buses[@]}"; do
+	    ddcutil --noverify --sleep-multiplier 0.1 --bus "$bus" setvcp 10 15 &
+	    ddcutil --noverify --sleep-multiplier 0.1 --bus "$bus" setvcp 12 15 &
+	  done
 	  wait
-	  blue-light-filter
+	  blue-light-filter-on
 	  touch "$state_file"
+	  notify-send "🌙  Night mode" "Brightness dimmed"
 	fi
 	command_found=1
         elif [[ "$selected" == *"Display settings"* ]]; then
