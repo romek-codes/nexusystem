@@ -21,7 +21,7 @@ let
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Search apps (SUPER + P)" "applications-all" "applications programs software launcher menu"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
-      "Toggle blue light filter (SUPER + F2)" "preferences-desktop-display-nightcolor" "blf night mode eye strain redshift flux"
+      "Toggle blue light filter (SUPER + F2)" "preferences-desktop-display-nightcolor" "blf eye strain redshift flux"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Todos" "todoist" "todo todoist td planify tasks organize productivity"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
@@ -34,6 +34,10 @@ let
       "Screenshot (SUPER + A / ALT + PRINTSCREEN)" "screengrab" "ss screen capture print image save"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Toggle zen mode" "face-ninja" "focus"
+      printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
+      "Toggle night mode" "weather-clear-night" "dark dim evening sleep eye comfort brightness ddc monitor"
+      printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
+      "Display settings" "preferences-desktop-display" "monitor brightness ddc ddcui screen configuration"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
       "Search files" "gnome-search-tool" "sf find file browse directory explore"
       printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
@@ -178,6 +182,27 @@ let
       	elif [[ "$selected" == *"Toggle blue light filter"* ]]; then
       	blue-light-filter
       	command_found=1
+	elif [[ "$selected" == *"Toggle night mode"* ]]; then
+	state_file="/tmp/night_mode_state"
+	if [ -f "$state_file" ]; then
+	  # Day mode
+	  (ddcutil --display 1 setvcp 10 200 && ddcutil --display 1 setvcp 12 100) &
+	  (ddcutil --display 2 setvcp 10 200 && ddcutil --display 2 setvcp 12 100) &
+	  wait
+	  blue-light-filter
+	  rm "$state_file"
+	else
+	  # Night mode
+	  (ddcutil --display 1 setvcp 10 15 && ddcutil --display 1 setvcp 12 30) &
+	  (ddcutil --display 2 setvcp 10 15 && ddcutil --display 2 setvcp 12 30) &
+	  wait
+	  blue-light-filter
+	  touch "$state_file"
+	fi
+	command_found=1
+        elif [[ "$selected" == *"Display settings"* ]]; then
+        uwsm app -- ddcui
+        command_found=1
       	elif [[ "$selected" == *"Emoji picker"* ]]; then
       	rofimoji -f emojis
       	command_found=1

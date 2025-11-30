@@ -13,7 +13,8 @@ let
   defaultApps = {
     browser = [ "${mainBrowserBinary}.desktop" ];
     text = [ "${mainEditorBinary}.desktop" ];
-    image = [ "imv-dir.desktop" ];
+    # image = [ "imv-dir.desktop" ];
+    image = [ "feh.desktop" ];
     audio = [ "mpv.desktop" ];
     video = [ "mpv.desktop" ];
     directory = [ "thunar.desktop" ];

@@ -31,6 +31,7 @@ in {
     hyprpicker
     swappy
     imv
+    feh
     wf-recorder
     wlr-randr
     wl-clipboard

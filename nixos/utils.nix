@@ -100,6 +100,7 @@ in {
     wget
     curl
     vim
+    ddcutil
   ];
 
   xdg.portal = {
@@ -125,4 +126,6 @@ in {
   };
 
   services.logind.settings = { Login = { HandlePowerKey = "ignore"; }; };
+
+  hardware.i2c.enable = true;
 }
