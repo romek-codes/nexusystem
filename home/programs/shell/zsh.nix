@@ -50,6 +50,7 @@ in {
       sail = "[ -f sail ] && sh sail || sh vendor/bin/sail";
       phpstan = "./vendor/bin/phpstan";
       pint = "./vendor/bin/pint";
+      ff = "fastfetch";
     };
 
     # TODO: Why doesnt this work at all unless i specifically source zshrc manually?
