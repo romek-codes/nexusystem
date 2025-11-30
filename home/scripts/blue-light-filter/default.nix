@@ -10,7 +10,8 @@
 #- - `blue-light-filter-status-icon` checks if blue-light-filter is active. (icon)
 { pkgs, ... }:
 let
-  value = "4500"; # Default value for blue-light-filter temperature
+  # Default value for blue-light-filter temperature (lower is more orange)
+  value = "3500";
 
   blue-light-filter-on = pkgs.writeShellScriptBin "blue-light-filter-on"
     # bash 
