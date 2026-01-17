@@ -113,6 +113,9 @@ return {
 			-- Useful for getting pretty icons, but requires a Nerd Font.
 			{ "nvim-tree/nvim-web-devicons", enabled = true },
 		},
+		-- keys = {
+		-- 	{ "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "[f]ile" },
+		-- },
 		config = function()
 			-- Telescope is a fuzzy finder that comes with a lot of different things that
 			-- it can fuzzy find! It's more than just a "file finder", it can search
