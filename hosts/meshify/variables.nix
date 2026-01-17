@@ -44,6 +44,7 @@
         "desc:Acer Technologies X28 ##GTIYMxgwAAt+,2560x1440@144.0,1080x0,1.0" # Main screen
         "desc:Iiyama North America PL2288H 0x01010101,1920x1080@60.0,0x0,1.0" # Vertical monitor
         "desc:Iiyama North America PL2288H 0x01010101,transform,1"
+        "desc:EPL P62_Pro 0x00000001,1920x1080@60,0x0,1,mirror,desc:Acer Technologies X28 ##GTIYMxgwAAt+" # Projector
       ];
     };
   };

@@ -44,6 +44,11 @@
     xsane
     filezilla
     ddcui
+    r2modman
+    warehouse
+    mangohud
+    graphviz
+    # gale
     # ranger # terminal file explorer
     # screenkey # shows keypresses on screen
     # textpieces # Manipulate texts

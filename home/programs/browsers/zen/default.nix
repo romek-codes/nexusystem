@@ -8,6 +8,7 @@ in {
   imports = [ inputs.zen-browser.homeModules.beta ];
 
   config = lib.mkIf (builtins.elem "zen" config.var.browsers) {
+    stylix.targets.zen-browser.profileNames = [ "default" ];
     programs.zen-browser = {
       enable = true;
       # extra home manager options (see the home manager firefox module for the available options)

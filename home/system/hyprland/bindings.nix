@@ -2,7 +2,7 @@
   wayland.windowManager.hyprland.settings = {
     bind = [
       "$mod,RETURN, exec, footclient" # Terminal (footclient)
-      "$mod,E, exec,  uwsm app -- ${pkgs.xfce.thunar}/bin/thunar" # File explorer (thunar)
+      "$mod,E, exec,  uwsm app -- ${pkgs.thunar}/bin/thunar" # File explorer (thunar)
       "$ctrlMod,L, exec, lock"
       "$mod,P, exec, app-menu" # Launch an app
 
