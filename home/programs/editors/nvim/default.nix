@@ -22,7 +22,7 @@
         black
         blade-formatter
         isort
-        nixfmt-classic
+        nixfmt
         # pint # installed using composer on a per project basis
         prettierd
         rustywind

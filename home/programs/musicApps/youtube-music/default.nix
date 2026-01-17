@@ -2,7 +2,7 @@
   config = lib.mkIf (builtins.elem "youtube-music" config.var.musicApps) {
     home.packages = with pkgs;
       [
-        youtube-music
+        pear-desktop # previously named yt music
         # When home manager module support drops (https://github.com/th-ch/youtube-music/issues/2879), add these plugins as default:
         # Ad Blocker
         # Album Color Theme

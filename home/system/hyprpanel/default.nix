@@ -30,12 +30,30 @@ let
   location = config.var.location;
   isLaptop = config.var.isLaptop or false;
 
-  rightItems = [ "systray" "volume" "bluetooth" ]
+  rightItems = [ "custom/ps4-battery" "systray" "volume" "bluetooth" ]
     ++ (lib.optional isLaptop "battery")
     ++ [ "network" "clock" "notifications" ];
 in {
 
   wayland.windowManager.hyprland.settings.exec-once = [ "hyprpanel" ];
+
+  home.file.".config/hyprpanel/modules.json".text = builtins.toJSON {
+    "custom/ps4-battery" = {
+      icon = [ "󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
+      label = "{percentage}%";
+      tooltip = "{model}: {percentage}%";
+      execute =
+        "upower -e | grep -q ps_controller && for c in $(upower -e | grep ps_controller); do upower -i \"$c\" | awk '/model:/{m=$2} /percentage:/{p=$2} END{printf \"{\\\"model\\\":\\\"%s\\\", \\\"percentage\\\":%d}\", m, p}'; done || echo ''";
+      interval = 30000;
+      hideOnEmpty = true;
+      actions.onLeftClick = ''
+        notify-send "$(upower -i $(upower -e | grep ps_controller) | grep -E 'model|percentage|state')"'';
+    };
+  };
+
+  home.file.".config/hyprpanel/modules.scss".text = ''
+    @include styleModule('cmodule-ps4-battery', ('icon-color': ${accent}));
+  '';
 
   programs.hyprpanel = {
     enable = true;

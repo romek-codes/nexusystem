@@ -28,6 +28,7 @@ in {
   };
 
   time = { timeZone = timeZone; };
+  # services.timesyncd.enable = false; # If you want to set custom time / date
   i18n.defaultLocale = defaultLocale;
   i18n.extraLocaleSettings = {
     LC_ADDRESS = extraLocale;
@@ -75,6 +76,8 @@ in {
     gvfs.enable = true;
     upower.enable = true;
     udisks2.enable = true;
+    flatpak.enable =
+      true; # For installing some stuff that might not be available in nixpkgs.
   };
 
   # enable zsh autocompletion for system packages (systemd, etc)

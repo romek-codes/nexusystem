@@ -107,9 +107,10 @@ in {
   imports = [ inputs.textfox.homeManagerModules.default ];
 
   config = lib.mkIf (builtins.elem "firefox" config.var.browsers) {
+    stylix.targets.firefox.profileNames = [ "default" ];
+
     programs.firefox = {
       enable = true;
-
       profiles.default = {
         id = 0;
 

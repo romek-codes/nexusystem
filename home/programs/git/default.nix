@@ -8,8 +8,6 @@ in {
   programs.git = {
     enable = true;
     lfs.enable = true;
-    userName = username;
-    userEmail = email;
     signing = {
       key = signingKey;
       signByDefault = signingKey != null;
@@ -26,14 +24,15 @@ in {
       "result"
       "result-*"
     ];
-    extraConfig = {
+    settings = {
+      user.name = username;
+      user.email = email;
       init.defaultBranch = "main";
       pull.rebase = "false";
       push.autoSetupRemote = true;
       color.ui = "1";
-      # commit.gpgsign = true;
+      alias = { };
     };
-    aliases = { };
   };
 
   # home.packages = with pkgs; [ git-lfs ];
