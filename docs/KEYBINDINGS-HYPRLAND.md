@@ -20,6 +20,7 @@
 | Calculator | SUPER + C |
 | Change keyboard layout | SUPER + SPACE |
 | Close window | SUPER + Q |
+| Force kill window | SHIFT + SUPER + Q |
 | Toggle Floating | SUPER + T |
 | Toggle Fullscreen | SUPER + F |
 | Move focus left | SUPER + h |
