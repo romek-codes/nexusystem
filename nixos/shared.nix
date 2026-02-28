@@ -24,5 +24,6 @@
     ./gamemode.nix
     ./stylix.nix
     ./waydroid.nix
+    ./affinity.nix
   ];
 }

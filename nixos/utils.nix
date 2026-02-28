@@ -1,4 +1,10 @@
-{ pkgs, config, inputs, lib, ... }:
+{
+  pkgs,
+  config,
+  inputs,
+  lib,
+  ...
+}:
 let
   helpers = import ../helpers { inherit lib; };
   hostname = config.var.hostname;
@@ -9,12 +15,16 @@ let
   extraLocale = config.var.extraLocale;
   autoUpgrade = config.var.autoUpgrade;
   mainBrowser = builtins.head config.var.browsers;
-  mainBrowserBinary =
-    helpers.getOrBasename helpers.browserBinaryMap mainBrowser;
+  mainBrowserBinary = helpers.getOrBasename helpers.browserBinaryMap mainBrowser;
   mainEditor = builtins.head config.var.editors;
   mainEditorBinary = helpers.getOrBasename helpers.editorBinaryMap mainEditor;
-in {
+in
+{
   networking.hostName = hostname;
+  networking.nameservers = [
+    "8.8.8.8"
+    "1.1.1.1"
+  ];
 
   networking.networkmanager.enable = true;
   systemd.services.NetworkManager-wait-online.enable = false;
@@ -23,11 +33,17 @@ in {
     enable = autoUpgrade;
     dates = "04:00";
     flake = "${configDir}";
-    flags = [ "--update-input" "nixpkgs" "--commit-lock-file" ];
+    flags = [
+      "--update-input"
+      "nixpkgs"
+      "--commit-lock-file"
+    ];
     allowReboot = false;
   };
 
-  time = { timeZone = timeZone; };
+  time = {
+    timeZone = timeZone;
+  };
   # services.timesyncd.enable = false; # If you want to set custom time / date
   i18n.defaultLocale = defaultLocale;
   i18n.extraLocaleSettings = {
@@ -71,13 +87,15 @@ in {
     dbus = {
       enable = true;
       implementation = "broker";
-      packages = with pkgs; [ gcr gnome-settings-daemon ];
+      packages = with pkgs; [
+        gcr
+        gnome-settings-daemon
+      ];
     };
     gvfs.enable = true;
     upower.enable = true;
     udisks2.enable = true;
-    flatpak.enable =
-      true; # For installing some stuff that might not be available in nixpkgs.
+    flatpak.enable = true; # For installing some stuff that might not be available in nixpkgs.
   };
 
   # enable zsh autocompletion for system packages (systemd, etc)
@@ -111,7 +129,10 @@ in {
     xdgOpenUsePortal = true;
     config = {
       common.default = [ "hyprland" ];
-      hyprland.default = [ "gtk" "hyprland" ];
+      hyprland.default = [
+        "gtk"
+        "hyprland"
+      ];
     };
 
     extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];
@@ -128,7 +149,11 @@ in {
     sudo.wheelNeedsPassword = false;
   };
 
-  services.logind.settings = { Login = { HandlePowerKey = "ignore"; }; };
+  services.logind.settings = {
+    Login = {
+      HandlePowerKey = "ignore";
+    };
+  };
 
   hardware.i2c.enable = true;
 }

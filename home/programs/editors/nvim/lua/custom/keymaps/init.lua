@@ -42,18 +42,24 @@ vim.keymap.set("", "<leader>tf", function()
 		print("Auto-format enabled")
 	end
 end, { desc = "[f]ormat on save" })
-vim.keymap.set(
-	"",
-	"<Leader>e",
-	-- "<cmd>lua MiniFiles.open()<cr>",
-	-- Open focused on current file
-	function()
-		local MiniFiles = require("mini.files")
-		local _ = MiniFiles.close() or MiniFiles.open(vim.api.nvim_buf_get_name(0), false)
+vim.keymap.set("", "<Leader>e", function()
+	local MiniFiles = require("mini.files")
+	if not MiniFiles.close() then
+		local bufname = vim.api.nvim_buf_get_name(0)
+		local path = bufname
+
+		-- Handle Oil buffers
+		if bufname:match("^oil://") then
+			path = bufname:gsub("^oil://", "")
+		end
+
+		local ok = pcall(MiniFiles.open, path, false)
+		if not ok then
+			MiniFiles.open(vim.fn.getcwd(), false)
+		end
 		MiniFiles.reveal_cwd()
-	end,
-	{ desc = "[e]xplorer" }
-)
+	end
+end, { desc = "[e]xplorer" })
 vim.keymap.set("n", "<Leader>ow", "<cmd>Obsidian workspace<cr>", { desc = "[w]orkspace" })
 vim.keymap.set("n", "<Leader>of", "<cmd>Obsidian search<cr>", { desc = "[f]ind" })
 vim.keymap.set("n", "<Leader>oo", "<cmd>Obsidian open<cr>", { desc = "[o]pen" })

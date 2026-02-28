@@ -24,7 +24,7 @@
         tree-sitter
 
         # Formatters
-        mdformat
+        # mdformat # TODO: some issue during build on newest version, retry a few versions later
         black
         blade-formatter
         isort
