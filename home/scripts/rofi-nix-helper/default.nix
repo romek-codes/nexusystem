@@ -71,7 +71,7 @@ let
                 cmd="nh clean all"
                 run_command "$cmd"
               elif [[ $1 == "upgrade" ]];then
-                cmd="nh os switch --upgrade -H ${hostname} ${configDirectory}"
+                cmd="nh os switch --update -H ${hostname} ${configDirectory}"
                 run_command "$cmd"
               elif [[ $1 == "update" ]];then
                 cmd="cd ${configDirectory} && nix flake update"

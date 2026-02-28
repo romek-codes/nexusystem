@@ -12,6 +12,7 @@
       "$mod,C,exec,rofi -show calc -modi calc -no-show-match -no-sort" # Calculator
       "$mod,SPACE,exec,change-keyboard-layout" # Change keyboard layout
       "$mod,Q, killactive," # Close window
+      "$shiftMod,Q, exec, hyprctl dispatch closewindow address:$(hyprctl activewindow -j | jq -r '.address')" # Force kill window
       "$mod,T, togglefloating," # Toggle Floating
       "$mod,F, fullscreen" # Toggle Fullscreen
 
@@ -45,6 +46,7 @@
       "$shiftMod,T, exec, hyprpanel-toggle" # Toggle hyprpanel
       "$mod,V,exec,rofi-cliphist" # Clipboard history with rofi
       "$shiftMod,E, exec, rofimoji -f geometric_shapes geometric_shapes_extended nerd_font emojis" # Nerdfont and emoji picker with rofi
+
       "$mod,F2, exec, blue-light-filter" # Toggle blue light
       ", gesture:3:horizontal, workspace, e+1"
     ] ++ (builtins.concatLists (builtins.genList (i:

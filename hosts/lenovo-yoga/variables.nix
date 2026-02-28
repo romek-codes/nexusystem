@@ -1,13 +1,17 @@
-{ config, lib, ... }: {
+{ config, lib, ... }:
+{
   imports = [ ../../themes/example.nix ];
 
   config.var = {
     hostname = "lenovo-yoga";
     username = "romek";
-    configDirectory = "/home/" + config.var.username
-      + "/Workspace/nexusystem"; # The path of the nixos configuration directory
+    configDirectory = "/home/" + config.var.username + "/Workspace/nexusystem"; # The path of the nixos configuration directory
 
-    browsers = [ "zen" "ungoogled-chromium" "firefox" ];
+    browsers = [
+      "zen"
+      "ungoogled-chromium"
+      "firefox"
+    ];
 
     editors = [ "nvim" ];
 
