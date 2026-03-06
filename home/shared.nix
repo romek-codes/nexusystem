@@ -53,6 +53,7 @@
     graphviz
     scribus
     dupeguru
+    displaylink
     # gale
     # ranger # terminal file explorer
     # screenkey # shows keypresses on screen
