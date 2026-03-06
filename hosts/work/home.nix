@@ -1,15 +1,28 @@
-{ pkgs, config, ... }: {
+{ pkgs, config, ... }:
+{
 
-  imports = [ ./variables.nix ../../home/shared.nix ../../home/essentials.nix ];
+  imports = [
+    ./variables.nix
+    ../../home/shared.nix
+    ../../home/essentials.nix
+  ];
 
   home = {
     inherit (config.var) username;
     homeDirectory = "/home/" + config.var.username;
 
-    # Only install slack on this host
-    packages = with pkgs; [ slack ];
+    # Only install these apps on this host
+    packages = with pkgs; [
+      claude-code
+      slack
+      intune-portal
+      microsoft-identity-broker
+      microsoft-edge
+    ];
 
-    file.".face.icon" = { source = ../profile_picture.png; };
+    file.".face.icon" = {
+      source = ../profile_picture.png;
+    };
 
     # Don't touch this
     stateVersion = "24.05";

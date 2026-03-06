@@ -28,6 +28,8 @@ in
 
   networking.networkmanager.enable = true;
   systemd.services.NetworkManager-wait-online.enable = false;
+  # For displaylink
+  systemd.services.dlm.wantedBy = [ "multi-user.target" ];
 
   system.autoUpgrade = {
     enable = autoUpgrade;
@@ -63,6 +65,8 @@ in
       enable = true;
       xkb.layout = keyboardLayout;
       xkb.variant = "";
+      # For displaylink
+      videoDrivers = [ "displaylink" ];
     };
     gnome.gnome-keyring.enable = true;
     psd = {
