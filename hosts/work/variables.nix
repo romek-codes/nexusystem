@@ -1,4 +1,5 @@
-{ config, lib, ... }: {
+{ config, lib, ... }:
+{
   imports = [
     # Choose your theme here:
     ../../themes/example.nix
@@ -7,12 +8,17 @@
   config.var = {
     hostname = "work";
     username = "romek";
-    configDirectory = "/home/" + config.var.username
-      + "/Workspace/nexusystem"; # The path of the nixos configuration directory
+    configDirectory = "/home/" + config.var.username + "/Workspace/nexusystem"; # The path of the nixos configuration directory
 
-    browsers = [ "zen" "ungoogled-chromium" ];
+    browsers = [
+      "zen"
+      "ungoogled-chromium"
+    ];
 
-    editors = [ "nvim" "vscode" ];
+    editors = [
+      "nvim"
+      "vscode"
+    ];
 
     musicApps = [ "youtube-music" ];
 
@@ -31,8 +37,8 @@
 
     git = {
       username = "Roman Juszczyk";
-      email = "roman.juszczyk@zoxs.de";
-      signingKey = "86FB80FCC9361C0C";
+      email = "juszczyk@wus-technik.com";
+      signingKey = "FF884E97BC82D41B";
     };
 
     autoUpgrade = false;
@@ -41,9 +47,9 @@
     withGames = false;
 
     monitorConfig = [
-      "desc:AU Optronics 0xD291,1920x1200@60.03,0x0,1" # work laptop internal
-      "desc:Samsung Electric Company SAMSUNG 0x01000601,1920x1200@60.03,1920x0,1.0" # meeting room tv
-      "desc:Acer Technologies X28 ##GTIYMxgwAAt+,1920x1080@60.00,1920x0,1" # for hdmi, lower res
+      "desc:Lenovo Group Limited B140UAN08.0,1920x1200@60.00,0x0,1.0" # eDP-1 (built-in display)
+      "desc:Dell Inc. DELL U2722D 75DX6H3,2560x1440@59.95,1920x0,1.0" # DVI-I-2 (left external)
+      "desc:Dell Inc. DELL U2722D H1577H3,2560x1440@59.95,4480x0,1.0" # DVI-I-1 (right external)
     ];
   };
 

@@ -1,16 +1,3 @@
-local Path = require("plenary.path")
-local workspacePaths = {
-	{ name = "personal", path = "/home/romek/notes/personal" },
-	{ name = "work", path = "/home/romek/notes/work" },
-}
-local workspaces = {}
-for _, workspaceInfo in ipairs(workspacePaths) do
-	local workspacePath = workspaceInfo.path
-	if Path:new(workspacePath):exists() then
-		table.insert(workspaces, { name = workspaceInfo.name, path = workspacePath })
-	end
-end
-
 return {
 	-- Use `opts = {}` to automatically pass options to a plugin's `setup()` function, forcing the plugin to be loaded.
 
@@ -747,17 +734,31 @@ return {
 		end,
 	},
 	{
-		"obsidian-nvim/obsidian.nvim",
-		version = "*",
-		opts = {
-			workspaces = workspaces,
-			legacy_commands = false,
-			-- ui = { enable = false },
-			-- disable_frontmatter = true,
-		},
-		lazy = false,
-		ft = "markdown",
-		dependencies = { "nvim-lua/plenary.nvim" },
+	  "obsidian-nvim/obsidian.nvim",
+	  version = "*",
+	  lazy = false,
+	  ft = "markdown",
+	  dependencies = { "nvim-lua/plenary.nvim" },
+	  opts = function()
+	    local Path = require("plenary.path")
+
+	    local workspacePaths = {
+	      { name = "personal", path = "/home/romek/notes/personal" },
+	      { name = "work", path = "/home/romek/notes/work" },
+	    }
+
+	    local workspaces = {}
+	    for _, workspaceInfo in ipairs(workspacePaths) do
+	      if Path:new(workspaceInfo.path):exists() then
+		table.insert(workspaces, workspaceInfo)
+	      end
+	    end
+
+	    return {
+	      workspaces = workspaces,
+	      legacy_commands = false,
+	    }
+	  end,
 	},
 	{
 		"goolord/alpha-nvim",

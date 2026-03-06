@@ -1,4 +1,10 @@
-{ pkgs, lib, config, ... }: {
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
+{
   boot = {
     bootspec.enable = true;
     loader = {
@@ -10,8 +16,7 @@
       };
     };
     tmp.cleanOnBoot = true;
-    kernelPackages =
-      pkgs.linuxPackages_latest; # _zen, _hardened, _rt, _rt_latest, etc.
+    kernelPackages = pkgs.linuxPackages_latest; # _zen, _hardened, _rt, _rt_latest, etc.
 
     # Silent boot
     kernelParams = [
@@ -28,8 +33,13 @@
     # cool themes:
     # rings, owl, dragon, colorful_sliced
     plymouth = config.theme.plymouth;
+    # For displaylink
+    extraModulePackages = [ config.boot.kernelPackages.evdi ];
+    initrd.kernelModules = [ "evdi" ];
   };
 
   # To avoid systemd services hanging on shutdown
-  systemd.settings.Manager = { DefaultTimeoutStopSec = "10s"; };
+  systemd.settings.Manager = {
+    DefaultTimeoutStopSec = "10s";
+  };
 }
