@@ -10,7 +10,8 @@ The process is straight-forward.
 - Create a Pull Request against the main branch of nexusystem.
 
 > [!TIP]
-> To update the README, change the `./.github/assets/README_template.md`
+> The README is edited directly in `README.md`. The template in
+> `./.github/assets/README_template.md` is optional and not auto-generated.
 
 > [!IMPORTANT]
 > Don't push your host's folder
