@@ -1,0 +1,38 @@
+site_name: nexusystem docs
+site_description: Documentation for the nexusystem NixOS + Home Manager configuration
+site_url: https://romek-codes.github.io/nexusystem/
+repo_url: https://github.com/romek-codes/nexusystem
+repo_name: nexusystem
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.action.edit
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Server setup: SERVER.md
+  - Themes: THEMES.md
+  - Scripts: SCRIPTS.md
+  - Hyprland keybindings: KEYBINDINGS-HYPRLAND.md
+  - Usage tips: USAGE_TIPS.md
+  - Contributing: CONTRIBUTING.md
