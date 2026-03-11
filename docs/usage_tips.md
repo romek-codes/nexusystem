@@ -2,17 +2,17 @@
 
 ## Essentials (Hyprland)
 
-- Command palette: `SUPER`
-- Switch workspace: `SUPER + {number}`
-- Move window to workspace: `SHIFT + SUPER + {number}`
-- Program list: `SUPER + P`
-- Terminal: `SUPER + ENTER`
-- File manager: `SUPER + E`
-- Close window: `SUPER + Q`
-- Toggle fullscreen: `SUPER + F`
-- Toggle floating: `SUPER + T`
+- Command palette: :material-microsoft-windows:
+- Switch workspace: :material-microsoft-windows: + {number}
+- Move window to workspace: SHIFT + :material-microsoft-windows: + {number}
+- Program list: :material-microsoft-windows: + P
+- Terminal: :material-microsoft-windows: + ENTER
+- File manager: :material-microsoft-windows: + E
+- Close window: :material-microsoft-windows: + Q
+- Toggle fullscreen: :material-microsoft-windows: + F
+- Toggle floating: :material-microsoft-windows: + T
 
-More keybindings: `docs/KEYBINDINGS-HYPRLAND.md`.
+More keybindings: [Keybindings](keybindings.md).
 
 ## Quick actions
 

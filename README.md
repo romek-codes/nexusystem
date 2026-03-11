@@ -20,6 +20,9 @@
     <a href="https://github.com/romek-codes/nexusystem/blob/main/LICENSE">
         <img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=MIT&colorA=171E1F&colorB=5F9A51&logo=unlicense&logoColor=5F9A51"/>
     </a>
+    <a href="https://romek-codes.github.io/nexusystem/">
+        <img src="https://img.shields.io/badge/Docs-Website?style=for-the-badge&labelColor=171E1F&color=5F9A51&logo=readthedocs&logoColor=5F9A51"/>
+    </a>
 </div>
 <br>
 
@@ -73,10 +76,10 @@ and much more!
 
 ## Gallery
 
-![nvim, yt music](.github/assets/images/nvim-yt-music.png)
-![zen browser, command palette](.github/assets/images/zen-browser-and-command-palette.png)
-![qdirstat planify](.github/assets/images/qdirstat-planify.png)
-![steam and lutris for gaming](.github/assets/images/gaming.png)
+![nvim, yt music](docs/assets/images/nvim-yt-music.png)
+![zen browser, command palette](docs/assets/images/zen-browser-and-command-palette.png)
+![qdirstat planify](docs/assets/images/qdirstat-planify.png)
+![steam and lutris for gaming](docs/assets/images/gaming.png)
 
 ## Architecture
 
@@ -87,7 +90,7 @@ Contains **dotfiles and settings** that apply to your user environment.
 **Subfolders:**
 
 - `programs` is a collection of apps configured with home-manager
-- `scripts` is a folder full of bash scripts (see [SCRIPTS.md](docs/SCRIPTS.md))
+- `scripts` is a folder full of bash scripts
 - `system` is some "desktop environment" configuration
 
 ### 🐧 /nixos
@@ -97,7 +100,7 @@ Those are the system-level configurations. (audio, bluetooth, gpu, bootloader, .
 ### 🎨 /themes
 
 This folder contains all system themes. Mainly [stylix](https://stylix.danth.me/) configurations.
-Check out the available themes and learn how to create your own in [THEMES.md](docs/THEMES.md)
+Check out the available themes and learn how to create your own in [themes.md](docs/themes.md)
 
 ### 💻 /hosts
 
@@ -118,7 +121,8 @@ setup, and rebuild steps.
 
 ## Documentation
 
-See the `docs/` folder for full details and guides.
+See the `docs/` folder for full details and guides, or browse the published docs:
+https://romek-codes.github.io/nexusystem/
 
 ## Credits
 
