@@ -27,7 +27,7 @@
 
 ## 4) Get this config
 
-First, fork this repo on GitHub. Then open a terminal and run:
+First, fork [this repo on GitHub](https://github.com/romek-codes/nexusystem). Then open a terminal and run:
 
 ```sh
 git clone https://github.com/<your-username>/nexusystem ~/nexusystem
@@ -111,4 +111,4 @@ reboot
 
 ---
 
-Next: see `docs/usage_tips.md` for daily-use tips.
+Next: see [Usage tips](usage_tips.md) for daily-use tips.
