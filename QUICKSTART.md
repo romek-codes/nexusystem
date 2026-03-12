@@ -111,4 +111,4 @@ reboot
 
 ---
 
-Next: see `docs/USAGE_TIPS.md` for daily-use tips.
+Next: see `docs/usage_tips.md` for daily-use tips.

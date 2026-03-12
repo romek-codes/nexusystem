@@ -9,9 +9,5 @@ The process is straight-forward.
 - Write your changes (new theme, bug fixes, issues fix, ...).
 - Create a Pull Request against the main branch of nexusystem.
 
-> [!TIP]
-> The README is edited directly in `README.md`. The template in
-> `./.github/assets/README_template.md` is optional and not auto-generated.
-
 > [!IMPORTANT]
 > Don't push your host's folder
