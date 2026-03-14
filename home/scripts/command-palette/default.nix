@@ -357,7 +357,10 @@ let
             	uwsm app -- blueman-manager
             	command_found=1
             	elif [[ "$selected" == *"Go to BIOS"* ]]; then
-            	systemctl reboot --firmware-setup
+            	confirm=$(printf "Cancel\nReboot to BIOS\n" | rofi -dmenu -p "Reboot to BIOS?")
+            	if [[ "$confirm" == "Reboot to BIOS" ]]; then
+            	  systemctl reboot --firmware-setup
+            	fi
             	command_found=1
             	fi
 
