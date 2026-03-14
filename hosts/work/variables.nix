@@ -45,6 +45,7 @@
     autoGarbageCollector = true;
     isLaptop = true;
     withGames = false;
+    displaylinkSupport = true;
 
     monitorConfig = [
       "desc:Lenovo Group Limited B140UAN08.0,1920x1200@60.00,0x0,1.0" # eDP-1 (built-in display)

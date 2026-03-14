@@ -34,8 +34,12 @@
     # rings, owl, dragon, colorful_sliced
     plymouth = config.theme.plymouth;
     # For displaylink
-    extraModulePackages = [ config.boot.kernelPackages.evdi ];
-    initrd.kernelModules = [ "evdi" ];
+    extraModulePackages =
+      lib.optionals (config.var.displaylinkSupport or false) [
+        config.boot.kernelPackages.evdi
+      ];
+    initrd.kernelModules =
+      lib.optionals (config.var.displaylinkSupport or false) [ "evdi" ];
   };
 
   # To avoid systemd services hanging on shutdown
