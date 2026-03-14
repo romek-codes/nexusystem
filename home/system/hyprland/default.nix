@@ -129,6 +129,17 @@ in
         # "AQ_DRM_DEVICES,/dev/dri/card2:/dev/dri/card1" # CHANGEME: Related to the GPU
       ];
 
+      plugin = {
+        dynamic-cursors = {
+          enabled = true;
+          mode = "none";
+          shake = {
+            enabled = true;
+            effects = false;
+          };
+        };
+      };
+
       cursor = {
         no_hardware_cursors = true;
         default_monitor = "eDP-2";
@@ -224,4 +235,5 @@ in
 
     };
   };
+
 }
