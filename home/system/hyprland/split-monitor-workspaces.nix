@@ -1,4 +1,5 @@
-{ inputs, pkgs, ... }: {
+{ inputs, pkgs, ... }:
+{
   # wayland.windowManager.hyprland = {
   #   plugins = [
   #     inputs.split-monitor-workspaces.packages.${pkgs.system}.split-monitor-workspaces
@@ -14,6 +15,9 @@
   # };
 
   wayland.windowManager.hyprland = {
-    plugins = [ pkgs.hyprlandPlugins.hyprsplit ];
+    plugins = [
+      pkgs.hyprlandPlugins.hyprsplit
+      pkgs.hyprlandPlugins.hypr-dynamic-cursors
+    ];
   };
 }
