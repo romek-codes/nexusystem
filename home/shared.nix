@@ -40,7 +40,7 @@
     bruno-cli # cli for bruno, needed for bruno.nvim
     crush
     codex # Here to replace crush?
-    wineWowPackages.stable
+    wineWow64Packages.stable
     winetricks
     python313Packages.pyclip # for waydroid copy & paste support
     inputs.optmz.packages.x86_64-linux.default
@@ -52,7 +52,7 @@
     mangohud
     graphviz
     scribus
-    dupeguru
+    # dupeguru # error: sphinx-9.1.0 not supported for interpreter python3.11 on latest update
     # gale
     # ranger # terminal file explorer
     # screenkey # shows keypresses on screen
