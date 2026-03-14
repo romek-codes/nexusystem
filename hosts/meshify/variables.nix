@@ -39,6 +39,7 @@
       autoGarbageCollector = true;
       isLaptop = false;
       withGames = true;
+      displaylinkSupport = false;
 
       monitorConfig = [
         "desc:Acer Technologies X28 ##GTIYMxgwAAt+,2560x1440@144.0,1080x0,1.0" # Main screen
