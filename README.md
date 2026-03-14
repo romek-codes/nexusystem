@@ -62,7 +62,7 @@
 
 **For Creatives:**
 
-- 🎨 **GIMP with Photoshop-like interface** - familiar workflow for designers
+- 🎨 **Affinity v3** - modern design and photo editing workflow
 - 🎬 **Video editing with Kdenlive** - professional video editing capabilities
 
 **For Gamers:**
