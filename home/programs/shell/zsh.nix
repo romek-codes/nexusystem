@@ -57,6 +57,13 @@ in {
     initContent = ''
       # ZSH_TMUX_AUTOSTART=true
 
+      if [ -d "$HOME/.config/composer/vendor/bin" ]; then
+        export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+      fi
+      if [ -d "$HOME/.composer/vendor/bin" ]; then
+        export PATH="$HOME/.composer/vendor/bin:$PATH"
+      fi
+
       # bindkey -e
       bindkey -v
 
