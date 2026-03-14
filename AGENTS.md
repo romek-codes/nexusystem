@@ -82,6 +82,31 @@ Each host imports `../../nixos/shared.nix` and a host `home.nix` via
 - `home/programs/`: modular per-app Home Manager configs (browsers, editors,
   git, shell, etc.).
 
+## Known issues
+
+- Zen browser profile reset after updates (nix + HM):
+  - Symptom: Zen opens clean, missing extensions/settings.
+  - Cause: profile migration .zen -> .config/zen + HM-managed
+    `~/.config/zen/profiles.ini` pointing to `default` while real data lives in
+    another profile dir.
+  - Fix (manual): close Zen, backup `~/.zen` and `~/.config/zen`, restore the
+    old `~/.zen/default` into `~/.config/zen/default`, and ensure
+    `~/.config/zen/profiles.ini` uses `Path=default`. If HM overwrites
+    `profiles.ini`, re-apply after rebuild or update HM config to match the
+    profile path.
+- Hyprland share picker theming:
+  - Symptom: the screen-share picker is white even with Stylix/Kvantum.
+  - Cause: `xdg-desktop-portal-hyprland` uses a Qt6 picker that ignores or fails
+    to apply Stylix/Kvantum/qt6ct styling; forcing Qt theming env vars does not
+    reliably theme it and may break the picker.
+  - Attempted fix: force GTK ScreenCast portal via `xdg.portal.config.hyprland`
+    (`/etc/xdg/xdg-desktop-portal/hyprland-portals.conf`) with
+    `org.freedesktop.impl.portal.ScreenCast=gtk`; this broke the picker (no UI).
+  - Workaround: only override `QT_QPA_PLATFORMTHEME=qt6ct` for
+    `xdg-desktop-portal-hyprland`. Leaving `QT_STYLE_OVERRIDE=kvantum` in place
+    can crash the picker; clearing it makes the picker start but still white.
+  - Status: picker works, but stays white for now (best stable state).
+
 ## Scripts and tooling
 
 - Scripts are aggregated in `home/scripts/default.nix`.
