@@ -76,6 +76,10 @@
       isLaptop = false;
       # Do you want to game on this device?
       withGames = false;
+      # Enable DisplayLink (USB monitor) support. If true, run a prefetch for the
+      # DisplayLink driver archive so the unfree blob can be added to the store:
+      # nix-prefetch-url --name displaylink-600.zip https://www.synaptics.com/sites/default/files/exe_files/2024-05/DisplayLink%20USB%20Graphics%20Software%20for%20Ubuntu6.0-EXE.zip
+      displaylinkSupport = false;
 
       # Extra monitor configuration for hyprland.
       monitorConfig = [ ];

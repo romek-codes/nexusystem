@@ -14,6 +14,7 @@ let
   defaultLocale = config.var.defaultLocale;
   extraLocale = config.var.extraLocale;
   autoUpgrade = config.var.autoUpgrade;
+  displaylinkSupport = config.var.displaylinkSupport or false;
   mainBrowser = builtins.head config.var.browsers;
   mainBrowserBinary = helpers.getOrBasename helpers.browserBinaryMap mainBrowser;
   mainEditor = builtins.head config.var.editors;
@@ -29,7 +30,9 @@ in
   networking.networkmanager.enable = true;
   systemd.services.NetworkManager-wait-online.enable = false;
   # For displaylink
-  systemd.services.dlm.wantedBy = [ "multi-user.target" ];
+  systemd.services.dlm.wantedBy = lib.optionals displaylinkSupport [
+    "multi-user.target"
+  ];
 
   system.autoUpgrade = {
     enable = autoUpgrade;
@@ -66,7 +69,8 @@ in
       xkb.layout = keyboardLayout;
       xkb.variant = "";
       # For displaylink
-      videoDrivers = [ "displaylink" ];
+      videoDrivers =
+        lib.optionals displaylinkSupport [ "displaylink" "modesetting" ];
     };
     gnome.gnome-keyring.enable = true;
     psd = {
@@ -126,7 +130,7 @@ in
     curl
     vim
     ddcutil
-  ];
+  ] ++ lib.optionals displaylinkSupport [ displaylink ];
 
   xdg.portal = {
     enable = true;

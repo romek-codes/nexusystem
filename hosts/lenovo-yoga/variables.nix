@@ -40,6 +40,7 @@
     autoGarbageCollector = true;
     isLaptop = true; # If true battery is shown in hyprbar, otherwise not
     withGames = true; # If true, gaming related things are installed as well.
+    displaylinkSupport = false;
 
     monitorConfig = [
       "desc:California Institute of Technology 0x1402,1920x1200@90.00Hz,0x0,1.25" # laptop-built in
