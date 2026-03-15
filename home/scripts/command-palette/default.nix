@@ -125,7 +125,16 @@ let
             	# https://github.com/lbonn/rofi/issues/22
 
             	# rofi_command="rofi -kb-cancel '[133]' "
-            	rofi_command="rofi "
+             rofi_command="rofi "
+
+            	confirm_action() {
+            		local action_label="$1"
+            		local prompt="$2"
+            		local confirmed
+
+            		confirmed=$(printf "Cancel\n%s\n" "$action_label" | rofi -dmenu -p "$prompt")
+            		[[ "$confirmed" == "$action_label" ]]
+            	}
 
             	if [[ "$selected" == *"Toggle suspend & screenlock"* ]]; then
             	suspend-and-screen-lock
@@ -141,19 +150,27 @@ let
             	uwsm app -- ${pkgs.qdirstat}/bin/qdirstat
             	command_found=1
             	elif [[ "$selected" == *"Shutdown"* ]]; then
-            	systemctl poweroff
+            	if confirm_action "Shutdown" "Power off now?"; then
+            	  systemctl poweroff
+            	fi
             	command_found=1
             	elif [[ "$selected" == *"Reboot"* ]]; then
-            	systemctl reboot
+            	if confirm_action "Reboot" "Reboot now?"; then
+            	  systemctl reboot
+            	fi
             	command_found=1
             	elif [[ "$selected" == *"Todos"* ]]; then
             	uwsm app -- ${pkgs.planify}/bin/io.github.alainm23.planify
             	command_found=1
             	elif [[ "$selected" == *"Suspend"* ]]; then
-            	systemctl suspend
+            	if confirm_action "Suspend" "Suspend now?"; then
+            	  systemctl suspend
+            	fi
             	command_found=1
             	elif [[ "$selected" == *"Logout"* ]]; then
-            	hyprctl dispatch exit
+            	if confirm_action "Logout" "Log out now?"; then
+            	  hyprctl dispatch exit
+            	fi
             	command_found=1
             	elif [[ "$selected" == *"Toggle fullscreen"* ]]; then
             	hyprctl dispatch fullscreen
@@ -357,8 +374,7 @@ let
             	uwsm app -- blueman-manager
             	command_found=1
             	elif [[ "$selected" == *"Go to BIOS"* ]]; then
-            	confirm=$(printf "Cancel\nReboot to BIOS\n" | rofi -dmenu -p "Reboot to BIOS?")
-            	if [[ "$confirm" == "Reboot to BIOS" ]]; then
+            	if confirm_action "Reboot to BIOS" "Reboot to BIOS?"; then
             	  systemctl reboot --firmware-setup
             	fi
             	command_found=1
