@@ -51,6 +51,12 @@
       "desc:Lenovo Group Limited B140UAN08.0,1920x1200@60.00,0x0,1.0" # eDP-1 (built-in display)
       "desc:Dell Inc. DELL U2722D 75DX6H3,2560x1440@59.95,1920x0,1.0" # DVI-I-2 (left external)
       "desc:Dell Inc. DELL U2722D H1577H3,2560x1440@59.95,4480x0,1.0" # DVI-I-1 (right external)
+      "desc:Samsung Electric Company LF24T450F HK7X600495,1920x1080@60.00,1920x0,1.0" # DP-11 (left external)
+      "desc:Samsung Electric Company LF24T450F HK7X600476,1920x1080@60.00,3840x0,1.0" # DP-9 (right external)
+      "desc:Samsung Electric Company LF24T450F HK2X900035,1920x1080@60.00,-3840x0,1.0" # DVI-I-1 (left external)
+      "desc:Samsung Electric Company LF24T450F HK2XA00740,1920x1080@60.00,-1920x0,1.0" # DVI-I-2 (right external)
+      "desc:Lenovo Group Limited L32p-30 U5128TFN,3840x2160@60.00,1920x0,2.0" # DP-2 (left external)
+      "desc:Lenovo Group Limited L32p-30 U5128TFG,3840x2160@60.00,3840x0,2.0" # DVI-I-1 (right external)
     ];
   };
 

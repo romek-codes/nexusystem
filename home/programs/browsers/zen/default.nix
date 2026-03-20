@@ -1,10 +1,17 @@
-{ pkgs, inputs, lib, config, ... }:
+{
+  pkgs,
+  inputs,
+  lib,
+  config,
+  ...
+}:
 let
   customAddons = pkgs.callPackage ./addons.nix {
     inherit lib;
     inherit (inputs.firefox-addons.lib."x86_64-linux") buildFirefoxXpiAddon;
   };
-in {
+in
+{
   imports = [ inputs.zen-browser.homeModules.beta ];
 
   config = lib.mkIf (builtins.elem "zen" config.var.browsers) {
@@ -25,16 +32,17 @@ in {
             ublock-origin
             vimium-c
             vue-js-devtools
+            refined-github
             # onetab
             # firefox-color
             # firefox-translations
             # decentraleyes
             # sidebery
             # firenvim
-          ] ++ (with customAddons;
-            [
-              # old-github-feed
-            ]);
+          ]
+          ++ (with customAddons; [
+            # old-github-feed
+          ]);
       };
 
       policies = {

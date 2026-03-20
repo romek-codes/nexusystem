@@ -1,4 +1,10 @@
-{ pkgs, config, lib, inputs, ... }:
+{
+  pkgs,
+  config,
+  lib,
+  inputs,
+  ...
+}:
 let
   #inherit (specialArgs) addons;
 
@@ -103,7 +109,8 @@ let
   };
   #// dpiSettings;
 
-in {
+in
+{
   imports = [ inputs.textfox.homeManagerModules.default ];
 
   config = lib.mkIf (builtins.elem "firefox" config.var.browsers) {
@@ -124,16 +131,17 @@ in {
             ublock-origin
             vimium-c
             vue-js-devtools
+            refined-github
             # onetab
             # firefox-color
             # firefox-translations
             # decentraleyes
             # sidebery
             # firenvim
-          ] ++ (with customAddons;
-            [
-              # old-github-feed
-            ]);
+          ]
+          ++ (with customAddons; [
+            # old-github-feed
+          ]);
       };
     };
 
