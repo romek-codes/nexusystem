@@ -14,6 +14,11 @@
     # Only install these apps on this host
     packages = with pkgs; [
       claude-code
+      networkmanagerapplet
+      samba
+      miraclecast
+      kopia-ui
+      # kopia
       slack
       intune-portal
       microsoft-identity-broker

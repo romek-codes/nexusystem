@@ -281,6 +281,9 @@ return {
 			end)
 
 			require("lazy-lsp").setup({
+				excluded_servers = {
+					"ltex",
+				},
 				preferred_servers = {
 					-- github.com/phpactor/phpactor/issues/807
 					-- github.com/phpactor/phpactor/issues/2420
@@ -734,31 +737,31 @@ return {
 		end,
 	},
 	{
-	  "obsidian-nvim/obsidian.nvim",
-	  version = "*",
-	  lazy = false,
-	  ft = "markdown",
-	  dependencies = { "nvim-lua/plenary.nvim" },
-	  opts = function()
-	    local Path = require("plenary.path")
+		"obsidian-nvim/obsidian.nvim",
+		version = "*",
+		lazy = false,
+		ft = "markdown",
+		dependencies = { "nvim-lua/plenary.nvim" },
+		opts = function()
+			local Path = require("plenary.path")
 
-	    local workspacePaths = {
-	      { name = "personal", path = "/home/romek/notes/personal" },
-	      { name = "work", path = "/home/romek/notes/work" },
-	    }
+			local workspacePaths = {
+				{ name = "personal", path = "/home/romek/notes/personal" },
+				{ name = "work", path = "/home/romek/notes/work" },
+			}
 
-	    local workspaces = {}
-	    for _, workspaceInfo in ipairs(workspacePaths) do
-	      if Path:new(workspaceInfo.path):exists() then
-		table.insert(workspaces, workspaceInfo)
-	      end
-	    end
+			local workspaces = {}
+			for _, workspaceInfo in ipairs(workspacePaths) do
+				if Path:new(workspaceInfo.path):exists() then
+					table.insert(workspaces, workspaceInfo)
+				end
+			end
 
-	    return {
-	      workspaces = workspaces,
-	      legacy_commands = false,
-	    }
-	  end,
+			return {
+				workspaces = workspaces,
+				legacy_commands = false,
+			}
+		end,
 	},
 	{
 		"goolord/alpha-nvim",
