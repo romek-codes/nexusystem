@@ -25,6 +25,10 @@ in
         userContent = (import ./userContent.nix { inherit config; }).css;
         userChrome = (import ./userChrome.nix { inherit config; }).css;
 
+        settings = {
+          "layout.css.prefers-color-scheme.content-override" = 3;
+        };
+
         extensions.packages =
           with inputs.firefox-addons.packages."x86_64-linux";
           [
