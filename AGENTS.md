@@ -85,15 +85,30 @@ Each host imports `../../nixos/shared.nix` and a host `home.nix` via
 ## Known issues
 
 - Zen browser profile reset after updates (nix + HM):
-  - Symptom: Zen opens clean, missing extensions/settings.
-  - Cause: profile migration .zen -> .config/zen + HM-managed
-    `~/.config/zen/profiles.ini` pointing to `default` while real data lives in
-    another profile dir.
-  - Fix (manual): close Zen, backup `~/.zen` and `~/.config/zen`, restore the
-    old `~/.zen/default` into `~/.config/zen/default`, and ensure
-    `~/.config/zen/profiles.ini` uses `Path=default`. If HM overwrites
-    `profiles.ini`, re-apply after rebuild or update HM config to match the
-    profile path.
+  - Symptom: Zen opens clean, missing extensions/settings/tabs.
+  - Cause: After a Zen update, `~/.zen/profiles.ini` gets rewritten to point to
+    a newly created profile dir (e.g. `26y21xn1.Default Profile`) instead of
+    the real data which lives in `~/.zen/default/`. Despite HM managing
+    `~/.config/zen/`, Zen on this setup still reads from `~/.zen/` — confirm
+    by checking which dir gets a `lock` file after launch.
+  - Fix (manual): close Zen, remove stale lock files, then restore
+    `~/.zen/profiles.ini` to point back to `default`:
+    ```
+    rm -f ~/.zen/default/lock ~/.zen/default/.parentlock
+    cat > ~/.zen/profiles.ini << 'EOF'
+    [General]
+    StartWithLastProfile=1
+    Version=2
+
+    [Profile0]
+    Default=1
+    IsRelative=1
+    Name=default
+    Path=default
+    EOF
+    ```
+  - Real profile data: `~/.zen/default/` (~700MB). The newly created profile
+    dir with a random ID is a red herring — it's empty/fresh.
 - Hyprland share picker theming:
   - Symptom: the screen-share picker is white even with Stylix/Kvantum.
   - Cause: `xdg-desktop-portal-hyprland` uses a Qt6 picker that ignores or fails
