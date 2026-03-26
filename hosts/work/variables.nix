@@ -57,6 +57,8 @@
       "desc:Samsung Electric Company LF24T450F HK2XA00740,1920x1080@60.00,-1920x0,1.0" # DVI-I-2 (right external)
       "desc:Lenovo Group Limited L32p-30 U5128TFN,3840x2160@60.00,1920x0,2.0" # DP-2 (left external)
       "desc:Lenovo Group Limited L32p-30 U5128TFG,3840x2160@60.00,3840x0,2.0" # DVI-I-1 (right external)
+      "desc:Dell Inc. DELL U2724D 79DVJF4,2560x1440@59.95,-5120x0,1.0" # DVI-I-2 (left external)
+      "desc:Dell Inc. DELL U2724D 49DVJF4,2560x1440@59.95,-2560x0,1.0" # DVI-I-1 (middle external)
     ];
   };
 
