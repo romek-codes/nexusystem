@@ -40,13 +40,16 @@
 | Toggle blue light | :material-microsoft-windows: + F2 | — |
 | Move Window (mouse left click) | :material-microsoft-windows: + LEFT | — |
 | Resize Window (mouse right click) | :material-microsoft-windows: + MOUSE RIGHT | — |
+
 ### Tmux
 | Description | Keybinding |
 | -- | -- |
-| Tmux open new window | CTRL + SPACE, C |
-| Tmux go to window | CTRL + SPACE, 1-9 |
-| Tmux close window | CTRL + SPACE, 1-9 |
-| Tmux search text in vim mode | CTRL + SPACE, [ |
+| Open new window | CTRL + SPACE, C |
+| Go to window | CTRL + SPACE, 1-9 |
+| Close pane | CTRL + SPACE, X |
+| Search text in vim mode | CTRL + SPACE, [ |
+| Reload config | CTRL + SPACE, R |
+| Agents overview (live monitor all [claude]/[codex] windows) | CTRL + SPACE, A |
 
 ### Browser (vimium)
 | Description | Keybinding |
