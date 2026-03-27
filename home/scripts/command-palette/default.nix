@@ -51,6 +51,8 @@ let
             printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
             "Toggle VPN" "application-x-openvpn-profile" "security privacy network"
             printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
+            "Close all tmux sessions" "utilities-terminal" "tmux session close kill"
+            printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
             "Emoji picker" "preferences-desktop-emoticons" "icon character"
             printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
             "Nerdfont picker" "preferences-desktop-emoticons" "icon character"
@@ -139,9 +141,9 @@ let
             	if [[ "$selected" == *"Toggle suspend & screenlock"* ]]; then
             	suspend-and-screen-lock
             	command_found=1
-            	elif [[ "$selected" == *"Open terminal"* ]]; then
-            	footclient
-            	command_found=1
+            elif [[ "$selected" == *"Open terminal"* ]]; then
+            tmux-new-terminal
+            command_found=1
             	elif [[ "$selected" == *"Open browser"* ]]; then
               # Not using $BROWSER variable here as it doesnt update directly if modified, needs pc reload, this will be instant after rebuild.
             	uwsm app -- ${mainBrowserBinary}
@@ -252,12 +254,17 @@ let
             	elif [[ "$selected" == *"Reload theme"* ]]; then
             	reload-theme
             	command_found=1
-            	elif [[ "$selected" == *"Toggle VPN"* ]]; then
-            	openvpn-toggle
-            	command_found=1
-            	elif [[ "$selected" == *"Bitwarden"* ]]; then
-            	rofi-rbw
-            	command_found=1
+            elif [[ "$selected" == *"Toggle VPN"* ]]; then
+            openvpn-toggle
+            command_found=1
+            elif [[ "$selected" == *"Close all tmux sessions"* ]]; then
+            if confirm_action "Close all" "Close all tmux sessions?"; then
+              tmux kill-server
+            fi
+            command_found=1
+            elif [[ "$selected" == *"Bitwarden"* ]]; then
+            rofi-rbw
+            command_found=1
             	elif [[ "$selected" == *"Screenshot"* ]]; then
             	sleep 0.2 && screenshot region swappy
             	command_found=1

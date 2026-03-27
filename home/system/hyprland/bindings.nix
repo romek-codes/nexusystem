@@ -1,7 +1,7 @@
 { pkgs, ... }: {
   wayland.windowManager.hyprland.settings = {
     bind = [
-      "$mod,RETURN, exec, footclient" # Terminal (footclient)
+      "$mod,RETURN, exec, tmux-new-terminal" # Terminal (footclient + tmux)
       "$mod,E, exec,  uwsm app -- ${pkgs.thunar}/bin/thunar" # File explorer (thunar)
       "$ctrlMod,L, exec, lock"
       "$mod,P, exec, app-menu" # Launch an app
