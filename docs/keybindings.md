@@ -47,9 +47,9 @@
 | Open new window | CTRL + SPACE, C |
 | Go to window | CTRL + SPACE, 1-9 |
 | Close pane | CTRL + SPACE, X |
+| Move pane (vim keys) | CTRL + SPACE, H/J/K/L |
 | Search text in vim mode | CTRL + SPACE, [ |
 | Reload config | CTRL + SPACE, R |
-| Agents overview (live monitor all [claude]/[codex] windows) | CTRL + SPACE, A |
 
 ### Browser (vimium)
 | Description | Keybinding |
