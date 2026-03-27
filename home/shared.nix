@@ -7,6 +7,7 @@
   # home-manager-options.extranix.com/?query=&release=master
 
   imports = [
+    ./programs/agtx
     ./programs/discord
     ./programs/lazygit
     # ./programs/photogimp # Gimp with photoshop like UI
