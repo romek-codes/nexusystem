@@ -13,7 +13,7 @@ in {
 
     oh-my-zsh = {
       enable = true;
-      plugins = [ "git" "laravel" "tmux" ];
+      plugins = [ "git" "laravel" ];
     };
 
     syntaxHighlighting = {
@@ -55,8 +55,6 @@ in {
 
     # TODO: Why doesnt this work at all unless i specifically source zshrc manually?
     initContent = ''
-      # ZSH_TMUX_AUTOSTART=true
-
       if [ -d "$HOME/.config/composer/vendor/bin" ]; then
         export PATH="$HOME/.config/composer/vendor/bin:$PATH"
       fi
