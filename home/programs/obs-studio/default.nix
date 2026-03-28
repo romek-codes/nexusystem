@@ -6,6 +6,13 @@
 }:
 let
   isLaptop = config.var.isLaptop or false;
+  # Hide unclean shutdown popup when OBS autostarts after reboot: https://github.com/obsproject/obs-studio/issues/12650#issuecomment-3396656122
+  obsSentinelFix =
+    "sentinel_dir=\"$HOME/.config/obs-studio/.sentinel\"; "
+    + "if [ -d \"$sentinel_dir\" ]; then "
+    + "rm -rf \"$sentinel_dir\"/*; "
+    + "chmod -R 400 \"$sentinel_dir\"; "
+    + "fi;";
 in
 {
   programs.obs-studio = {
@@ -24,5 +31,5 @@ in
   # NOTE: Don't start on laptops unless you really need to. Gonna eat up your battery.
   wayland.windowManager.hyprland.settings.exec-once = lib.optional (
     !isLaptop
-  ) "obs --startreplaybuffer --minimize-to-tray --disable-shutdown-check";
+  ) "bash -lc '${obsSentinelFix} exec obs --startreplaybuffer --minimize-to-tray'";
 }
