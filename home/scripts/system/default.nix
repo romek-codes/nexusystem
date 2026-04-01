@@ -110,17 +110,70 @@ let
         exit 0
       fi
 
-      if command -v rofi >/dev/null 2>&1; then
-        confirm=$(printf "Cancel\nClose all\n" | rofi -dmenu -p "Close all tmux sessions?" -l 0)
-        [[ "$confirm" == "Close all" ]] || { log "tmux-session-close-all cancelled"; exit 0; }
-      else
-        printf "Close all tmux sessions? [y/N]: "
-        read -r confirm
-        [[ "$confirm" == "y" || "$confirm" == "Y" ]] || { log "tmux-session-close-all cancelled"; exit 0; }
+      if [[ "''${SKIP_CONFIRM:-0}" != "1" ]]; then
+        if command -v rofi >/dev/null 2>&1; then
+          confirm=$(printf "Cancel\nClose all\n" | rofi -dmenu -p "Close all tmux sessions?" -l 0)
+          [[ "$confirm" == "Close all" ]] || { log "tmux-session-close-all cancelled"; exit 0; }
+        else
+          printf "Close all tmux sessions? [y/N]: "
+          read -r confirm
+          [[ "$confirm" == "y" || "$confirm" == "Y" ]] || { log "tmux-session-close-all cancelled"; exit 0; }
+        fi
       fi
 
       log "tmux-session-close-all confirmed"
       tmux kill-server
+    '';
+
+  tmuxSessionClose = pkgs.writeShellScriptBin "tmux-session-close"
+    # bash
+    ''
+      set -euo pipefail
+
+      LOG_DIR="$HOME/Workspace/logs"
+      LOG_FILE="$LOG_DIR/$(date +%Y-%m-%d).log"
+      mkdir -p "$LOG_DIR"
+      log() {
+        printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >> "$LOG_FILE"
+      }
+      log "tmux-session-close start"
+
+      if ! command -v tmux >/dev/null 2>&1; then
+        log "tmux-session-close error=tmux-not-found"
+        echo "tmux not found."
+        exit 1
+      fi
+
+      sessions=$(tmux list-sessions -F '#{session_name}' 2>/dev/null || true)
+      if [[ -z "$sessions" ]]; then
+        log "tmux-session-close no-sessions"
+        echo "No tmux sessions found."
+        exit 0
+      fi
+
+      if command -v rofi >/dev/null 2>&1; then
+        selected=$(printf "%s\n" "$sessions" | rofi -dmenu -p "Close tmux session")
+      else
+        printf "Close tmux session: "
+        read -r selected
+      fi
+
+      if [[ -z "$selected" ]]; then
+        log "tmux-session-close cancelled"
+        exit 0
+      fi
+
+      if command -v rofi >/dev/null 2>&1; then
+        confirm=$(printf "Cancel\nClose %s\n" "$selected" | rofi -dmenu -p "Close tmux session?")
+        [[ "$confirm" == "Close $selected" ]] || { log "tmux-session-close cancelled"; exit 0; }
+      else
+        printf "Close tmux session '%s'? [y/N]: " "$selected"
+        read -r confirm
+        [[ "$confirm" == "y" || "$confirm" == "Y" ]] || { log "tmux-session-close cancelled"; exit 0; }
+      fi
+
+      log "tmux-session-close session=$selected"
+      tmux kill-session -t "$selected"
     '';
 
   tmuxNewTerminal = pkgs.writeShellScriptBin "tmux-new-terminal"
@@ -213,4 +266,4 @@ let
       done
     '';
 
-in { home.packages = [ appMenu openedWindows lock changeKeyboardLayout tmuxSessionPicker tmuxSessionCloseAll tmuxNewTerminal tmuxAgentCapture tmuxAgentMonitor ]; }
+in { home.packages = [ appMenu openedWindows lock changeKeyboardLayout tmuxSessionPicker tmuxSessionClose tmuxSessionCloseAll tmuxNewTerminal tmuxAgentCapture tmuxAgentMonitor ]; }
