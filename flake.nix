@@ -11,6 +11,11 @@
     nixarr.url = "github:rasmus-kirk/nixarr";
     anyrun.url = "github:fufexan/anyrun/launch-prefix";
     textfox.url = "github:adriankarlen/textfox";
+    agtx = {
+      # url = "github:romek-codes/agtx/romek/main";
+      url = "path:/home/romek/Workspace/agtx";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
