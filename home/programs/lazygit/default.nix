@@ -29,13 +29,15 @@ in {
         nerdFontsVersion = "3";
       };
       # For the very lazy, with this you can generate a commit message :)
-      customCommands = [{
-        key = "<c-a>";
-        description = "Generate AI commit message";
-        command = "lazycommit";
-        context = "files";
-        output = "terminal";
-      }];
+      customCommands = [
+        {
+          key = "<c-a>";
+          description = "Generate AI commit message";
+          command = "lazycommit";
+          context = "files";
+          output = "terminal";
+        }
+      ];
     };
   };
 }
