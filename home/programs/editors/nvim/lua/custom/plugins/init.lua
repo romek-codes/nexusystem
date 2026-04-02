@@ -979,7 +979,8 @@ return {
 		config = true,
 	},
 	{
-		"kdheepak/lazygit.nvim",
+		"romek-codes/lazygit.nvim",
+		branch = "romek/main",
 		lazy = true,
 		cmd = {
 			"LazyGit",
@@ -991,6 +992,9 @@ return {
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 		},
+		init = function()
+			vim.g.lazygit_worktree_switch = 1
+		end,
 		keys = {
 			{ "<leader>gg", "<cmd>LazyGit<cr>", desc = "lazy[g]it" },
 		},
@@ -1150,7 +1154,6 @@ return {
 	},
 	{
 		"vyfor/cord.nvim",
-		build = ":Cord update",
 		-- opts = {}
 	},
 	{
