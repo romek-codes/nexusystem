@@ -1,8 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-hyprland.url =
-      "github:nixos/nixpkgs?rev=721147581bdb31ac6817a9152f6454675b15afae";
+    nixpkgs-hyprland.url = "github:nixos/nixpkgs?rev=721147581bdb31ac6817a9152f6454675b15afae";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
     stylix.url = "github:danth/stylix";
@@ -12,8 +11,8 @@
     anyrun.url = "github:fufexan/anyrun/launch-prefix";
     textfox.url = "github:adriankarlen/textfox";
     agtx = {
-      # url = "github:romek-codes/agtx/romek/main";
-      url = "path:/home/romek/Workspace/agtx";
+      url = "github:romek-codes/agtx/romek/main";
+      # url = "path:/home/romek/Workspace/agtx";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     home-manager = {
