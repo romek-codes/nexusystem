@@ -5,6 +5,7 @@
     ./variables.nix
     ../../home/shared.nix
     ../../home/essentials.nix
+    ../../home/programs/claude
   ];
 
   home = {
@@ -13,7 +14,6 @@
 
     # Only install these apps on this host
     packages = with pkgs; [
-      claude-code
       networkmanagerapplet
       samba
       miraclecast
@@ -23,6 +23,7 @@
       intune-portal
       microsoft-identity-broker
       microsoft-edge
+      teams-for-linux
     ];
 
     file.".face.icon" = {
