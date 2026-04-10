@@ -96,6 +96,7 @@ return {
 				end,
 			},
 			{ "nvim-telescope/telescope-ui-select.nvim" },
+			{ "jvgrootveld/telescope-zoxide" },
 
 			-- Useful for getting pretty icons, but requires a Nerd Font.
 			{ "nvim-tree/nvim-web-devicons", enabled = true },
@@ -139,12 +140,28 @@ return {
 					["ui-select"] = {
 						require("telescope.themes").get_dropdown(),
 					},
+					zoxide = {
+						mappings = {
+							default = {
+								after_action = function(selection)
+									local old_bufs = vim.tbl_filter(function(buf)
+										return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
+									end, vim.api.nvim_list_bufs())
+									require("oil").open(selection.path)
+									for _, buf in ipairs(old_bufs) do
+										vim.api.nvim_buf_delete(buf, { force = true })
+									end
+								end,
+							},
+						},
+					},
 				},
 			})
 
 			-- Enable Telescope extensions if they are installed
 			pcall(require("telescope").load_extension, "fzf")
 			pcall(require("telescope").load_extension, "ui-select")
+			pcall(require("telescope").load_extension, "zoxide")
 		end,
 	},
 	-- LSP Plugins
@@ -974,7 +991,6 @@ return {
 				desc = "[L]aravel",
 			},
 		},
-		event = "VeryLazy",
 		opts = {},
 		config = true,
 	},

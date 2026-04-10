@@ -10,6 +10,7 @@ vim.keymap.set("n", "<leader>fw", "<cmd>Telescope live_grep_args<cr>", { desc = 
 
 vim.keymap.set("n", "<leader>nh", "<cmd>Telescope help_tags<cr>", { desc = "[h]elp" })
 vim.keymap.set("n", "<leader>nk", "<cmd>Telescope keymaps<cr>", { desc = "[k]eymap" })
+vim.keymap.set("n", "<leader>fd", "<cmd>Telescope zoxide list<cr>", { desc = "[d]irectory" })
 vim.keymap.set("n", "<leader>ft", "<cmd>Telescope builtin<cr>", { desc = "[t]elescope" })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", {})
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })

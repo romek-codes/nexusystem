@@ -2,6 +2,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs-hyprland.url = "github:nixos/nixpkgs?rev=721147581bdb31ac6817a9152f6454675b15afae";
+    nixpkgs-claude.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
     stylix.url = "github:danth/stylix";
@@ -62,6 +63,10 @@
                 inherit (inputs.nixpkgs-hyprland.legacyPackages.x86_64-linux)
                   hyprland
                   xdg-desktop-portal-hyprland
+                  ;
+                inherit (import inputs.nixpkgs-claude { system = "x86_64-linux"; config.allowUnfree = true; })
+                  claude-code
+                  codex
                   ;
                 # Both of these are being overlayed to have support for --sensitive flag, to not save passwords to cliphist.
                 # Just take latest commit as release
