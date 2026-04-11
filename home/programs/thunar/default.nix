@@ -35,6 +35,7 @@ in {
         "file://${configDirectory} Nexusystem"
       ];
     };
+    gtk4.theme = config.gtk.theme;
   };
 
   home.sessionVariables = {
