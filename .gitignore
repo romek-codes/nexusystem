@@ -1,3 +1,5 @@
 .sops.yaml
 .crush
 site/
+__pycache__/
+*.pyc
