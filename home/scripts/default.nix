@@ -14,5 +14,6 @@
     ./openvpn
     ./lazycommit
     ./fileinfo
+    ./package-audit
   ];
 }
