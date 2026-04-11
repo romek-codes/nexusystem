@@ -9,6 +9,7 @@ in {
     enable = true;
     lfs.enable = true;
     signing = {
+      format = "openpgp";
       key = signingKey;
       signByDefault = signingKey != null;
     };
@@ -29,7 +30,9 @@ in {
       user.email = email;
       init.defaultBranch = "main";
       pull.rebase = "false";
+      push.default = "current";
       push.autoSetupRemote = true;
+      branch.autoSetupMerge = "simple";
       color.ui = "1";
       alias = { };
     };
