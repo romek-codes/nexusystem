@@ -11,6 +11,7 @@
     nixarr.url = "github:rasmus-kirk/nixarr";
     anyrun.url = "github:fufexan/anyrun/launch-prefix";
     textfox.url = "github:adriankarlen/textfox";
+    lazygit.url = "github:romek-codes/lazygit/romek/main";
     agtx = {
       url = "github:romek-codes/agtx/romek/main";
       # url = "path:/home/romek/Workspace/agtx";
@@ -41,9 +42,6 @@
     affinity-nix.url = "github:mrshmllow/affinity-nix";
 
     nurpkgs.url = "github:nix-community/NUR";
-
-    # # TODO: Remove when fixed
-    nixpkgs-old.url = "github:NixOS/nixpkgs/?rev=c792c60b8a97daa7efe41a6e4954497ae410e0c1";
   };
 
   outputs =
@@ -54,33 +52,9 @@
           nixpkgs = {
             overlays = [
               (final: prev: {
-                # [0814/143805.904351:FATAL:v8_initializer.cc(620)] Error mapping V8 startup snapshot file ?
-                inherit (inputs.nixpkgs-old.legacyPackages.x86_64-linux)
-                  dbgate
-                  rpcs3
-                  ;
-                # Pin Hyprland to 0.53.1 while keeping nixpkgs unstable.
-                inherit (inputs.nixpkgs-hyprland.legacyPackages.x86_64-linux)
-                  hyprland
-                  xdg-desktop-portal-hyprland
-                  ;
-                inherit (import inputs.nixpkgs-claude { system = "x86_64-linux"; config.allowUnfree = true; })
-                  claude-code
-                  codex
-                  ;
-                # Both of these are being overlayed to have support for --sensitive flag, to not save passwords to cliphist.
-                # Just take latest commit as release
-                # github.com/bugaevc/wl-clipboard/issues/260
-                wl-clipboard = prev.wl-clipboard.overrideAttrs (old: {
-                  version = "24-04-25";
-                  src = prev.fetchFromGitHub {
-                    owner = "bugaevc";
-                    repo = "wl-clipboard";
-                    rev = "aaa927ee7f7d91bcc25a3b68f60d01005d3b0f7f";
-                    hash = "sha256-V8JAai4gZ1nzia4kmQVeBwidQ+Sx5A5on3SJGSevrUU=";
-                  };
-                });
+                # Overlayed to have support for --sensitive flag, to not save passwords to cliphist.
                 # github.com/fdw/rofi-rbw/commits/main/src/rofi_rbw/clipboarder/wlclip.py
+                # github.com/bugaevc/wl-clipboard/issues/260
                 # Reverted this feature because of no new release for wl-clipboard
                 rofi-rbw-wayland = prev.rofi-rbw-wayland.overrideAttrs (old: {
                   src = prev.fetchFromGitHub {

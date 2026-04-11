@@ -1,11 +1,19 @@
 # Lazygit is a simple terminal UI for git commands.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  inputs,
+  lib,
+  pkgs,
+  ...
+}:
 let
   accent = "#${config.lib.stylix.colors.base0D}";
   muted = "#${config.lib.stylix.colors.base03}";
-in {
+in
+{
   programs.lazygit = {
     enable = true;
+    package = inputs.lazygit.packages.${pkgs.stdenv.hostPlatform.system}.default;
     settings = lib.mkForce {
       quitOnTopLevelReturn = true;
       disableStartupPopups = true;
@@ -19,7 +27,10 @@ in {
       };
       gui = {
         theme = {
-          activeBorderColor = [ accent "bold" ];
+          activeBorderColor = [
+            accent
+            "bold"
+          ];
           inactiveBorderColor = [ muted ];
         };
         showListFooter = true;
@@ -27,6 +38,7 @@ in {
         showCommandLog = true;
         showBottomLine = true;
         nerdFontsVersion = "3";
+        showCommitSignature = true;
       };
       # For the very lazy, with this you can generate a commit message :)
       customCommands = [
