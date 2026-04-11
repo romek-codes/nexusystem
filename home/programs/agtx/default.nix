@@ -30,7 +30,7 @@ let
   #   };
   # };
 
-  agtx = inputs.agtx.packages.${pkgs.system}.default.overrideAttrs (old: {
+  agtx = inputs.agtx.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
     nativeCheckInputs = (old.nativeCheckInputs or [ ]) ++ [ pkgs.git ];
   });
 in

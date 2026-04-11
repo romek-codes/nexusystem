@@ -1,10 +1,17 @@
 # Spicetify is a spotify client customizer
-{ pkgs, config, lib, inputs, ... }:
+{
+  pkgs,
+  config,
+  lib,
+  inputs,
+  ...
+}:
 let
-  spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.system};
+  spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
   accent = "${config.lib.stylix.colors.base0D}";
   background = "${config.lib.stylix.colors.base00}";
-in {
+in
+{
   imports = [ inputs.spicetify-nix.homeManagerModules.default ];
 
   config = lib.mkIf (builtins.elem "spotify" config.var.musicApps) {
@@ -32,22 +39,9 @@ in {
         keyboardShortcut
       ];
 
-      enabledCustomApps = with spicePkgs.apps;
-        [
-          # lyricsPlus
-          # My modified lyrics plus that doesnt show an emoticon when lyrics are not found in fullAppDisplay
-          {
-            src = "${
-                pkgs.fetchFromGitHub {
-                  owner = "romek-codes";
-                  repo = "cli";
-                  rev = "5915709702ca8ff17dbaa363c54081409f352c01";
-                  hash = "sha256-QLdmTC3L0KENja8y18qLLL1iJOWa9+U9zMAYbBwRBoA=";
-                }
-              }/CustomApps/lyrics-plus";
-            name = "lyrics-plus";
-          }
-        ];
+      enabledCustomApps = with spicePkgs.apps; [
+        lyricsPlus
+      ];
     };
   };
 }
