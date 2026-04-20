@@ -1119,15 +1119,20 @@ return {
 	},
 	{ -- Parser manager — highlighting/indent handled by Neovim 0.12 built-in treesitter
 		"nvim-treesitter/nvim-treesitter",
+		branch = "main",
 		lazy = false,
 		build = ":TSUpdate",
 		config = function()
-			require("nvim-treesitter").install({
+			local languages = {
 				"bash", "css", "diff", "html", "javascript", "jsdoc",
 				"json", "lua", "rust", "luadoc", "markdown", "markdown_inline",
 				"nix", "php", "python", "query", "regex", "toml", "tsx",
 				"typescript", "vim", "vimdoc", "yaml",
-			})
+			}
+			local treesitter = require("nvim-treesitter")
+
+			treesitter.setup({})
+			treesitter.install(languages)
 		end,
 	},
 	{
