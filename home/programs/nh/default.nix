@@ -9,4 +9,9 @@ in
     clean.extraArgs = "--keep-since 4d --keep 3";
     flake = "${toString configDirectory}";
   };
+
+  home.packages = with pkgs; [
+    comma
+    nvd
+  ];
 }
