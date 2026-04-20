@@ -12,8 +12,6 @@
       withNodeJs = true;
       withPython3 = true;
 
-      plugins = with pkgs.vimPlugins; [ nvim-treesitter.withAllGrammars ];
-
       extraPackages = with pkgs; [
         # Runtime dependencies
         ripgrep
@@ -95,26 +93,5 @@
       recursive = true;
     };
 
-    # Treesitter parsers, declarative install.
-    # xdg.configFile."nvim/parser".source = "${
-    #     pkgs.symlinkJoin {
-    #       name = "treesitter-parsers";
-    #       paths = (pkgs.vimPlugins.nvim-treesitter.withPlugins (plugins:
-    #         with plugins; [
-    #           php
-    #           python
-    #           lua
-    #           query
-    #           typescript
-    #           tsx
-    #           javascript
-    #           markdown
-    #           markdown_inline
-    #           bash
-    #           regex
-    #           nix
-    #         ])).dependencies;
-    #     }
-    #   }/parser";
   };
 }
