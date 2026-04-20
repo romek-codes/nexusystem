@@ -3,6 +3,10 @@
 let
   helpers = import ../../../helpers { inherit lib; };
   backgroundImage = config.theme.backgroundImage;
+  backgroundImageName =
+    if helpers.isEmpty backgroundImage then null else builtins.baseNameOf backgroundImage;
+  wallpaperPath =
+    if backgroundImageName == null then null else "$HOME/.config/wallpaper/${backgroundImageName}";
   isStatic = helpers.isStaticImage backgroundImage;
   isAnimated = !isStatic && !helpers.isEmpty backgroundImage;
 in {
@@ -24,9 +28,7 @@ in {
   home.packages = with pkgs; lib.mkIf isAnimated [ mpvpaper ];
 
   wayland.windowManager.hyprland.settings.exec-once = lib.mkIf isAnimated [''
-    mpvpaper -o "no-audio --loop --panscan=1.0" ALL ${
-      toString backgroundImage
-    } & echo $! > /tmp/mpvpaper.pid
+    mpvpaper -o "no-audio --loop --panscan=1.0" ALL "${wallpaperPath}" & echo $! > /tmp/mpvpaper.pid
   ''];
 
   # Image rotation in case somebody wants it
@@ -55,6 +57,7 @@ in {
   # Disable hyprpaper when using animated backgrounds
   stylix.targets.hyprland.hyprpaper.enable = lib.mkIf isAnimated false;
 
-  home.file.".config/wallpaper/${builtins.baseNameOf backgroundImage}".source =
-    backgroundImage;
+  home.file = lib.mkIf (backgroundImageName != null) {
+    ".config/wallpaper/${backgroundImageName}".source = backgroundImage;
+  };
 }
