@@ -2,6 +2,10 @@
 { pkgs, config, lib, ... }:
 let
   helpers = import ../../../helpers { inherit lib; };
+  wallpaperPath = if helpers.isEmpty config.theme.backgroundImage then
+    null
+  else
+    "$HOME/.config/wallpaper/${builtins.baseNameOf config.theme.backgroundImage}";
   reload-theme = pkgs.writeShellScriptBin "reload-theme"
     # bash
     ''
@@ -25,9 +29,7 @@ let
       # Start mpvpaper if background image is configured and not static
       ${if (!helpers.isEmpty config.theme.backgroundImage)
       && (!helpers.isStaticImage config.theme.backgroundImage) then ''
-        mpvpaper -o "no-audio --loop --panscan=1.0" ALL "${
-          toString config.theme.backgroundImage
-        }" & echo $! > /tmp/mpvpaper.pid
+        mpvpaper -o "no-audio --loop --panscan=1.0" ALL "${wallpaperPath}" & echo $! > /tmp/mpvpaper.pid
       '' else ''
         echo "No background image configured"
       ''}
