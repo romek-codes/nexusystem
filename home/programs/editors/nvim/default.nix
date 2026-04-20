@@ -17,6 +17,9 @@
         ripgrep
         fd
         cargo
+        rustc
+        rust-analyzer
+        rustfmt
         gnumake
         unzip
         python3
