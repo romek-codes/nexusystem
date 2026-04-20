@@ -22,7 +22,7 @@
     obsidian # Note taking app
     gnome-calendar # Calendar
     gnome-clocks
-    dbgate # DBMS
+    rainfrog # dmbs
     croc # for sending files across devices
     # Dev
     nodejs
