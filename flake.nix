@@ -8,6 +8,10 @@
     stylix.url = "github:danth/stylix";
     apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
     sops-nix.url = "github:Mic92/sops-nix";
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixarr.url = "github:rasmus-kirk/nixarr";
     anyrun.url = "github:fufexan/anyrun/launch-prefix";
     textfox.url = "github:adriankarlen/textfox";
