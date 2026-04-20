@@ -961,7 +961,7 @@ return {
 	},
 	{
 		"andymass/vim-matchup",
-		setup = function()
+		init = function()
 			vim.g.matchup_matchparen_offscreen = { method = "popup" }
 		end,
 	},
@@ -1084,10 +1084,6 @@ return {
 		main = "ibl",
 		config = function()
 			require("ibl").setup({
-				whitespace = {
-					highlight = highlight,
-					remove_blankline_trail = false,
-				},
 				scope = { enabled = true },
 			})
 		end,
@@ -1121,27 +1117,18 @@ return {
 			require("mini.surround").setup()
 		end,
 	},
-	{ -- Highlight, edit, and navigate code
+	{ -- Parser manager — highlighting/indent handled by Neovim 0.12 built-in treesitter
 		"nvim-treesitter/nvim-treesitter",
+		lazy = false,
 		build = ":TSUpdate",
-		main = "nvim-treesitter.configs", -- Sets main module to use for opts
-		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-		opts = {
-			highlight = {
-				enable = true,
-				-- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-				--  If you are experiencing weird indenting issues, add the language to
-				--  the list of additional_vim_regex_highlighting and disabled languages for indent.
-				additional_vim_regex_highlighting = { "ruby" },
-			},
-			indent = { enable = true, disable = { "ruby" } },
-		},
-		-- There are additional nvim-treesitter modules that you can use to interact
-		-- with nvim-treesitter. You should go explore a few and see what interests you:
-		--
-		--    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+		config = function()
+			require("nvim-treesitter").install({
+				"bash", "css", "diff", "html", "javascript", "jsdoc",
+				"json", "lua", "rust", "luadoc", "markdown", "markdown_inline",
+				"nix", "php", "python", "query", "regex", "toml", "tsx",
+				"typescript", "vim", "vimdoc", "yaml",
+			})
+		end,
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-context",
