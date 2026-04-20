@@ -7,6 +7,7 @@
   # home-manager-options.extranix.com/?query=&release=master
 
   imports = [
+    ./programs/agents/codex
     ./programs/agtx
     ./programs/discord
     ./programs/lazygit
@@ -40,7 +41,6 @@
     bruno # rest client
     bruno-cli # cli for bruno, needed for bruno.nvim
     crush
-    codex
     wineWow64Packages.stable
     winetricks
     python313Packages.pyclip # for waydroid copy & paste support
