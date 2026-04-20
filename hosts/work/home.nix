@@ -5,7 +5,7 @@
     ./variables.nix
     ../../home/shared.nix
     ../../home/essentials.nix
-    ../../home/programs/claude
+    ../../home/programs/agents/claude
   ];
 
   home = {
