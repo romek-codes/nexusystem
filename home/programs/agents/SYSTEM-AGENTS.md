@@ -45,6 +45,8 @@ Shared system-wide instructions for local AI tools.
   just to get a commit through.
 - If signing, pinentry, auth, or other manual confirmation is required, stop
   and wait for the user.
+- Never add `Co-Authored-By` trailers attributing AI tools (Claude, Codex, etc.)
+  to commits.
 
 ## Safety
 
