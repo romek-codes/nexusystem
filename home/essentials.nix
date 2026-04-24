@@ -1,6 +1,12 @@
 # Only modify this file and included programs if you know what you're doing.
 # Otherwise i recommend modifying home/shared.nix
-{ pkgs, lib, config, ... }: {
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
+{
   imports = [
     # Programs
     ./programs/browsers
@@ -35,6 +41,7 @@
 
   home.packages = with pkgs; [
     # Apps
+    mpv # Video player
     rbw # Password manager
     pinentry-gnome3
     planify # Todos / Todoist
@@ -52,6 +59,7 @@
     peazip # for zip and rar files
     qdirstat # Storage management
     resources # Task manager
+    ddcui # External monitor settings via DDC/CI
     # notepadqq # Notepad++
   ];
 }

@@ -11,8 +11,9 @@
       pcsx2
       rpcs3
       prismlauncher
+      mangohud # Performance overlay for games
+      r2modman # Mod manager for supported games
       # linux-wallpaperengine # wallpaper engine for linux
-      # godot_4 # Gamedev
     ]; # ++ lib.optionals (config.var.gpu.type == "amd") [ # amdvlk # deprecated ];
   };
 }
