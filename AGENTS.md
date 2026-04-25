@@ -49,10 +49,6 @@ Each host imports `../../nixos/shared.nix` and a host `home.nix` via
   `configDirectory`, `browsers`, `editors`, `musicApps`, and theme settings.
 - Helpers in `helpers/default.nix` map browser/editor names to binaries and
   icons for default app settings and the command palette.
-- Two `CHANGEME` markers exist:
-  `home/system/hyprland/default.nix` (GPU device hints) and
-  `hosts/meshify/home.nix` (secrets import).
-
 ## Shared NixOS modules
 
 `nixos/shared.nix` imports the system-wide stack:
@@ -156,7 +152,6 @@ Scripts are exposed via Home Manager from `home/scripts/`:
 
 ## Build and test commands
 
-- Find required edits: `rg "CHANGEME"`.
 - Serve docs locally (Material): `nix-shell -p python313Packages.mkdocs python313Packages.mkdocs-material python313Packages.pymdown-extensions --run "mkdocs serve -a 127.0.0.1:8000"`.
 - Serve docs in background: `nohup nix-shell -p python313Packages.mkdocs python313Packages.mkdocs-material python313Packages.pymdown-extensions --run "mkdocs serve -a 127.0.0.1:8000" > /tmp/mkdocs-serve.log 2>&1 & echo $!`; stop later with `kill <PID>` or `pkill -f "mkdocs serve"`.
 - Preferred rebuild from repo root:
