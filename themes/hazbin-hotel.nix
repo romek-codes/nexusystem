@@ -14,7 +14,6 @@
       blur = true;
       border-size = 3;
       animation-speed = "fast"; # "fast" | "medium" | "slow"
-      fetch = "none"; # "nerdfetch" | "neofetch" | "pfetch" | "none"
 
       bar-position = "top"; # "top" | "bottom"
       bar-transparent = true;

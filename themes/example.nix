@@ -56,7 +56,6 @@
       blur = true;
       border-size = 3;
       animation-speed = "fast"; # "fast" | "medium" | "slow"
-      fetch = "none"; # "nerdfetch" | "neofetch" | "pfetch" | "none"
       # Color of text on lock screen
 
       # Bar
