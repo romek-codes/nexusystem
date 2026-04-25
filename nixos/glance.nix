@@ -1,3 +1,4 @@
+# Dashboard page. Accessible via http://localhost:2048
 { config, lib, ... }:
 let
   rgb-to-hsl = color:
