@@ -10,7 +10,8 @@
     default = {
       hostname = "example";
       username = "romek";
-      configDirectory = "/home/" + config.var.username + "/Workspace/nexusystem"; # The path of the nixos configuration directory
+      configDirectory = "/home/" + config.var.username
+        + "/nexusystem"; # The path of the nixos configuration directory
 
       # Below options (browsers / editors / musicApps) can be given values that
       # match package names from https://search.nixos.org/packages
