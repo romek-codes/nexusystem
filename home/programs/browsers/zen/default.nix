@@ -37,7 +37,7 @@ in
             vimium-c
             vue-js-devtools
             refined-github
-            # onetab
+            tab-stash
             # firefox-color
             # firefox-translations
             # decentraleyes
