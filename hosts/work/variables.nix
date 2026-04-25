@@ -2,7 +2,7 @@
 {
   imports = [
     # Choose your theme here:
-    ../../themes/example.nix
+    ../../themes/moon.nix
   ];
 
   options.var = lib.mkOption {
