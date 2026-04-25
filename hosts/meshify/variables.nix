@@ -10,7 +10,7 @@
       configDirectory = "/home/" + config.var.username
         + "/Workspace/nexusystem"; # The path of the nixos configuration directory
 
-      browsers = [ "zen" "firefox" "ungoogled-chromium" ];
+      browsers = [ "firefox" "zen" "ungoogled-chromium" ];
 
       editors = [ "nvim" ];
 
