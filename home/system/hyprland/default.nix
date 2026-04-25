@@ -126,7 +126,6 @@ in
         "SDL_VIDEODRIVER,wayland"
         "CLUTTER_BACKEND,wayland"
         "GRIMBLAST_HIDE_CURSOR, 0"
-        # "AQ_DRM_DEVICES,/dev/dri/card2:/dev/dri/card1" # CHANGEME: Related to the GPU
       ];
 
       plugin = {
