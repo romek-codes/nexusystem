@@ -1,4 +1,5 @@
-{ ... }: {
+{ ... }:
+{
   imports = [
     # Mostly system related configuration
     ./audio.nix
@@ -19,11 +20,11 @@
     ./pam.nix
     ./optimize-battery.nix
     ./gpg.nix
+    ./affinity.nix
     # These will only be activated if withGames is set to true
     ./steam.nix
     ./gamemode.nix
     ./stylix.nix
-    ./waydroid.nix
-    ./affinity.nix
+    ./waydroid.nix # Android emulation
   ];
 }
