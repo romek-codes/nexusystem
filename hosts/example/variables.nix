@@ -1,4 +1,5 @@
-{ config, lib, ... }: {
+{ config, lib, ... }:
+{
   imports = [
     # Choose your theme here:
     ../../themes/example.nix
@@ -9,24 +10,35 @@
     default = {
       hostname = "example";
       username = "romek";
-      configDirectory = "/home/" + config.var.username
-        + "/Workspace/nexusystem"; # The path of the nixos configuration directory
+      configDirectory = "/home/" + config.var.username + "/Workspace/nexusystem"; # The path of the nixos configuration directory
 
-      # Below options (browsers / editors / musicApps) can be given values that 
+      # Below options (browsers / editors / musicApps) can be given values that
       # match package names from https://search.nixos.org/packages
-      # If the binary (executable) of a browser or editor that is installed has a different name than the package, you will need to extend the helpers/default.nix file. 
+      # If the binary (executable) of a browser or editor that is installed has a different name than the package, you will need to extend the helpers/default.nix file.
 
       # Which browsers to install, first entry will be the main browser.
-      # zen (recommended) | firefox (recommended) | brave | ungoogled-chromium | google-chrome (eww)
-      browsers = [ "zen" "chromium" ];
+      # zen | firefox | brave | ungoogled-chromium | google-chrome (eww) | microsoft-edge (wth)
+      browsers = [
+        "firefox"
+        "zen"
+        "chromium"
+      ];
 
       # Which editors to install, first entry will be the main editor.
       # nvim | vscode  | jetbrains.webstorm | jetbrains.phpstorm
-      editors = [ "vscode" "nvim" "jetbrains.webstorm" "jetbrains.phpstorm" ];
+      editors = [
+        "vscode"
+        "nvim"
+        "jetbrains.webstorm"
+        "jetbrains.phpstorm"
+      ];
 
       # Which music apps to install
-      # youtube-music | spotify 
-      musicApps = [ "youtube-music" "spotify" ];
+      # youtube-music | spotify
+      musicApps = [
+        "youtube-music"
+        "spotify"
+      ];
 
       # Keyboard layouts you can switch between, first one will be default.
       keyboardLayout = "us";
@@ -36,7 +48,7 @@
       timeZone = "Europe/Berlin";
 
       # Internationalization (i18n) Configuration
-      # 
+      #
       # defaultLocale: Sets the primary system locale for all categories by default
       # - Controls system language, date formats, time formats, etc.
       # - Should match your preferred interface language
