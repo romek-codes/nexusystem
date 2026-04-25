@@ -16,7 +16,15 @@ in {
     settings = {
       ipc = "on";
       splash = false;
-      splash_offset = 2.0;
+      splash_offset = 2;
+      preload = [ (toString backgroundImage) ];
+      wallpaper = [
+        {
+          monitor = "";
+          path = toString backgroundImage;
+          fit_mode = "cover";
+        }
+      ];
     };
   };
 
@@ -54,8 +62,8 @@ in {
   #   '')
   # ];
 
-  # Disable hyprpaper when using animated backgrounds
-  stylix.targets.hyprland.hyprpaper.enable = lib.mkIf isAnimated false;
+  # Let Stylix provide colors from the wallpaper, but manage hyprpaper explicitly.
+  stylix.targets.hyprland.hyprpaper.enable = false;
 
   home.file = lib.mkIf (backgroundImageName != null) {
     ".config/wallpaper/${backgroundImageName}".source = backgroundImage;

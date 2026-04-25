@@ -21,14 +21,18 @@ let
         rm -f /tmp/mpvpaper.pid
       fi
 
+      # Stop hyprpaper so switching between static and animated wallpapers works
+      systemctl --user stop hyprpaper.service 2>/dev/null || true
+
       sleep 1
 
       # Start new foot server
       foot --server & echo $! > /tmp/foot-server.pid
 
-      # Start mpvpaper if background image is configured and not static
       ${if (!helpers.isEmpty config.theme.backgroundImage)
-      && (!helpers.isStaticImage config.theme.backgroundImage) then ''
+      && (helpers.isStaticImage config.theme.backgroundImage) then ''
+        systemctl --user enable --now hyprpaper.service
+      '' else if (!helpers.isEmpty config.theme.backgroundImage) then ''
         mpvpaper -o "no-audio --loop --panscan=1.0" ALL "${wallpaperPath}" & echo $! > /tmp/mpvpaper.pid
       '' else ''
         echo "No background image configured"
