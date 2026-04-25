@@ -72,18 +72,13 @@ Add a block like:
 };
 ```
 
-Important: `# CHANGEME` comments mark things you must edit. Find them with:
-
-```sh
-rg "CHANGEME" ~/nexusystem
-```
-
 ## 6) Apply the configuration (first time)
 
 From the repo root:
 
 ```sh
 cd ~/nexusystem
+git add .
 sudo nixos-rebuild switch --flake ~/nexusystem#<your-hostname>
 ```
 
