@@ -1,4 +1,5 @@
-{ config, lib, ... }: {
+{ config, lib, ... }:
+{
   # imports = [ ../../themes/initial-d.nix ];
   imports = [ ../../themes/initial-d.nix ];
 
@@ -7,10 +8,13 @@
     default = {
       hostname = "meshify";
       username = "romek";
-      configDirectory = "/home/" + config.var.username
-        + "/Workspace/nexusystem"; # The path of the nixos configuration directory
+      configDirectory = "/home/" + config.var.username + "/Workspace/nexusystem";
 
-      browsers = [ "firefox" "zen" "ungoogled-chromium" ];
+      browsers = [
+        "firefox"
+        "zen"
+        "ungoogled-chromium"
+      ];
 
       editors = [ "nvim" ];
 
