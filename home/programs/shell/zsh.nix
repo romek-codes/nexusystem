@@ -1,7 +1,6 @@
 # My shell configuration
 { pkgs, lib, config, ... }:
-let fetch = config.theme.fetch; # neofetch, nerdfetch, pfetch
-in {
+{
 
   home.packages = with pkgs; [ bat ripgrep tldr ];
 
