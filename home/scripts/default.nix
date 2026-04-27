@@ -9,6 +9,7 @@
     ./hyprpanel
     ./zen-mode
     ./blue-light-filter
+    ./theme-switch
     ./screenshot
     ./system
     ./openvpn
