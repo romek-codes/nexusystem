@@ -26,6 +26,8 @@ selected=$(rofi -i -dmenu -show-icons -matching fuzzy -sorting-method fzf -sort 
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Toggle zen mode" "face-ninja" "focus"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
+		"Toggle light / dark theme" "video-display" "presentation projector daylight readable high contrast light dark theme mode toggle"
+	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Toggle night mode" "weather-clear-night" "dark dim evening sleep eye comfort brightness ddc monitor"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Display settings" "preferences-desktop-display" "monitor brightness ddc ddcui screen configuration"
@@ -193,6 +195,9 @@ elif [[ "$selected" == *"Search open windows"* ]]; then
 	command_found=1
 elif [[ "$selected" == *"Toggle blue light filter"* ]]; then
 	blue-light-filter
+	command_found=1
+elif [[ "$selected" == *"Toggle light / dark theme"* ]]; then
+	theme-toggle-light-dark
 	command_found=1
 elif [[ "$selected" == *"Toggle night mode"* ]]; then
 	state_file="/tmp/night_mode_state"
