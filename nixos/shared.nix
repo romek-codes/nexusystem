@@ -25,6 +25,7 @@
     ./steam.nix
     ./gamemode.nix
     ./stylix.nix
+    ../themes/dynamic-variant.nix
     ./waydroid.nix # Android emulation
   ];
 }
