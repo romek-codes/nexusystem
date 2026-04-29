@@ -57,6 +57,7 @@ return {
 
 			preset = "helix",
 			spec = {
+				{ "<leader>a", group = "[a]i" },
 				{ "<leader>f", group = "[f]ind" },
 				{ "<leader>fc", group = "[c]urrent" },
 				{ "<leader>ld", group = "[d]iagnostics" },
@@ -252,6 +253,11 @@ return {
 							require("luasnip").lsp_expand(args.body)
 						end,
 					},
+				})
+
+				cmp.setup.filetype("AgenticInput", {
+					enabled = false,
+					sources = {},
 				})
 			end,
 		},
@@ -596,6 +602,10 @@ return {
 				options = {
 					always_show_tabline = true,
 					component_separators = "",
+					disabled_filetypes = {
+						statusline = { "AgenticChat", "AgenticInput", "AgenticCode", "AgenticFiles", "AgenticDiagnostics" },
+						winbar = { "AgenticChat", "AgenticInput", "AgenticCode", "AgenticFiles", "AgenticDiagnostics" },
+					},
 					section_separators = "",
 					theme = {
 						normal = { c = { fg = colors.fg, bg = colors.bg } },
@@ -793,6 +803,102 @@ return {
 				debounce_ms = 300,
 			})
 		end,
+	},
+	{
+		"carlos-algms/agentic.nvim",
+		keys = {
+			{
+				"<leader>aa",
+				function()
+					require("agentic").toggle()
+				end,
+				mode = { "n", "v" },
+				desc = "[a]gentic",
+			},
+			{
+				"<leader>ac",
+				function()
+					require("agentic").add_selection_or_file_to_context()
+				end,
+				mode = { "n", "v" },
+				desc = "[c]ontext",
+			},
+			{
+				"<leader>an",
+				function()
+					require("agentic").new_session()
+				end,
+				mode = { "n", "v" },
+				desc = "[n]ew session",
+			},
+			{
+				"<leader>ar",
+				function()
+					require("agentic").restore_session()
+				end,
+				mode = { "n", "v" },
+				desc = "[r]estore session",
+			},
+			{
+				"<leader>as",
+				function()
+					require("agentic").switch_provider()
+				end,
+				mode = { "n", "v" },
+				desc = "[s]witch provider",
+			},
+			{
+				"<leader>al",
+				function()
+					require("agentic").rotate_layout({ "right", "bottom" })
+				end,
+				mode = { "n", "v" },
+				desc = "[l]ayout",
+			},
+			{
+				"<leader>ax",
+				function()
+					require("agentic").stop_generation()
+				end,
+				mode = { "n", "v" },
+				desc = "stop generation",
+			},
+			{
+				"<leader>ad",
+				function()
+					require("agentic").add_current_line_diagnostics()
+				end,
+				mode = { "n" },
+				desc = "line [d]iagnostics",
+			},
+			{
+				"<leader>aD",
+				function()
+					require("agentic").add_buffer_diagnostics()
+				end,
+				mode = { "n" },
+				desc = "buffer [D]iagnostics",
+			},
+		},
+		opts = {
+			provider = "codex-acp",
+			windows = {
+				position = "right",
+				width = "40%",
+				height = "30%",
+			},
+			diff_preview = {
+				enabled = true,
+				layout = "split",
+				center_on_navigate_hunks = true,
+			},
+			folding = {
+				tool_calls = {
+					enabled = true,
+					threshold = 10,
+				},
+			},
+		},
 	},
 	{
 		"goolord/alpha-nvim",
