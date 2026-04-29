@@ -781,6 +781,20 @@ return {
 		end,
 	},
 	{
+		"selimacerbas/markdown-preview.nvim",
+		ft = { "markdown", "mermaid" },
+		cmd = { "MarkdownPreview", "MarkdownPreviewRefresh", "MarkdownPreviewStop" },
+		dependencies = { "selimacerbas/live-server.nvim" },
+		config = function()
+			require("markdown_preview").setup({
+				instance_mode = "takeover",
+				port = 0,
+				open_browser = true,
+				debounce_ms = 300,
+			})
+		end,
+	},
+	{
 		"goolord/alpha-nvim",
 		event = "VimEnter",
 		-- Cool random ascii art, might be interesting if you want a different header.
