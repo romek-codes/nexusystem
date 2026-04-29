@@ -52,7 +52,10 @@ let
   '';
 in
 {
-  home.packages = [ pkgs.claude-code ];
+  home.packages = [
+    pkgs.claude-code
+    pkgs.claude-agent-acp
+  ];
 
   home.file.".claude/CLAUDE.md".source = ../SYSTEM-AGENTS.md;
 
