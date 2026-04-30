@@ -48,6 +48,13 @@ Shared system-wide instructions for local AI tools.
 - Never add `Co-Authored-By` trailers attributing AI tools (Claude, Codex, etc.)
   to commits.
 
+## Notes / Obsidian
+
+Vault directories on this system:
+
+- `personal` vault: `/home/romek/notes/personal`
+- `work` vault: `/home/romek/notes/work`
+
 ## Safety
 
 - Prefer non-destructive actions.
