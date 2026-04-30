@@ -769,6 +769,101 @@ return {
 		lazy = false,
 		ft = "markdown",
 		dependencies = { "nvim-lua/plenary.nvim" },
+		keys = function()
+			-- Resolve vault path: current workspace if active, else ask user to pick.
+			local function with_vault(callback)
+				-- Obsidian global is set by obsidian.setup(); .dir is the active vault root.
+				if Obsidian and Obsidian.dir then
+					callback(tostring(Obsidian.dir))
+					return
+				end
+				-- No active workspace — gather user-defined ones (exclude internal wiki).
+				local all = (Obsidian and Obsidian.workspaces) or {}
+				local user_ws = vim.tbl_filter(function(ws)
+					return ws.name ~= ".obsidian.wiki"
+				end, all)
+				if #user_ws == 0 then
+					vim.notify("No Obsidian workspaces configured", vim.log.levels.ERROR)
+				elseif #user_ws == 1 then
+					callback(tostring(user_ws[1].path))
+				else
+					vim.ui.select(user_ws, {
+						prompt = "Select vault:",
+						format_item = function(ws)
+							return ws.name .. "  (" .. tostring(ws.path) .. ")"
+						end,
+					}, function(selected)
+						if selected then
+							callback(tostring(selected.path))
+						end
+					end)
+				end
+			end
+
+			return {
+				{
+					"<leader>on",
+					function()
+						vim.ui.input({ prompt = "Note title: " }, function(title)
+							if not title or title == "" then
+								return
+							end
+							local slug = title:lower():gsub("%s+", "-"):gsub("[^%w%-]", "")
+							vim.cmd("Obsidian new " .. slug)
+						end)
+					end,
+					desc = "[n]ew note",
+				},
+				{
+					"<leader>oi",
+					function()
+						with_vault(function(vault_path)
+							local month = os.date("%Y-%m")
+							local inbox_dir = vault_path .. "/Inbox"
+							local filepath = inbox_dir .. "/" .. month .. ".md"
+							vim.fn.mkdir(inbox_dir, "p")
+							vim.cmd("edit " .. vim.fn.fnameescape(filepath))
+							local buf = vim.api.nvim_get_current_buf()
+							if vim.api.nvim_buf_line_count(buf) == 1
+								and vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] == ""
+							then
+								local today = os.date("%Y-%m-%d")
+								vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
+									"# Inbox " .. month,
+									"",
+									"## " .. today,
+									"",
+									"- ",
+								})
+								vim.api.nvim_win_set_cursor(0, { 5, 2 })
+								vim.cmd("startinsert!")
+							end
+						end)
+					end,
+					desc = "[i]nbox (monthly)",
+				},
+				{
+					"<leader>od",
+					"<cmd>Obsidian today<cr>",
+					desc = "[d]aily note",
+				},
+				{
+					"<leader>os",
+					"<cmd>Obsidian search<cr>",
+					desc = "[s]earch",
+				},
+				{
+					"<leader>ob",
+					"<cmd>Obsidian backlinks<cr>",
+					desc = "[b]acklinks",
+				},
+				{
+					"<leader>ot",
+					"<cmd>Obsidian tags<cr>",
+					desc = "[t]ags",
+				},
+			}
+		end,
 		opts = function()
 			local Path = require("plenary.path")
 
@@ -787,6 +882,35 @@ return {
 			return {
 				workspaces = workspaces,
 				legacy_commands = false,
+
+				-- Plain slug filenames: pricing-rethink.md, not 1234567890.md
+				note_id_func = function(title)
+					if title ~= nil then
+						return title:lower():gsub("%s+", "-"):gsub("[^%w%-]", "")
+					end
+					-- Fallback for untitled notes
+					return tostring(os.time())
+				end,
+
+				-- Minimal frontmatter — id, aliases, tags only
+				frontmatter = {
+					enabled = true,
+					func = function(note)
+						return {
+							id = note.id,
+							aliases = note.aliases,
+							tags = note.tags,
+						}
+					end,
+				},
+
+				-- Keep notes flat; Inbox/ and Archive/ are the only lifecycle folders
+				new_notes_location = "current_dir",
+
+				daily_notes = {
+					folder = "Daily",
+					date_format = "%Y-%m-%d",
+				},
 			}
 		end,
 	},
