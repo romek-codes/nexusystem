@@ -768,6 +768,10 @@ return {
 		version = "*",
 		lazy = false,
 		ft = "markdown",
+		cond = function()
+			local ok, vaults = pcall(require, "obsidian-vaults")
+			return ok and #vaults > 0
+		end,
 		dependencies = { "nvim-lua/plenary.nvim" },
 		keys = function()
 			-- Resolve vault path: current workspace if active, else ask user to pick.
@@ -867,10 +871,8 @@ return {
 		opts = function()
 			local Path = require("plenary.path")
 
-			local workspacePaths = {
-				{ name = "personal", path = "/home/romek/notes/personal" },
-				{ name = "work", path = "/home/romek/notes/work" },
-			}
+			local ok, workspacePaths = pcall(require, "obsidian-vaults")
+			if not ok then workspacePaths = {} end
 
 			local workspaces = {}
 			for _, workspaceInfo in ipairs(workspacePaths) do
@@ -1107,6 +1109,10 @@ return {
 		-- For development
 		-- dir = "~/Workspace/bruno.nvim",
 		"romek-codes/bruno.nvim",
+		cond = function()
+			local ok, cols = pcall(require, "bruno-collections")
+			return ok and #cols > 0
+		end,
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-telescope/telescope.nvim",
@@ -1118,10 +1124,10 @@ return {
 		},
 		config = function()
 			require("bruno").setup({
-				collection_paths = {
-					{ name = "Nix", path = "/home/romek/Bruno" },
-					{ name = "Nix-work", path = "/home/romek/notes/work/Bruno" },
-				},
+				collection_paths = (function()
+				local ok, cols = pcall(require, "bruno-collections")
+				return ok and cols or {}
+			end)(),
 				-- picker = "fzf-lua",
 			})
 		end,

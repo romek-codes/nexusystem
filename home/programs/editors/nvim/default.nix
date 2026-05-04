@@ -46,6 +46,16 @@
 
     # Stylix workaround
     home.file.".config/nvim/init.lua".text = ''
+      -- Auto-generated obsidian vault paths from Nix
+      package.preload["obsidian-vaults"] = function()
+        return vim.fn.json_decode([=[${builtins.toJSON (config.var.obsidianVaults or [])}]=])
+      end
+
+      -- Auto-generated bruno collection paths from Nix
+      package.preload["bruno-collections"] = function()
+        return vim.fn.json_decode([=[${builtins.toJSON (config.var.brunoCollections or [])}]=])
+      end
+
       -- Colors for lualine generated with nix
       colors = {
       bg       = '${config.lib.stylix.colors.base01}',

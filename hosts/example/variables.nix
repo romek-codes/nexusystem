@@ -94,6 +94,21 @@
       # nix-prefetch-url --name displaylink-600.zip https://www.synaptics.com/sites/default/files/exe_files/2024-05/DisplayLink%20USB%20Graphics%20Software%20for%20Ubuntu6.0-EXE.zip
       displaylinkSupport = false;
 
+      # Obsidian vault paths for obsidian.nvim. Only needed if you use Obsidian
+      # for note-taking inside Neovim. You can omit this field entirely (or keep
+      # it as an empty list) — both are fine and the plugin will simply not load.
+      # obsidianVaults = [
+      #   { name = "personal"; path = "/home/user/notes/personal"; }
+      # ];
+      obsidianVaults = [ ];
+
+      # Bruno API collection paths for bruno.nvim. Only needed if you use Bruno
+      # for API testing inside Neovim. Same as above — safe to omit or leave empty.
+      # brunoCollections = [
+      #   { name = "My API"; path = "/home/user/Bruno/my-api"; }
+      # ];
+      brunoCollections = [ ];
+
       # Extra monitor configuration for hyprland.
       monitorConfig = [ ];
     };
