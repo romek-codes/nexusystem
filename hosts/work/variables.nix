@@ -44,6 +44,20 @@
         signingKey = "FF884E97BC82D41B";
       };
 
+      obsidianVaults = [
+        {
+          name = "work";
+          path = "/home/romek/notes/work";
+        }
+      ];
+
+      brunoCollections = [
+        {
+          name = "Nix-work";
+          path = "/home/romek/notes/work/Bruno";
+        }
+      ];
+
       autoUpgrade = false;
       autoGarbageCollector = true;
       isLaptop = true;
