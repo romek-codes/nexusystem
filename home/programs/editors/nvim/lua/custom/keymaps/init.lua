@@ -61,17 +61,25 @@ vim.keymap.set("", "<Leader>e", function()
 		MiniFiles.reveal_cwd()
 	end
 end, { desc = "[e]xplorer" })
-vim.keymap.set("n", "<Leader>ow", "<cmd>Obsidian workspace<cr>", { desc = "[w]orkspace" })
-vim.keymap.set("n", "<Leader>of", "<cmd>Obsidian search<cr>", { desc = "[f]ind" })
-vim.keymap.set("n", "<Leader>oo", "<cmd>Obsidian open<cr>", { desc = "[o]pen" })
-vim.keymap.set("n", "<Leader>ot", "<cmd>Obsidian tags<cr>", { desc = "[t]ags" })
-vim.keymap.set("n", "<Leader>on", "<cmd>Obsidian new<cr>", { desc = "[n]ew note" })
-vim.keymap.set("n", "<Leader>og", "<cmd>Obsidian follow_link<cr>", { desc = "[g]o to note" })
 vim.keymap.set("n", "<Leader>op", "<cmd>MarkdownPreview<cr>", { desc = "[p]review" })
-vim.keymap.set("", "<Leader>br", "<cmd>BrunoRun<cr>", { desc = "[r]un" })
-vim.keymap.set("", "<Leader>bt", "<cmd>BrunoToggleFormat<cr>", { desc = "[t]oggle format" })
-vim.keymap.set("", "<Leader>be", "<cmd>BrunoEnv<cr>", { desc = "[e]nvironment" })
-vim.keymap.set("", "<Leader>bf", "<cmd>BrunoSearch<cr>", { desc = "[f]ind" })
+
+local obsidian_ok, obsidian_vaults = pcall(require, "obsidian-vaults")
+if obsidian_ok and #obsidian_vaults > 0 then
+	vim.keymap.set("n", "<Leader>ow", "<cmd>Obsidian workspace<cr>", { desc = "[w]orkspace" })
+	vim.keymap.set("n", "<Leader>of", "<cmd>Obsidian search<cr>", { desc = "[f]ind" })
+	vim.keymap.set("n", "<Leader>oo", "<cmd>Obsidian open<cr>", { desc = "[o]pen" })
+	vim.keymap.set("n", "<Leader>ot", "<cmd>Obsidian tags<cr>", { desc = "[t]ags" })
+	vim.keymap.set("n", "<Leader>on", "<cmd>Obsidian new<cr>", { desc = "[n]ew note" })
+	vim.keymap.set("n", "<Leader>og", "<cmd>Obsidian follow_link<cr>", { desc = "[g]o to note" })
+end
+
+local bruno_ok, bruno_cols = pcall(require, "bruno-collections")
+if bruno_ok and #bruno_cols > 0 then
+	vim.keymap.set("", "<Leader>br", "<cmd>BrunoRun<cr>", { desc = "[r]un" })
+	vim.keymap.set("", "<Leader>bt", "<cmd>BrunoToggleFormat<cr>", { desc = "[t]oggle format" })
+	vim.keymap.set("", "<Leader>be", "<cmd>BrunoEnv<cr>", { desc = "[e]nvironment" })
+	vim.keymap.set("", "<Leader>bf", "<cmd>BrunoSearch<cr>", { desc = "[f]ind" })
+end
 vim.keymap.set("n", "<Leader>tt", "<cmd>ToggleTerm direction=float<cr>", { desc = "[t]erminal" })
 vim.keymap.set("n", "<Leader>tc", "<cmd>TSContext toggle<cr>", { desc = "[c]ontext (treesitter)" })
 vim.keymap.set({ "n", "x" }, "<leader>lc", vim.lsp.buf.code_action, { desc = "[c]ode action", silent = false })

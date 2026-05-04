@@ -31,6 +31,9 @@
       isLaptop = true;
       withGames = false;
 
+      obsidianVaults = [ ];
+      brunoCollections = [ ];
+
       monitorConfig = [ ];
     };
   };
