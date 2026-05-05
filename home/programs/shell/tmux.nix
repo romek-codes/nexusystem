@@ -54,12 +54,17 @@ in {
         plugin = tmuxPlugins.resurrect;
         extraConfig = ''
           set -g @resurrect-strategy-nvim 'session'
-          resurrect_dir=~/.tmux/resurrect/
-          set -g @resurrect-dir $resurrect_dir
-          set -g @resurrect-hook-post-save-all "sed -i 's| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/nix/store/.*/bin/||g' $(readlink -f $resurrect_dir/last)"
+          set -g @resurrect-dir '${config.home.homeDirectory}/.tmux/resurrect'
+          set -g @resurrect-hook-post-save-all "sed -Ei 's| --cmd .*-vim-pack-dir||g; s| --cmd lua dofile\\(\"/nix/store/[^\"]*-wrapper-init-lua\"\\)||g; s|/etc/profiles/per-user/${config.home.username}/bin/||g; s|/nix/store/[^[:space:]]*/bin/||g' \$(readlink -f ${config.home.homeDirectory}/.tmux/resurrect/last)"
         '';
       }
-      tmuxPlugins.continuum
+      {
+        plugin = tmuxPlugins.continuum;
+        extraConfig = ''
+          set -g @continuum-restore 'on'
+          set -g @continuum-save-interval '15'
+        '';
+      }
       tmuxPlugins.sensible
       tmuxPlugins.yank
       tmuxPlugins.tmux-which-key
