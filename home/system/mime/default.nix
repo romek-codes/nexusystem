@@ -19,14 +19,14 @@ let
     video = [ "mpv.desktop" ];
     directory = [ "thunar.desktop" ];
     office = [ "libreoffice.desktop" ];
-    pdf = [ "zathura.desktop" ];
+    pdf = [ "org.pwmt.zathura.desktop" ];
     terminal = [ "foot.desktop" ];
     discord = [ "discord.desktop" ];
     archive = [ "xarchiver.desktop" ];
   };
 
   mimeMap = {
-    text = [ "text/plain" ];
+    text = [ "text/plain" "text/markdown" "text/x-markdown" ];
     image = [
       "image/bmp"
       "image/gif"
