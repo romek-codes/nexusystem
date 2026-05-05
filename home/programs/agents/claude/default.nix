@@ -55,6 +55,7 @@ in
   home.packages = [
     pkgs.claude-code
     pkgs.claude-agent-acp
+    pkgs.happy
   ];
 
   home.file.".claude/CLAUDE.md".source = ../SYSTEM-AGENTS.md;
