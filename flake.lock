@@ -588,6 +588,22 @@
         "type": "github"
       }
     },
+    "happy": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777525376,
+        "narHash": "sha256-FUs/0gqm0rlpThqaOTC1otFPoAnFyFhBrKHcbGefO9o=",
+        "owner": "slopus",
+        "repo": "happy",
+        "rev": "df4cdae8e7fca04c0c65aef933bb28a01a346d77",
+        "type": "github"
+      },
+      "original": {
+        "owner": "slopus",
+        "repo": "happy",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -1246,6 +1262,7 @@
         "anyrun": "anyrun",
         "apple-fonts": "apple-fonts",
         "firefox-addons": "firefox-addons",
+        "happy": "happy",
         "home-manager": "home-manager",
         "hyprpanel": "hyprpanel",
         "lanzaboote": "lanzaboote",
