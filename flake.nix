@@ -46,6 +46,11 @@
     affinity-nix.url = "github:mrshmllow/affinity-nix";
 
     nurpkgs.url = "github:nix-community/NUR";
+
+    happy = {
+      url = "github:slopus/happy";
+      flake = false;
+    };
   };
 
   outputs =
@@ -55,6 +60,12 @@
         {
           nixpkgs = {
             overlays = [
+              (final: prev: {
+                happy = prev.callPackage ./home/programs/agents/happy.nix {
+                  src = inputs.happy;
+                  version = inputs.happy.shortRev;
+                };
+              })
               (final: prev: {
                 # Overlayed to have support for --sensitive flag, to not save passwords to cliphist.
                 # github.com/fdw/rofi-rbw/commits/main/src/rofi_rbw/clipboarder/wlclip.py
