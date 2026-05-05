@@ -14,7 +14,14 @@ Shared system-wide instructions for local AI tools.
 - Default shell: `zsh`.
 - `nix` flakes are enabled.
 - Prefer `nh` for Nix workflows when relevant.
-- If a command is missing, try `, <command>` first.
+- Prefer wrapping shell commands with `rtk` so output is filtered before it
+  reaches the LLM context. Use it mainly for verbose output like search results,
+  diffs, logs, tests, linters, JSON, or SQL tables; skip it for tiny or exact
+  output where plain commands are already compact or you need precise slices.
+- If `rtk` is not available in the current environment, run commands through it
+  via `, rtk <command>`.
+- Use plain `, <command>` for missing tools only when `rtk` is not relevant and
+  the goal is simply to access that executable without installing it globally.
 
 ## Repo workflow
 
