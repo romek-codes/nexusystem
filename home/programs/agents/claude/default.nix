@@ -56,6 +56,7 @@ in
     pkgs.claude-code
     pkgs.claude-agent-acp
     pkgs.happy
+    pkgs.rtk
   ];
 
   home.file.".claude/CLAUDE.md".source = ../SYSTEM-AGENTS.md;
