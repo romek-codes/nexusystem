@@ -1,6 +1,7 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 
 let
+  systemAgents = import ../system-agents.nix { inherit config; };
   statusline = pkgs.writeShellScript "claude-statusline" ''
     input=$(cat)
 
@@ -59,7 +60,7 @@ in
     pkgs.rtk
   ];
 
-  home.file.".claude/CLAUDE.md".source = ../SYSTEM-AGENTS.md;
+  home.file.".claude/CLAUDE.md".text = systemAgents;
 
   home.file.".claude/settings.json".text = builtins.toJSON {
     enabledPlugins = {
