@@ -1,4 +1,7 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
+let
+  systemAgents = import ../system-agents.nix { inherit config; };
+in
 {
   home.packages = [
     pkgs.codex
@@ -7,5 +10,5 @@
     pkgs.rtk
   ];
 
-  home.file.".codex/AGENTS.md".source = ../SYSTEM-AGENTS.md;
+  home.file.".codex/AGENTS.md".text = systemAgents;
 }
