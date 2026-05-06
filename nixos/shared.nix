@@ -19,7 +19,6 @@
     ./syncthing.nix
     ./pam.nix
     ./optimize-battery.nix
-    ./gpg.nix
     ./affinity.nix
     # These will only be activated if withGames is set to true
     ./steam.nix
