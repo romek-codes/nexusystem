@@ -10,6 +10,7 @@
     ./programs/agents/codex
     ./programs/agtx
     ./programs/discord
+    ./programs/librepods
     ./programs/lazygit
     # ./programs/photogimp # Gimp with photoshop like UI
     ./programs/obs-studio
