@@ -8,6 +8,7 @@
   config = lib.mkIf (builtins.elem "nvim" config.var.editors) {
     programs.neovim = {
       enable = true;
+      sideloadInitLua = true;
       withRuby = false;
       withNodeJs = true;
       withPython3 = true;
