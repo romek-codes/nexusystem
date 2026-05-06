@@ -9,18 +9,16 @@ let
       { };
   targetVariant = state.${config.var.hostname} or null;
   currentPolarity = config.theme.polarity;
-  baseScheme =
-    if helpers.isEmpty config.theme.base16Scheme then
-      null
-    else
-      helpers.resolveBase16Scheme pkgs config.theme.base16Scheme;
+  shouldOverride = targetVariant != null && targetVariant != currentPolarity;
 in
 {
-  config = lib.mkIf (targetVariant != null && targetVariant != currentPolarity) {
+  config = lib.mkIf shouldOverride {
     stylix = {
       polarity = lib.mkForce targetVariant;
-    } // lib.optionalAttrs (baseScheme != null) {
-      base16Scheme = lib.mkForce (helpers.withPolarity targetVariant baseScheme);
+    } // lib.optionalAttrs (!helpers.isEmpty config.theme.base16Scheme) {
+      base16Scheme = lib.mkForce (
+        helpers.withPolarity targetVariant (helpers.resolveBase16Scheme pkgs config.theme.base16Scheme)
+      );
     };
   };
 }
