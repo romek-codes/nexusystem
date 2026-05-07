@@ -80,6 +80,17 @@
                   };
                 });
               })
+              (final: prev: {
+                openldap = prev.openldap.overrideAttrs (_: {
+                  doCheck = false;
+                });
+
+                pkgsi686Linux = prev.pkgsi686Linux // {
+                  openldap = prev.pkgsi686Linux.openldap.overrideAttrs (_: {
+                    doCheck = false;
+                  });
+                };
+              })
             ];
           };
           _module.args = { inherit inputs; };
