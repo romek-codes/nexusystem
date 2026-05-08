@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reh"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = ["textual"]
+
+[project.scripts]
+reh = "reh.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["reh*"]

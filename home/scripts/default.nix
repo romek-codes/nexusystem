@@ -16,5 +16,6 @@
     ./lazycommit
     ./fileinfo
     ./package-audit
+    ./reh
   ];
 }
