@@ -6,13 +6,13 @@
 
 stdenv.mkDerivation {
   pname = "pedro-raccoon-plymouth-theme";
-  version = "unstable-2024-01-01";
+  version = "unstable-2026-04-26";
 
   src = fetchFromGitHub {
     owner = "FilaCo";
     repo = "plymouth-theme-pedro-raccoon";
-    rev = "f7fde1da0dde1ce861dff5617c79de6afbde29cb";
-    sha256 = "sha256-swlQfxN3kmY+021yJGYEE/D7MTrdPZ2WQ5bNmjWWkAU=";
+    rev = "2baf190a98e66e1ada37c11dead28463f68581ba";
+    sha256 = "sha256-U7ylTCHbq/UL4GKImFqgBwG5tybFwZ3rxAna2h5iSBA=";
   };
 
   installPhase = ''
