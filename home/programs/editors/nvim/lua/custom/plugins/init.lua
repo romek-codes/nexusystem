@@ -1105,33 +1105,7 @@ return {
 		config = true,
 		version = "*",
 	},
-	{
-		-- For development
-		-- dir = "~/Workspace/bruno.nvim",
-		"romek-codes/bruno.nvim",
-		cond = function()
-			local ok, cols = pcall(require, "bruno-collections")
-			return ok and #cols > 0
-		end,
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-telescope/telescope.nvim",
-			-- "ibhagwan/fzf-lua",
-			-- {
-			-- 	"folke/snacks.nvim",
-			-- 	opts = { picker = { enabled = true } },
-			-- },
-		},
-		config = function()
-			require("bruno").setup({
-				collection_paths = (function()
-				local ok, cols = pcall(require, "bruno-collections")
-				return ok and cols or {}
-			end)(),
-				-- picker = "fzf-lua",
-			})
-		end,
-	},
+	require("custom.bruno").spec("romek-codes/bruno.nvim"),
 	{
 		"stevearc/oil.nvim",
 		opts = {},
