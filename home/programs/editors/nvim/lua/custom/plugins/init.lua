@@ -823,7 +823,7 @@ return {
 					function()
 						with_vault(function(vault_path)
 							local month = os.date("%Y-%m")
-							local inbox_dir = vault_path .. "/Inbox"
+							local inbox_dir = vault_path .. "/10 Human Inbox"
 							local filepath = inbox_dir .. "/" .. month .. ".md"
 							vim.fn.mkdir(inbox_dir, "p")
 							vim.cmd("edit " .. vim.fn.fnameescape(filepath))
@@ -910,7 +910,7 @@ return {
 				new_notes_location = "current_dir",
 
 				daily_notes = {
-					folder = "Daily",
+					folder = "20 Human Journal",
 					date_format = "%Y-%m-%d",
 				},
 			}
