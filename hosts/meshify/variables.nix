@@ -44,7 +44,7 @@
       ];
 
       brunoCollections = [
-        { name = "Nix"; path = "/home/romek/Bruno"; }
+        { name = "Nix"; path = "/home/romek/notes/personal/bruno"; }
       ];
 
       autoUpgrade = false;
