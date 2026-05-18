@@ -1,5 +1,10 @@
 # Tmux is a terminal multiplexer that allows you to run multiple terminal sessions in a single window.
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 let
   dark = "#${config.lib.stylix.colors.base01}";
   light = "#${config.lib.stylix.colors.base06}";
@@ -35,7 +40,8 @@ let
 
   '';
   fullTmuxConf = tmuxConf + styleConf;
-in {
+in
+{
 
   programs.tmux = {
     enable = true;
@@ -50,21 +56,22 @@ in {
     terminal = "screen-256color";
 
     plugins = with pkgs; [
-      {
-        plugin = tmuxPlugins.resurrect;
-        extraConfig = ''
-          set -g @resurrect-strategy-nvim 'session'
-          set -g @resurrect-dir '${config.home.homeDirectory}/.tmux/resurrect'
-          set -g @resurrect-hook-post-save-all "sed -Ei 's| --cmd .*-vim-pack-dir||g; s| --cmd lua dofile\\(\"/nix/store/[^\"]*-wrapper-init-lua\"\\)||g; s|/etc/profiles/per-user/${config.home.username}/bin/||g; s|/nix/store/[^[:space:]]*/bin/||g' \$(readlink -f ${config.home.homeDirectory}/.tmux/resurrect/last)"
-        '';
-      }
-      {
-        plugin = tmuxPlugins.continuum;
-        extraConfig = ''
-          set -g @continuum-restore 'on'
-          set -g @continuum-save-interval '15'
-        '';
-      }
+      # Can be enabled if wanted. This causes terminal to always minimize after first open because old session is being recovered. And it seems its not being autosaved every x minutes?
+      # {
+      #   plugin = tmuxPlugins.resurrect;
+      #   extraConfig = ''
+      #     set -g @resurrect-strategy-nvim 'session'
+      #     set -g @resurrect-dir '${config.home.homeDirectory}/.tmux/resurrect'
+      #     set -g @resurrect-hook-post-save-all "sed -Ei 's| --cmd .*-vim-pack-dir||g; s| --cmd lua dofile\\(\"/nix/store/[^\"]*-wrapper-init-lua\"\\)||g; s|/etc/profiles/per-user/${config.home.username}/bin/||g; s|/nix/store/[^[:space:]]*/bin/||g' \$(readlink -f ${config.home.homeDirectory}/.tmux/resurrect/last)"
+      #   '';
+      # }
+      # {
+      #   plugin = tmuxPlugins.continuum;
+      #   extraConfig = ''
+      #     set -g @continuum-restore 'on'
+      #     set -g @continuum-save-interval '15'
+      #   '';
+      # }
       tmuxPlugins.sensible
       tmuxPlugins.yank
       tmuxPlugins.tmux-which-key
