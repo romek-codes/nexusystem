@@ -67,17 +67,10 @@
                 };
               })
               (final: prev: {
-                # Overlayed to have support for --sensitive flag, to not save passwords to cliphist.
-                # github.com/fdw/rofi-rbw/commits/main/src/rofi_rbw/clipboarder/wlclip.py
-                # github.com/bugaevc/wl-clipboard/issues/260
-                # Reverted this feature because of no new release for wl-clipboard
                 rofi-rbw-wayland = prev.rofi-rbw-wayland.overrideAttrs (old: {
-                  src = prev.fetchFromGitHub {
-                    owner = "fdw";
-                    repo = "rofi-rbw";
-                    rev = "8d2834996c1b6e14bd5a284c87e705e79719ef8e";
-                    hash = "sha256-hhpzCehkQ1vsVJ3bwyvLZe9wIAXPLRuA6UclWihXwCg=";
-                  };
+                  patches = (old.patches or [ ]) ++ [
+                    ./home/system/rofi/patches/rofi-rbw-wl-copy-sensitive.patch
+                  ];
                 });
               })
               (final: prev: {

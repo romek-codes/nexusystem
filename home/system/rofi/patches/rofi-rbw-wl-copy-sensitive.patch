@@ -1,0 +1,13 @@
+diff --git a/src/rofi_rbw/clipboarder/wlclip.py b/src/rofi_rbw/clipboarder/wlclip.py
+index 5ba0cd8..759eddd 100644
+--- a/src/rofi_rbw/clipboarder/wlclip.py
++++ b/src/rofi_rbw/clipboarder/wlclip.py
+@@ -15,7 +15,7 @@ class WlClipboarder(Clipboarder):
+         return "wl-copy"
+ 
+     def copy_to_clipboard(self, characters: str) -> None:
+-        run(["wl-copy"], input=characters, encoding="utf-8")
++        run(["wl-copy", "--sensitive"], input=characters, encoding="utf-8")
+ 
+         self.__last_copied_characters = characters
+ 
