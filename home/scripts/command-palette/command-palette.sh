@@ -291,20 +291,20 @@ elif [[ "$selected" == *"Network"* ]]; then
 	rofi-network-manager
 	command_found=1
 elif [[ "$selected" == *"Play/Pause"* ]]; then
-	playerctl play-pause
+	"$PLAYERCTL_BIN" play-pause
 	command_found=1
 elif [[ "$selected" == *"Next"* ]]; then
-	playerctl next
+	"$PLAYERCTL_BIN" next
 	command_found=1
 elif [[ "$selected" == *"Previous"* ]]; then
-	playerctl previous
+	"$PLAYERCTL_BIN" previous
 	command_found=1
 elif [[ "$selected" == *"Skip back seconds"* ]]; then
 	# Get seconds value from user using rofi
 	seconds=$(rofi -dmenu -p "Skip back how many seconds?" -l 0)
 	# Check if input is valid
 	if [[ "$seconds" =~ ^[0-9]+$ ]] && [ "$seconds" -ge 0 ]; then
-		playerctl position "$seconds"-
+		"$PLAYERCTL_BIN" position "$seconds"-
 	else
 		notify-send "Invalid input" "Please enter a valid number of seconds"
 	fi
@@ -314,7 +314,7 @@ elif [[ "$selected" == *"Skip forward seconds"* ]]; then
 	seconds=$(rofi -dmenu -p "Skip forward how many seconds?" -l 0)
 	# Check if input is valid
 	if [[ "$seconds" =~ ^[0-9]+$ ]] && [ "$seconds" -ge 0 ]; then
-		playerctl position "$seconds"+
+		"$PLAYERCTL_BIN" position "$seconds"+
 	else
 		notify-send "Invalid input" "Please enter a valid number of seconds"
 	fi
@@ -324,7 +324,7 @@ elif [[ "$selected" == *"Jump to timestamp"* ]]; then
 	position=$(rofi -dmenu -p "Jump to position (seconds)" -l 0)
 	# Check if input is valid
 	if [[ "$position" =~ ^[0-9]+$ ]] && [ "$position" -ge 0 ]; then
-		playerctl position "$position"
+		"$PLAYERCTL_BIN" position "$position"
 	else
 		notify-send "Invalid position" "Please enter a valid number of seconds"
 	fi
