@@ -42,6 +42,7 @@
   home.packages = with pkgs; [
     # Apps
     mpv # Video player
+    playerctl # Media controls
     rbw # Password manager
     pinentry-gnome3
     planify # Todos / Todoist

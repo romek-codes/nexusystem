@@ -9,6 +9,7 @@ let
   commandPalette = pkgs.writeShellScriptBin "command-palette" ''
     export MAIN_BROWSER_ICON="${mainBrowserIcon}"
     export MAIN_BROWSER_BIN="${mainBrowserBinary}"
+    export PLAYERCTL_BIN="${pkgs.playerctl}/bin/playerctl"
     exec ${pkgs.bash}/bin/bash ${./command-palette.sh}
   '';
 
