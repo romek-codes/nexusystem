@@ -72,6 +72,13 @@
                     ./home/system/rofi/patches/rofi-rbw-wl-copy-sensitive.patch
                   ];
                 });
+
+                pear-desktop = prev.pear-desktop.overrideAttrs (old: {
+                  postPatch = (old.postPatch or "") + ''
+                    mkdir -p src/plugins/better-fullscreen
+                    cp -r ${./home/programs/musicApps/youtube-music/pear-desktop-plugins/better-fullscreen}/. src/plugins/better-fullscreen/
+                  '';
+                });
               })
               (final: prev: {
                 openldap = prev.openldap.overrideAttrs (_: {
