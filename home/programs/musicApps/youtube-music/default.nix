@@ -171,6 +171,10 @@ in
       enabled = true;
     };
 
+    programs.pear-desktop.plugins."keyboard-hints" = mkDefault {
+      enabled = true;
+    };
+
     home.packages = [ cfg.package ];
 
     home.activation.updatePearDesktopConfig =

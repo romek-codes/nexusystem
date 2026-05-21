@@ -77,6 +77,8 @@
                   postPatch = (old.postPatch or "") + ''
                     mkdir -p src/plugins/better-fullscreen
                     cp -r ${./home/programs/musicApps/youtube-music/pear-desktop-plugins/better-fullscreen}/. src/plugins/better-fullscreen/
+                    mkdir -p src/plugins/keyboard-hints
+                    cp -r ${./home/programs/musicApps/youtube-music/pear-desktop-plugins/keyboard-hints}/. src/plugins/keyboard-hints/
                   '';
                 });
               })

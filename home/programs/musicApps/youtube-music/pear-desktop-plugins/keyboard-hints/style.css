@@ -1,0 +1,38 @@
+body.pear-keyboard-hints-active {
+  cursor: default !important;
+}
+
+#pear-keyboard-hints-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+}
+
+.pear-keyboard-hint {
+  position: absolute;
+  transform: translate(-12%, -38%);
+  min-width: 2.2rem;
+  padding: 0.28rem 0.56rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(18, 18, 18, 0.82);
+  background: linear-gradient(180deg, #fff6a8, #ffd86b);
+  color: #161616;
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 10px 28px rgba(0, 0, 0, 0.34);
+  white-space: nowrap;
+}
+
+.pear-keyboard-hint-match {
+  background: linear-gradient(180deg, #fff0ca, #ffbf47);
+}
+
+.pear-keyboard-hint-exact {
+  background: linear-gradient(180deg, #d6ffd3, #8ae66d);
+}
