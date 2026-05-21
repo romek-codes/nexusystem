@@ -614,3 +614,83 @@ body.pear-better-fullscreen-active #synced-lyrics-container .description[hidden]
     text-align: left !important;
   }
 }
+
+body.pear-better-fullscreen-active #tab-renderer[page-type='MUSIC_PAGE_TYPE_TRACK_LYRICS'],
+body.pear-better-fullscreen-active #synced-lyrics-container {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.pear-better-fullscreen-active #pear-bf-lyrics-host {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.pear-better-fullscreen-active .pear-bf-lyrics-scroller {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  padding: 30vh 0;
+  box-sizing: border-box;
+}
+
+body.pear-better-fullscreen-active .pear-bf-lyrics-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+body.pear-better-fullscreen-active .pear-bf-lyrics-line {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-right: 2rem;
+  margin: 18px 0;
+}
+
+body.pear-better-fullscreen-active .pear-bf-lyrics-text,
+body.pear-better-fullscreen-active .pear-bf-lyrics-empty {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  color: rgba(224, 224, 224, 0.42);
+  font-size: clamp(2rem, 2.3vw, 2.9rem);
+  font-weight: 500;
+  line-height: 1.52;
+  letter-spacing: -0.015em;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+body.pear-better-fullscreen-active .pear-bf-lyrics-line.current .pear-bf-lyrics-text,
+body.pear-better-fullscreen-active .pear-bf-lyrics-line-plain .pear-bf-lyrics-text {
+  color: #fff;
+}
+
+body.pear-better-fullscreen-active .pear-bf-lyrics-line.previous .pear-bf-lyrics-text {
+  color: rgba(224, 224, 224, 0.28);
+}
+
+body.pear-better-fullscreen-active .pear-bf-lyrics-line.upcoming .pear-bf-lyrics-text {
+  color: rgba(224, 224, 224, 0.42);
+}
+
+body.pear-better-fullscreen-active .pear-bf-lyrics-empty {
+  align-self: center;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  body.pear-better-fullscreen-active #pear-bf-lyrics-host {
+    width: min(100%, 92%);
+    max-width: none;
+    margin: 0 auto;
+  }
+}

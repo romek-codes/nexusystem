@@ -1,10 +1,18 @@
 import style from './style.css?inline';
 
+import { jaroWinkler } from '@skyra/jaro-winkler';
 import { createBackend, createPlugin, createRenderer } from '@/utils';
+import { YTMusic } from '@/plugins/synced-lyrics/providers/YTMusic';
+import { LRC } from '@/plugins/synced-lyrics/parsers/lrc';
 
 import type { MenuContext } from '@/types/contexts';
 import type { MenuItemConstructorOptions } from 'electron';
 import type { SongInfo } from '@/providers/song-info';
+import type { MusicPlayer } from '@/types/music-player';
+import type {
+  LyricResult,
+  SearchSongInfo,
+} from '@/plugins/synced-lyrics/types';
 
 type BetterFullscreenPluginConfig = {
   enabled: boolean;
@@ -27,6 +35,7 @@ const backdropVideoId = 'pear-bf-backdrop-video';
 const shellId = 'pear-bf-shell';
 const mediaSlotId = 'pear-bf-media-slot';
 const lyricsSlotId = 'pear-bf-lyrics-slot';
+const lyricsHostId = 'pear-bf-lyrics-host';
 const titleTextId = 'pear-bf-title';
 const bylineTextId = 'pear-bf-byline';
 const progressId = 'pear-bf-progress';
@@ -63,6 +72,154 @@ const formatTime = (seconds: number): string => {
   }
 
   return `${minutes}:${String(secs).padStart(2, '0')}`;
+};
+
+type LRCLibSearchItem = {
+  trackName: string;
+  artistName: string;
+  albumName: string;
+  duration: number;
+  instrumental: boolean;
+  plainLyrics: string;
+  syncedLyrics: string;
+};
+
+const searchLRCLibFallback = async ({
+  title,
+  alternativeTitle,
+  artist,
+  album,
+  songDuration,
+  tags,
+}: SearchSongInfo): Promise<LyricResult | null> => {
+  const baseUrl = 'https://lrclib.net';
+
+  let query = new URLSearchParams({
+    artist_name: artist,
+    track_name: title,
+  });
+
+  if (album) {
+    query.set('album_name', album);
+  }
+
+  let response = await fetch(`${baseUrl}/api/search?${query.toString()}`);
+  if (!response.ok) {
+    throw new Error(`bad HTTPStatus(${response.statusText})`);
+  }
+
+  let data = (await response.json()) as LRCLibSearchItem[];
+  if (!Array.isArray(data)) {
+    throw new Error(`Expected LRCLib array, got ${typeof data}`);
+  }
+
+  if (data.length === 0) {
+    const trackName = alternativeTitle || title;
+    query = new URLSearchParams({ q: trackName });
+    response = await fetch(`${baseUrl}/api/search?${query.toString()}`);
+    if (!response.ok) {
+      throw new Error(`bad HTTPStatus(${response.statusText})`);
+    }
+
+    data = (await response.json()) as LRCLibSearchItem[];
+    if (!Array.isArray(data)) {
+      throw new Error(`Expected LRCLib array, got ${typeof data}`);
+    }
+
+    if (data.length === 0 && alternativeTitle) {
+      query = new URLSearchParams({ q: title });
+      response = await fetch(`${baseUrl}/api/search?${query.toString()}`);
+      if (!response.ok) {
+        throw new Error(`bad HTTPStatus(${response.statusText})`);
+      }
+
+      data = (await response.json()) as LRCLibSearchItem[];
+      if (!Array.isArray(data)) {
+        throw new Error(`Expected LRCLib array, got ${typeof data}`);
+      }
+    }
+  }
+
+  const filteredResults = data.filter((item) => {
+    const artists = artist.split(/[&,]/g).map((value) => value.trim());
+    const itemArtists = item.artistName.split(/[&,]/g).map((value) => value.trim());
+
+    const permutations: Array<[string, string]> = [];
+    for (const artistA of artists) {
+      for (const artistB of itemArtists) {
+        permutations.push([artistA.toLowerCase(), artistB.toLowerCase()]);
+      }
+    }
+
+    for (const artistA of itemArtists) {
+      for (const artistB of artists) {
+        permutations.push([artistA.toLowerCase(), artistB.toLowerCase()]);
+      }
+    }
+
+    let ratio = Math.max(
+      0,
+      ...permutations.map(([left, right]) => jaroWinkler(left, right)),
+    );
+
+    if (ratio <= 0.9 && tags?.length) {
+      const filteredTags = tags.filter(
+        (tag) => tag.toLowerCase() !== artist.toLowerCase(),
+      );
+
+      const tagPermutations: Array<[string, string]> = [];
+      for (const tag of filteredTags) {
+        for (const itemArtist of itemArtists) {
+          tagPermutations.push([tag.toLowerCase(), itemArtist.toLowerCase()]);
+          tagPermutations.push([itemArtist.toLowerCase(), tag.toLowerCase()]);
+        }
+      }
+
+      if (tagPermutations.length > 0) {
+        ratio = Math.max(
+          ratio,
+          ...tagPermutations.map(([left, right]) => jaroWinkler(left, right)),
+        );
+      }
+    }
+
+    return ratio > 0.9;
+  });
+
+  filteredResults.sort((left, right) => {
+    return Math.abs(left.duration - songDuration) - Math.abs(right.duration - songDuration);
+  });
+
+  const closestResult = filteredResults[0];
+  if (!closestResult) {
+    return null;
+  }
+
+  if (Math.abs(closestResult.duration - songDuration) > 15) {
+    return null;
+  }
+
+  if (closestResult.instrumental) {
+    return null;
+  }
+
+  const raw = closestResult.syncedLyrics;
+  const plain = closestResult.plainLyrics;
+  if (!raw && !plain) {
+    return null;
+  }
+
+  return {
+    title: closestResult.trackName,
+    artists: closestResult.artistName.split(/[&,]/g),
+    lines: raw
+      ? LRC.parse(raw).lines.map((line) => ({
+          ...line,
+          status: 'upcoming' as const,
+        }))
+      : undefined,
+    lyrics: plain || undefined,
+  };
 };
 
 const menu = async (
@@ -153,6 +310,13 @@ const renderer = createRenderer<
     lastBackgroundImageUrl: string | null;
     preferredSyncedLyrics: boolean;
     latestSongInfo: SongInfo | null;
+    playerApi: MusicPlayer | null;
+    lyricsProvider: YTMusic | null;
+    lyricsResult: LyricResult | null;
+    lyricsFetchKey: string | null;
+    lyricsFetchNonce: number;
+    lyricsCurrentIndex: number;
+    lyricsFetchInFlight: boolean;
     scheduleSync: () => void;
     syncState: () => Promise<void>;
     shouldActivate: () => boolean;
@@ -160,19 +324,28 @@ const renderer = createRenderer<
     isPortraitWindow: () => boolean;
     getLayoutMode: () => LayoutMode;
     getLayout: () => HTMLElement | null;
+    getActivePlayerPageRoot: () => HTMLElement | null;
+    isVisibleElement: (element: Element | null) => boolean;
     getShell: () => HTMLElement | null;
     getTogglePlayerPageButton: () => HTMLButtonElement | null;
     getLyricsTab: () => HTMLElement | null;
+    getAllLyricsTabs: () => HTMLElement[];
     getLyricsRenderer: () => HTMLElement | null;
     getSyncedLyricsContainer: () => HTMLElement | null;
+    ensureLyricsHost: () => HTMLElement | null;
     ensureShell: () => HTMLElement;
     removeShell: () => void;
     restoreMovedNodes: () => void;
     mountMediaIntoShell: () => void;
     mountLyricsIntoShell: () => void;
+    fetchFullscreenLyrics: () => Promise<boolean>;
+    renderFullscreenLyrics: () => void;
+    updateFullscreenLyricsState: () => void;
+    clearFullscreenLyrics: () => void;
     updateShellMetadata: () => void;
     ensureShellMetadataReady: () => void;
     refreshLatestSongInfoFromDom: () => void;
+    buildSongInfoFromPlayerApi: () => SongInfo | null;
     updateMediaFrameVariables: () => void;
     updateLyricsFrameVariables: () => void;
     getSelectedTabIndex: () => number | null;
@@ -236,6 +409,13 @@ const renderer = createRenderer<
   lastBackgroundImageUrl: null,
   preferredSyncedLyrics: false,
   latestSongInfo: null,
+  playerApi: null,
+  lyricsProvider: null,
+  lyricsResult: null,
+  lyricsFetchKey: null,
+  lyricsFetchNonce: 0,
+  lyricsCurrentIndex: -1,
+  lyricsFetchInFlight: false,
 
   scheduleSync() {
     if (this.syncQueued) {
@@ -286,6 +466,34 @@ const renderer = createRenderer<
     return document.querySelector<HTMLElement>('ytmusic-app-layout');
   },
 
+  getActivePlayerPageRoot() {
+    const candidates = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        'ytmusic-player-page[player-page-open][role="dialog"], ytmusic-player-page[player-page-open]',
+      ),
+    );
+
+    return (
+      candidates.find((candidate) => this.isVisibleElement(candidate)) ?? null
+    );
+  },
+
+  isVisibleElement(element) {
+    if (!(element instanceof HTMLElement)) {
+      return false;
+    }
+
+    const style = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+
+    return (
+      style.display !== 'none' &&
+      style.visibility !== 'hidden' &&
+      rect.width > 0 &&
+      rect.height > 0
+    );
+  },
+
   getShell() {
     return document.getElementById(shellId) as HTMLElement | null;
   },
@@ -297,40 +505,93 @@ const renderer = createRenderer<
   },
 
   getLyricsTab() {
-    const exact = document.querySelector<HTMLElement>(
-      '#tabsContent > .tab-header:nth-of-type(2)',
-    );
+    const root = this.getActivePlayerPageRoot();
+    const searchRoots = [root, document].filter(Boolean) as ParentNode[];
 
-    if (exact) {
-      return exact;
-    }
+    for (const searchRoot of searchRoots) {
+      const exact = searchRoot.querySelector<HTMLElement>(
+        '#tabsContent > .tab-header:nth-of-type(2)',
+      );
 
-    const explicit =
-      document.querySelector<HTMLElement>('#lyrics-tab') ??
-      document.querySelector<HTMLElement>('[tab-id="lyrics"]') ??
-      document.querySelector<HTMLElement>('[data-tab-id="lyrics"]');
+      if (this.isVisibleElement(exact)) {
+        return exact;
+      }
 
-    if (explicit) {
-      return explicit;
-    }
+      const explicit =
+        searchRoot.querySelector<HTMLElement>('#lyrics-tab') ??
+        searchRoot.querySelector<HTMLElement>('[tab-id="lyrics"]') ??
+        searchRoot.querySelector<HTMLElement>('[data-tab-id="lyrics"]');
 
-    const headers = Array.from(
-      document.querySelectorAll<HTMLElement>(
-        '#tabsContent > .tab-header, tp-yt-paper-tab, [role="tab"]',
-      ),
-    );
+      if (this.isVisibleElement(explicit)) {
+        return explicit;
+      }
 
-    return (
-      headers.find((header) =>
+      const headers = Array.from(
+        searchRoot.querySelectorAll<HTMLElement>(
+          '#tabsContent > .tab-header, tp-yt-paper-tab, [role="tab"]',
+        ),
+      );
+
+      const visibleHeaders = headers.filter((header) =>
+        this.isVisibleElement(header),
+      );
+
+      const matchingHeader = visibleHeaders.find((header) =>
         header.textContent?.trim().toLowerCase().includes('lyric'),
-      ) ?? null
-    );
+      );
+
+      if (matchingHeader) {
+        return matchingHeader;
+      }
+    }
+
+    return null;
+  },
+
+  getAllLyricsTabs() {
+    const roots = [
+      ...document.querySelectorAll<HTMLElement>(
+        'ytmusic-player-page[player-page-open][role="dialog"], ytmusic-player-page[player-page-open], ytmusic-player-page',
+      ),
+      document.documentElement,
+    ];
+
+    const seen = new Set<HTMLElement>();
+    const tabs: HTMLElement[] = [];
+
+    for (const root of roots) {
+      const exact = Array.from(
+        root.querySelectorAll<HTMLElement>('#tabsContent > .tab-header:nth-of-type(2)'),
+      );
+      const explicit = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          '#lyrics-tab, [tab-id="lyrics"], [data-tab-id="lyrics"]',
+        ),
+      );
+      const fuzzy = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          '#tabsContent > .tab-header, tp-yt-paper-tab, [role="tab"]',
+        ),
+      ).filter((header) =>
+        header.textContent?.trim().toLowerCase().includes('lyric'),
+      );
+
+      for (const tab of [...exact, ...explicit, ...fuzzy]) {
+        if (!seen.has(tab)) {
+          seen.add(tab);
+          tabs.push(tab);
+        }
+      }
+    }
+
+    return tabs;
   },
 
   getSelectedTabIndex() {
+    const root = this.getActivePlayerPageRoot() ?? document;
     const headers = Array.from(
-      document.querySelectorAll<HTMLElement>('#tabsContent > .tab-header'),
-    );
+      root.querySelectorAll<HTMLElement>('#tabsContent > .tab-header'),
+    ).filter((header) => this.isVisibleElement(header));
     const selected = headers.findIndex(
       (header) => header.getAttribute('aria-selected') === 'true',
     );
@@ -339,13 +600,46 @@ const renderer = createRenderer<
   },
 
   getLyricsRenderer() {
-    return document.querySelector<HTMLElement>(
-      "#tab-renderer[page-type='MUSIC_PAGE_TYPE_TRACK_LYRICS']",
-    );
+    const root = this.getActivePlayerPageRoot();
+    const searchRoots = [root, document].filter(Boolean) as ParentNode[];
+
+    for (const searchRoot of searchRoots) {
+      const renderers = Array.from(
+        searchRoot.querySelectorAll<HTMLElement>(
+          "#tab-renderer[page-type='MUSIC_PAGE_TYPE_TRACK_LYRICS']",
+        ),
+      );
+      const visibleRenderer = renderers.find((renderer) =>
+        this.isVisibleElement(renderer),
+      );
+
+      if (visibleRenderer) {
+        return visibleRenderer;
+      }
+    }
+
+    return null;
   },
 
   getSyncedLyricsContainer() {
-    return document.querySelector<HTMLElement>('#synced-lyrics-container');
+    const renderer = this.getLyricsRenderer();
+    if (renderer) {
+      const scopedContainer =
+        renderer.querySelector<HTMLElement>('#synced-lyrics-container');
+      if (scopedContainer) {
+        return scopedContainer;
+      }
+    }
+
+    const containers = Array.from(
+      document.querySelectorAll<HTMLElement>('#synced-lyrics-container'),
+    );
+
+    return (
+      containers.find((container) =>
+        this.isVisibleElement(container.closest('#tab-renderer') ?? container),
+      ) ?? null
+    );
   },
 
   ensureShell() {
@@ -375,7 +669,9 @@ const renderer = createRenderer<
           </div>
         </section>
         <section id="pear-bf-right">
-          <div id="${lyricsSlotId}"></div>
+          <div id="${lyricsSlotId}">
+            <div id="${lyricsHostId}"></div>
+          </div>
         </section>
       </div>
     `;
@@ -399,6 +695,205 @@ const renderer = createRenderer<
 
   mountLyricsIntoShell() {
     this.updateLyricsFrameVariables();
+    this.renderFullscreenLyrics();
+    this.updateFullscreenLyricsState();
+  },
+
+  ensureLyricsHost() {
+    return document.getElementById(lyricsHostId) as HTMLElement | null;
+  },
+
+  async fetchFullscreenLyrics() {
+    if (this.lyricsFetchInFlight) {
+      return Boolean(this.lyricsResult);
+    }
+
+    const source =
+      this.buildSongInfoFromPlayerApi() ??
+      this.latestSongInfo;
+
+    if (!source?.videoId || !source.title || !source.artist) {
+      this.lyricsResult = null;
+      this.lyricsFetchKey = null;
+      this.renderFullscreenLyrics();
+      return false;
+    }
+
+    const info: SearchSongInfo = {
+      title: source.title,
+      alternativeTitle: source.alternativeTitle ?? '',
+      artist: source.artist,
+      album: source.album,
+      songDuration: Number(source.songDuration ?? 0),
+      videoId: source.videoId,
+      tags: Array.isArray(source.tags) ? source.tags : [],
+    };
+
+    const fetchKey = `${info.videoId}:${info.title}:${info.artist}:${info.songDuration}`;
+    if (this.lyricsFetchKey === fetchKey && this.lyricsResult) {
+      this.renderFullscreenLyrics();
+      return true;
+    }
+
+    this.lyricsFetchKey = fetchKey;
+    const currentNonce = ++this.lyricsFetchNonce;
+    this.lyricsResult = null;
+    this.lyricsCurrentIndex = -1;
+    this.renderFullscreenLyrics();
+    this.lyricsFetchInFlight = true;
+
+    try {
+      this.lyricsProvider ??= new YTMusic();
+
+      const result =
+        await searchLRCLibFallback(info) ??
+        await this.lyricsProvider.search(info);
+
+      if (currentNonce !== this.lyricsFetchNonce) {
+        return false;
+      }
+
+      this.lyricsResult = result;
+      this.lyricsCurrentIndex = -1;
+      this.renderFullscreenLyrics();
+      this.updateFullscreenLyricsState();
+
+      return Boolean(result);
+    } catch (error) {
+      console.error(error);
+
+      if (currentNonce === this.lyricsFetchNonce) {
+        this.lyricsResult = null;
+        this.lyricsCurrentIndex = -1;
+        this.renderFullscreenLyrics();
+      }
+
+      return false;
+    } finally {
+      this.lyricsFetchInFlight = false;
+    }
+  },
+
+  renderFullscreenLyrics() {
+    const host = this.ensureLyricsHost();
+    if (!host) {
+      return;
+    }
+
+    host.replaceChildren();
+
+    const result = this.lyricsResult;
+    if (!result) {
+      const empty = document.createElement('div');
+      empty.className = 'pear-bf-lyrics-empty';
+      empty.textContent = 'd(-_-)b';
+      host.append(empty);
+      return;
+    }
+
+    const scroller = document.createElement('div');
+    scroller.className = 'pear-bf-lyrics-scroller';
+
+    if (Array.isArray(result.lines) && result.lines.length > 0) {
+      for (const [index, line] of result.lines.entries()) {
+        const row = document.createElement('div');
+        row.className = 'pear-bf-lyrics-line upcoming';
+        row.dataset.index = String(index);
+
+        const text = document.createElement('div');
+        text.className = 'pear-bf-lyrics-text';
+        text.textContent = line.text || ' ';
+
+        row.append(text);
+        scroller.append(row);
+      }
+    } else if (typeof result.lyrics === 'string' && result.lyrics.trim()) {
+      const plainLines = result.lyrics.split('\n').filter((line) => line.trim());
+      for (const [index, line] of plainLines.entries()) {
+        const row = document.createElement('div');
+        row.className = 'pear-bf-lyrics-line pear-bf-lyrics-line-plain current';
+        row.dataset.index = String(index);
+
+        const text = document.createElement('div');
+        text.className = 'pear-bf-lyrics-text';
+        text.textContent = line;
+
+        row.append(text);
+        scroller.append(row);
+      }
+    } else {
+      const empty = document.createElement('div');
+      empty.className = 'pear-bf-lyrics-empty';
+      empty.textContent = 'd(-_-)b';
+      host.append(empty);
+      return;
+    }
+
+    host.append(scroller);
+  },
+
+  updateFullscreenLyricsState() {
+    const result = this.lyricsResult;
+    const host = this.ensureLyricsHost();
+    const scroller = host?.querySelector<HTMLElement>('.pear-bf-lyrics-scroller');
+
+    if (!host || !scroller || !result?.lines?.length) {
+      return;
+    }
+
+    const media = this.getMediaElementForProgress();
+    const time = Math.max(
+      0,
+      Math.round((Number.isFinite(media?.currentTime) ? media?.currentTime ?? 0 : 0) * 1000),
+    );
+
+    const statuses = result.lines.map((line) => {
+      if (line.timeInMs >= time) return 'upcoming';
+      if (time - line.timeInMs >= line.duration) return 'previous';
+      return 'current';
+    });
+
+    let currentIndex = statuses.findIndex((status) => status === 'current');
+    if (currentIndex === -1) {
+      currentIndex = statuses.findIndex((status) => status === 'upcoming');
+    }
+
+    const rows = Array.from(
+      scroller.querySelectorAll<HTMLElement>('.pear-bf-lyrics-line'),
+    );
+
+    for (const [index, row] of rows.entries()) {
+      row.classList.remove('previous', 'current', 'upcoming');
+      row.classList.add(statuses[index] ?? 'upcoming');
+    }
+
+    if (currentIndex < 0) {
+      return;
+    }
+
+    const currentRow = rows[currentIndex];
+    if (!currentRow) {
+      return;
+    }
+
+    if (this.lyricsCurrentIndex !== currentIndex) {
+      this.lyricsCurrentIndex = currentIndex;
+      const targetTop =
+        currentRow.offsetTop - (scroller.clientHeight - currentRow.clientHeight) / 2;
+
+      scroller.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: 'smooth',
+      });
+    }
+  },
+
+  clearFullscreenLyrics() {
+    this.lyricsResult = null;
+    this.lyricsFetchKey = null;
+    this.lyricsCurrentIndex = -1;
+    this.lyricsFetchInFlight = false;
+    this.ensureLyricsHost()?.replaceChildren();
   },
 
   updateShellMetadata() {
@@ -511,6 +1006,41 @@ const renderer = createRenderer<
       id: this.latestSongInfo?.id || '',
       liked: this.latestSongInfo?.liked || false,
       inLibrary: this.latestSongInfo?.inLibrary || false,
+    };
+  },
+
+  buildSongInfoFromPlayerApi() {
+    const response = this.playerApi?.getPlayerResponse();
+    const details = response?.videoDetails;
+
+    if (!details?.videoId) {
+      return null;
+    }
+
+    const canonical = response?.microformat?.microformatDataRenderer?.urlCanonical;
+    const thumbnails = details.thumbnail?.thumbnails ?? [];
+    const imageSrc =
+      thumbnails.at(-1)?.url?.split('?')?.at(0) ?? thumbnails.at(-1)?.url ?? '';
+
+    return {
+      title: details.title ?? '',
+      alternativeTitle:
+        response?.microformat?.microformatDataRenderer?.linkAlternates?.find(
+          (link) => link.title,
+        )?.title ?? '',
+      artist: details.author ?? '',
+      views: Number(details.viewCount ?? 0),
+      imageSrc,
+      songDuration: Number(details.lengthSeconds ?? 0),
+      elapsedSeconds: details.elapsedSeconds,
+      url: canonical?.split('&')[0] ?? '',
+      album: details.album ?? undefined,
+      videoId: details.videoId,
+      playlistId: canonical ? new URL(canonical).searchParams.get('list') ?? '' : '',
+      mediaType: 'AUDIO' as SongInfo['mediaType'],
+      tags: Array.isArray(response?.microformat?.microformatDataRenderer?.tags)
+        ? response.microformat.microformatDataRenderer.tags
+        : [],
     };
   },
 
@@ -704,42 +1234,16 @@ const renderer = createRenderer<
   },
 
   async ensureLyricsViewReady() {
-    const tab = this.getLyricsTab() ?? (await this.waitForLyricsTab());
-    if (!tab) {
-      return false;
-    }
-
-    tab.removeAttribute('disabled');
-
-    for (let attempt = 0; attempt < 20; attempt++) {
-      if (tab.getAttribute('aria-selected') === 'true') {
-        const contentReady = await this.waitForLyricsContentReady();
-        if (contentReady) {
-          return true;
-        }
-      }
-
-      tab.dispatchEvent(
-        new MouseEvent('mousedown', { bubbles: true, cancelable: true }),
-      );
-      tab.dispatchEvent(
-        new MouseEvent('mouseup', { bubbles: true, cancelable: true }),
-      );
-      tab.click();
-
-      await new Promise<void>((resolve) => {
-        window.setTimeout(resolve, 100);
-      });
-    }
-
-    return (
-      tab.getAttribute('aria-selected') === 'true' &&
-      (await this.waitForLyricsContentReady())
-    );
+    return await this.fetchFullscreenLyrics();
   },
 
   preferSyncedLyricsSource() {
-    const picker = document.querySelector<HTMLElement>('.lyrics-picker');
+    const picker =
+      this.getSyncedLyricsContainer()?.querySelector<HTMLElement>(
+        '.lyrics-picker',
+      ) ??
+      this.getLyricsRenderer()?.querySelector<HTMLElement>('.lyrics-picker') ??
+      document.querySelector<HTMLElement>('.lyrics-picker');
     if (!picker) {
       return;
     }
@@ -775,8 +1279,9 @@ const renderer = createRenderer<
       return;
     }
 
+    const root = this.getActivePlayerPageRoot() ?? document;
     const headers = Array.from(
-      document.querySelectorAll<HTMLElement>('#tabsContent > .tab-header'),
+      root.querySelectorAll<HTMLElement>('#tabsContent > .tab-header'),
     );
     const target = headers[this.previousSelectedTabIndex];
 
@@ -1006,6 +1511,7 @@ const renderer = createRenderer<
     fill.style.width = `${ratio}%`;
     current.textContent = formatTime(safeCurrent);
     duration.textContent = formatTime(safeDuration);
+    this.updateFullscreenLyricsState();
   },
 
   startVisualLoops() {
@@ -1018,6 +1524,13 @@ const renderer = createRenderer<
     if (this.metadataIntervalId === null) {
       this.metadataIntervalId = window.setInterval(() => {
         this.updateShellMetadata();
+        if (this.isActive && !this.lyricsResult && !this.lyricsFetchInFlight) {
+          void this.fetchFullscreenLyrics().then((ready) => {
+            if (ready && this.isActive) {
+              this.mountLyricsIntoShell();
+            }
+          });
+        }
       }, 250);
     }
 
@@ -1114,6 +1627,7 @@ const renderer = createRenderer<
       this.setLyricsVariables(false);
       this.removeCustomProgress();
       this.clearBackdrop();
+      this.clearFullscreenLyrics();
       this.restoreMovedNodes();
       this.removeShell();
       this.restoreSelectedTab();
@@ -1154,6 +1668,15 @@ const renderer = createRenderer<
     this.ensureShellMetadataReady();
     this.mountMediaIntoShell();
 
+    const activeSongInfo = this.buildSongInfoFromPlayerApi();
+    if (activeSongInfo) {
+      this.latestSongInfo = {
+        ...this.latestSongInfo,
+        ...activeSongInfo,
+      };
+      this.updateShellMetadata();
+    }
+
     if (this.latestSongInfo && window.ipcRenderer?.emit) {
       window.ipcRenderer.emit(
         'peard:update-song-info',
@@ -1163,22 +1686,8 @@ const renderer = createRenderer<
     }
 
     const lyricsReady = await this.ensureLyricsViewReady();
-    if (lyricsReady && !this.preferredSyncedLyrics) {
-      this.preferSyncedLyricsSource();
-    }
     if (lyricsReady) {
-      if (this.latestSongInfo && window.ipcRenderer?.emit) {
-        window.ipcRenderer.emit(
-          'peard:update-song-info',
-          {} as never,
-          this.latestSongInfo,
-        );
-      }
       this.mountLyricsIntoShell();
-      window.dispatchEvent(new Event('resize'));
-      window.requestAnimationFrame(() => {
-        window.dispatchEvent(new Event('resize'));
-      });
     }
     this.updateBackgroundVisuals();
 
@@ -1201,9 +1710,20 @@ const renderer = createRenderer<
       this.scheduleSync();
     };
     this.videoDataChangeHandler = () => {
+      const activeSongInfo = this.buildSongInfoFromPlayerApi();
+      if (activeSongInfo) {
+        this.latestSongInfo = {
+          ...this.latestSongInfo,
+          ...activeSongInfo,
+        };
+      }
       this.updateShellMetadata();
       this.mountMediaIntoShell();
-      this.mountLyricsIntoShell();
+      void this.fetchFullscreenLyrics().then((ready) => {
+        if (ready) {
+          this.mountLyricsIntoShell();
+        }
+      });
       this.updateMediaFrameVariables();
       this.updateLyricsFrameVariables();
       this.updateBackgroundVisuals();
@@ -1265,6 +1785,13 @@ const renderer = createRenderer<
       this.updateShellMetadata();
       this.updateBackgroundImage();
       this.updateBackdropVideoFrame();
+      if (this.isActive) {
+        void this.fetchFullscreenLyrics().then((ready) => {
+          if (ready) {
+            this.mountLyricsIntoShell();
+          }
+        });
+      }
     });
 
     if (!this.isNativePlayerFullscreen()) {
@@ -1280,6 +1807,18 @@ const renderer = createRenderer<
     );
 
     this.scheduleSync();
+  },
+
+  onPlayerApiReady(api) {
+    this.playerApi = api;
+    const activeSongInfo = this.buildSongInfoFromPlayerApi();
+
+    if (activeSongInfo) {
+      this.latestSongInfo = {
+        ...this.latestSongInfo,
+        ...activeSongInfo,
+      };
+    }
   },
 
   onConfigChange(newConfig) {
@@ -1300,6 +1839,8 @@ const renderer = createRenderer<
     this.stopVisualLoops();
     this.preferredSyncedLyrics = false;
     this.latestSongInfo = null;
+    this.playerApi = null;
+    this.clearFullscreenLyrics();
     this.customFullscreenRequested = false;
     this.suspendCustomForCurrentFullscreen = false;
     this.isActive = false;
