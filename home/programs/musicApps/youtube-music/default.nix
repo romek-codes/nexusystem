@@ -9,6 +9,15 @@ let
     types
     ;
 
+  patchedPearDesktop = pkgs.pear-desktop.overrideAttrs (old: {
+    postPatch = (old.postPatch or "") + ''
+      mkdir -p src/plugins/better-fullscreen
+      cp -r ${./pear-desktop-plugins/better-fullscreen}/. src/plugins/better-fullscreen/
+      mkdir -p src/plugins/keyboard-hints
+      cp -r ${./pear-desktop-plugins/keyboard-hints}/. src/plugins/keyboard-hints/
+    '';
+  });
+
   cfg = config.programs.pear-desktop;
   autoEnable = builtins.elem "youtube-music" config.var.musicApps;
   effectiveEnable = cfg.enable || autoEnable;
@@ -127,6 +136,8 @@ in
   };
 
   config = mkIf effectiveEnable {
+    programs.pear-desktop.package = mkDefault patchedPearDesktop;
+
     programs.pear-desktop.plugins.adblocker = mkDefault {
       enabled = true;
     };
