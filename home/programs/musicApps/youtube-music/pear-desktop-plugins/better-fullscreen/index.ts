@@ -697,6 +697,9 @@ const renderer = createRenderer<
     this.updateLyricsFrameVariables();
     this.renderFullscreenLyrics();
     this.updateFullscreenLyricsState();
+    window.requestAnimationFrame(() => {
+      this.updateFullscreenLyricsState();
+    });
   },
 
   ensureLyricsHost() {
@@ -871,13 +874,35 @@ const renderer = createRenderer<
       return;
     }
 
-    const currentRow = rows[currentIndex];
-    if (!currentRow) {
+    const isRenderableRow = (row: HTMLElement | undefined) => {
+      const text = row?.querySelector<HTMLElement>('.pear-bf-lyrics-text')?.textContent ?? '';
+      return text.trim().length > 0;
+    };
+
+    let targetIndex = currentIndex;
+    if (!isRenderableRow(rows[targetIndex])) {
+      for (let offset = 1; offset < rows.length; offset++) {
+        const previousIndex = targetIndex - offset;
+        if (previousIndex >= 0 && isRenderableRow(rows[previousIndex])) {
+          targetIndex = previousIndex;
+          break;
+        }
+
+        const nextIndex = targetIndex + offset;
+        if (nextIndex < rows.length && isRenderableRow(rows[nextIndex])) {
+          targetIndex = nextIndex;
+          break;
+        }
+      }
+    }
+
+    const currentRow = rows[targetIndex];
+    if (!currentRow || !isRenderableRow(currentRow)) {
       return;
     }
 
-    if (this.lyricsCurrentIndex !== currentIndex) {
-      this.lyricsCurrentIndex = currentIndex;
+    if (this.lyricsCurrentIndex !== targetIndex) {
+      this.lyricsCurrentIndex = targetIndex;
       const targetTop =
         currentRow.offsetTop - (scroller.clientHeight - currentRow.clientHeight) / 2;
 

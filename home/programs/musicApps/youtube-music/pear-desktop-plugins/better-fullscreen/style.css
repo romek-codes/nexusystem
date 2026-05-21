@@ -577,11 +577,11 @@ body.pear-better-fullscreen-active #synced-lyrics-container .description[hidden]
 
   body.pear-better-fullscreen-active #pear-bf-main {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
+    grid-template-rows: auto minmax(0, 1fr);
     gap: 28px;
     width: min(760px, 100%);
-    height: auto;
-    max-height: 100%;
+    height: min(100%, calc(100vh - 56px));
+    max-height: min(100%, calc(100vh - 56px));
   }
 
   body.pear-better-fullscreen-active #pear-bf-left {
@@ -599,8 +599,11 @@ body.pear-better-fullscreen-active #synced-lyrics-container .description[hidden]
   }
 
   body.pear-better-fullscreen-active #pear-bf-right {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
     justify-content: center;
-    height: min(42vh, 440px);
+    align-self: stretch;
   }
 
   body.pear-better-fullscreen-active #synced-lyrics-container {
@@ -626,9 +629,7 @@ body.pear-better-fullscreen-active #pear-bf-lyrics-host {
   width: 100%;
   height: 100%;
   min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 
 body.pear-better-fullscreen-active .pear-bf-lyrics-scroller {
@@ -692,5 +693,10 @@ body.pear-better-fullscreen-active .pear-bf-lyrics-empty {
     width: min(100%, 92%);
     max-width: none;
     margin: 0 auto;
+  }
+
+  body.pear-better-fullscreen-active .pear-bf-lyrics-scroller {
+    padding-top: calc(50% - 2.35rem);
+    padding-bottom: calc(50% - 2.35rem);
   }
 }
