@@ -516,10 +516,18 @@ body.pear-better-fullscreen-active #synced-lyrics-container [index="0"] {
 
 body.pear-better-fullscreen-active #synced-lyrics-container .synced-line {
   width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding-right: 2rem !important;
 }
 
 body.pear-better-fullscreen-active #synced-lyrics-container .text-lyrics,
 body.pear-better-fullscreen-active #synced-lyrics-container .description {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding-right: 0.5rem !important;
   color: rgba(224, 224, 224, 0.42) !important;
   font-size: clamp(2rem, 2.3vw, 2.9rem) !important;
   font-weight: 500 !important;
@@ -527,6 +535,9 @@ body.pear-better-fullscreen-active #synced-lyrics-container .description {
   letter-spacing: -0.015em !important;
   text-align: left !important;
   margin: 18px 0 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
 }
 
 body.pear-better-fullscreen-active #synced-lyrics-container .current .text-lyrics,
@@ -534,10 +545,17 @@ body.pear-better-fullscreen-active #synced-lyrics-container .synced-line.active 
 body.pear-better-fullscreen-active #synced-lyrics-container .synced-line.current .text-lyrics {
   color: #fff !important;
   opacity: 1 !important;
-  transform: scale(1.03) !important;
+  transform: none !important;
+}
+
+body.pear-better-fullscreen-active #synced-lyrics-container .text-lyrics > span,
+body.pear-better-fullscreen-active #synced-lyrics-container .text-lyrics > span > span {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
 }
 
 body.pear-better-fullscreen-active #synced-lyrics-container .text-lyrics > span > span {
+  white-space: pre-wrap !important;
   opacity: 0.42 !important;
 }
 
@@ -586,7 +604,7 @@ body.pear-better-fullscreen-active #synced-lyrics-container .description[hidden]
   }
 
   body.pear-better-fullscreen-active #synced-lyrics-container {
-    width: 100% !important;
+    width: min(100%, 92%) !important;
     max-width: none !important;
     margin: 0 auto !important;
   }
