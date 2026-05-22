@@ -59,3 +59,8 @@
 
 - Prefer non-destructive actions.
 - Do not mutate machine or install global tools if repo-local workflow, flake, or `, <command>` can do job.
+
+## Klarlist
+
+Personal projects only. Freeform — no strict conventions.
+Use Klarlist MCP directly; no guidelines enforced.
