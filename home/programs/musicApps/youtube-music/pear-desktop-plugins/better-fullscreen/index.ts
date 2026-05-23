@@ -902,13 +902,17 @@ const renderer = createRenderer<
     }
 
     if (this.lyricsCurrentIndex !== targetIndex) {
+      const isInitialPosition = this.lyricsCurrentIndex === -1;
       this.lyricsCurrentIndex = targetIndex;
-      const targetTop =
-        currentRow.offsetTop - (scroller.clientHeight - currentRow.clientHeight) / 2;
+      const preferredOffset =
+        targetIndex <= 2
+          ? scroller.clientHeight * 0.22
+          : (scroller.clientHeight - currentRow.clientHeight) / 2;
+      const targetTop = currentRow.offsetTop - preferredOffset;
 
       scroller.scrollTo({
         top: Math.max(0, targetTop),
-        behavior: 'smooth',
+        behavior: isInitialPosition ? 'auto' : 'smooth',
       });
     }
   },
