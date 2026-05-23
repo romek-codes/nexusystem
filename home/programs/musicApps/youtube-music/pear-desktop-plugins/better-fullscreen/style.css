@@ -638,7 +638,8 @@ body.pear-better-fullscreen-active .pear-bf-lyrics-scroller {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
-  padding: 30vh 0;
+  padding-top: clamp(24px, 8vh, 72px);
+  padding-bottom: 30vh;
   box-sizing: border-box;
 }
 
