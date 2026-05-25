@@ -296,6 +296,7 @@ const renderer = createRenderer<
     suspendCustomForCurrentFullscreen: boolean;
     isActive: boolean;
     openedPlayerPageForActivation: boolean;
+    forcedPlayerPageOpen: boolean;
     previousSelectedTabIndex: number | null;
     resizeHandler: () => void;
     videoDataChangeHandler: EventListener;
@@ -325,6 +326,7 @@ const renderer = createRenderer<
     isPortraitWindow: () => boolean;
     getLayoutMode: () => LayoutMode;
     getLayout: () => HTMLElement | null;
+    getPlayerPageElement: () => HTMLElement | null;
     getActivePlayerPageRoot: () => HTMLElement | null;
     isVisibleElement: (element: Element | null) => boolean;
     getShell: () => HTMLElement | null;
@@ -365,6 +367,8 @@ const renderer = createRenderer<
     waitForLyricsContentReady: () => Promise<boolean>;
     openPlayerPageIfNeeded: () => void;
     closePlayerPageIfNeeded: () => void;
+    ensurePlayerPageOpenForFullscreen: () => void;
+    restoreForcedPlayerPageState: () => void;
     ensureLyricsViewReady: () => Promise<boolean>;
     preferSyncedLyricsSource: () => void;
     restoreSelectedTab: () => void;
@@ -397,6 +401,7 @@ const renderer = createRenderer<
   suspendCustomForCurrentFullscreen: false,
   isActive: false,
   openedPlayerPageForActivation: false,
+  forcedPlayerPageOpen: false,
   previousSelectedTabIndex: null,
   resizeHandler() {},
   videoDataChangeHandler: () => {},
@@ -469,10 +474,14 @@ const renderer = createRenderer<
     return document.querySelector<HTMLElement>('ytmusic-app-layout');
   },
 
+  getPlayerPageElement() {
+    return document.querySelector<HTMLElement>('ytmusic-player-page#player-page, ytmusic-player-page');
+  },
+
   getActivePlayerPageRoot() {
     const candidates = Array.from(
       document.querySelectorAll<HTMLElement>(
-        'ytmusic-player-page[player-page-open][role="dialog"], ytmusic-player-page[player-page-open]',
+        'ytmusic-player-page[player-page-open][role="dialog"], ytmusic-player-page[player-page-open], ytmusic-player-page#player-page',
       ),
     );
 
@@ -1542,6 +1551,8 @@ const renderer = createRenderer<
   },
 
   closePlayerPageIfNeeded() {
+    this.restoreForcedPlayerPageState();
+
     if (!this.openedPlayerPageForActivation) {
       return;
     }
@@ -1552,6 +1563,41 @@ const renderer = createRenderer<
     }
 
     this.openedPlayerPageForActivation = false;
+  },
+
+  ensurePlayerPageOpenForFullscreen() {
+    const layout = this.getLayout();
+    const playerPage = this.getPlayerPageElement();
+
+    if (!layout || !playerPage) {
+      return;
+    }
+
+    if (layout.hasAttribute('player-page-open') || playerPage.hasAttribute('player-page-open')) {
+      return;
+    }
+
+    this.openPlayerPageIfNeeded();
+
+    if (!layout.hasAttribute('player-page-open')) {
+      layout.setAttribute('player-page-open', '');
+      this.forcedPlayerPageOpen = true;
+    }
+
+    if (!playerPage.hasAttribute('player-page-open')) {
+      playerPage.setAttribute('player-page-open', '');
+      this.forcedPlayerPageOpen = true;
+    }
+  },
+
+  restoreForcedPlayerPageState() {
+    if (!this.forcedPlayerPageOpen) {
+      return;
+    }
+
+    this.getLayout()?.removeAttribute('player-page-open');
+    this.getPlayerPageElement()?.removeAttribute('player-page-open');
+    this.forcedPlayerPageOpen = false;
   },
 
   async ensureLyricsViewReady() {
@@ -1961,6 +2007,8 @@ const renderer = createRenderer<
       this.previousSelectedTabIndex = this.getSelectedTabIndex();
     }
 
+    this.ensurePlayerPageOpenForFullscreen();
+
     this.isActive = true;
     this.setActiveClass(true);
     this.setLayoutAttribute(true);
@@ -1976,18 +2024,6 @@ const renderer = createRenderer<
 
     if (isInitialActivation) {
       this.mountLyricsIntoShell();
-    }
-
-    this.openPlayerPageIfNeeded();
-
-    const playerPageReady = await this.waitForPlayerPageReady();
-    if (!playerPageReady) {
-      if (this.isNativePlayerFullscreen()) {
-        window.setTimeout(() => {
-          this.scheduleSync();
-        }, 100);
-      }
-      return;
     }
 
     this.updateShellMetadata();
@@ -2179,6 +2215,7 @@ const renderer = createRenderer<
     this.removeShell();
     this.restoreSelectedTab();
     this.closePlayerPageIfNeeded();
+    this.forcedPlayerPageOpen = false;
     this.disconnectObserver();
   },
 });
