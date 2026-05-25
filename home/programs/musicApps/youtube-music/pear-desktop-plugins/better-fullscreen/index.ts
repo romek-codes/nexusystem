@@ -1668,6 +1668,7 @@ const renderer = createRenderer<
 
   async syncState() {
     const shouldActivate = this.shouldActivate();
+    const isInitialActivation = !this.isActive;
 
     if (!shouldActivate) {
       if (!this.isActive) {
@@ -1691,7 +1692,7 @@ const renderer = createRenderer<
       return;
     }
 
-    if (!this.isActive) {
+    if (isInitialActivation) {
       this.previousSelectedTabIndex = this.getSelectedTabIndex();
     }
 
@@ -1707,6 +1708,10 @@ const renderer = createRenderer<
     this.ensureCustomProgress();
     this.updateProgressDisplay();
     this.startVisualLoops();
+
+    if (isInitialActivation) {
+      this.mountLyricsIntoShell();
+    }
 
     this.openPlayerPageIfNeeded();
 
