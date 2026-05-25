@@ -100,6 +100,27 @@ body.pear-better-fullscreen-active #pear-bf-shell * {
   pointer-events: auto !important;
 }
 
+body.pear-better-fullscreen-active ytmusic-popup-container,
+body.pear-better-fullscreen-active tp-yt-paper-dialog,
+body.pear-better-fullscreen-active ytmusic-add-to-playlist-renderer,
+body.pear-better-fullscreen-active ytmusic-add-to-playlist-renderer * {
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+body.pear-better-fullscreen-active ytmusic-popup-container,
+body.pear-better-fullscreen-active tp-yt-paper-dialog {
+  z-index: 220 !important;
+  width: min(960px, calc(100vw - 72px)) !important;
+  max-width: min(960px, calc(100vw - 72px)) !important;
+}
+
+body.pear-better-fullscreen-active ytmusic-add-to-playlist-renderer {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
 body.pear-better-fullscreen-active #pear-bf-media-slot,
 body.pear-better-fullscreen-active #pear-bf-media-slot *,
 body.pear-better-fullscreen-active #pear-bf-media-slot video,
@@ -346,6 +367,19 @@ body.pear-better-fullscreen-active #pear-bf-meta {
   margin-top: 40px;
 }
 
+body.pear-better-fullscreen-active #pear-bf-meta-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
+
+body.pear-better-fullscreen-active #pear-bf-meta-text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 body.pear-better-fullscreen-active #pear-bf-title {
   margin: 0;
   color: #fff;
@@ -361,6 +395,50 @@ body.pear-better-fullscreen-active #pear-bf-byline {
   font-size: clamp(1.1rem, 2vw, 2rem);
   font-weight: 600;
   line-height: 1.25;
+}
+
+body.pear-better-fullscreen-active #pear-bf-add-to-playlist {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 4px 0 0;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+body.pear-better-fullscreen-active #pear-bf-add-to-playlist:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+body.pear-better-fullscreen-active #pear-bf-add-to-playlist svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  fill: currentColor;
+}
+
+body.pear-better-fullscreen-active #pear-bf-add-to-playlist:active {
+  transform: translateY(1px);
+}
+
+body.pear-better-fullscreen-active #pear-bf-add-to-playlist:disabled,
+body.pear-better-fullscreen-active #pear-bf-add-to-playlist[data-busy='true'] {
+  cursor: wait;
+  opacity: 0.68;
 }
 
 body.pear-better-fullscreen-active #pear-bf-progress {
