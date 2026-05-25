@@ -64,3 +64,4 @@
 
 Personal projects only. Freeform — no strict conventions.
 Use Klarlist MCP directly; no guidelines enforced.
+- If user asks for `N` items, push `N` and filters into the MCP/API call (`limit`, project, status, date, sort). Do not overfetch then trim locally.
