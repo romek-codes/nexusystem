@@ -699,7 +699,15 @@ const renderer = createRenderer<
     this.updateFullscreenLyricsState();
     window.requestAnimationFrame(() => {
       this.updateFullscreenLyricsState();
+      window.requestAnimationFrame(() => {
+        this.updateFullscreenLyricsState();
+      });
     });
+    window.setTimeout(() => {
+      if (this.isActive) {
+        this.updateFullscreenLyricsState();
+      }
+    }, 120);
   },
 
   ensureLyricsHost() {
@@ -742,8 +750,8 @@ const renderer = createRenderer<
     const currentNonce = ++this.lyricsFetchNonce;
     this.lyricsResult = null;
     this.lyricsCurrentIndex = -1;
-    this.renderFullscreenLyrics();
     this.lyricsFetchInFlight = true;
+    this.renderFullscreenLyrics();
 
     try {
       this.lyricsProvider ??= new YTMusic();
@@ -774,6 +782,10 @@ const renderer = createRenderer<
       return false;
     } finally {
       this.lyricsFetchInFlight = false;
+
+      if (!this.lyricsResult) {
+        this.renderFullscreenLyrics();
+      }
     }
   },
 
@@ -784,12 +796,16 @@ const renderer = createRenderer<
     }
 
     host.replaceChildren();
+    host.classList.remove('pear-bf-lyrics-host-empty');
 
     const result = this.lyricsResult;
     if (!result) {
       const empty = document.createElement('div');
-      empty.className = 'pear-bf-lyrics-empty';
+      empty.className = this.lyricsFetchInFlight
+        ? 'pear-bf-lyrics-empty pear-bf-lyrics-empty-loading'
+        : 'pear-bf-lyrics-empty';
       empty.textContent = 'd(-_-)b';
+      host.classList.add('pear-bf-lyrics-host-empty');
       host.append(empty);
       return;
     }
@@ -811,6 +827,7 @@ const renderer = createRenderer<
         scroller.append(row);
       }
     } else if (typeof result.lyrics === 'string' && result.lyrics.trim()) {
+      scroller.classList.add('pear-bf-lyrics-scroller-plain');
       const plainLines = result.lyrics.split('\n').filter((line) => line.trim());
       for (const [index, line] of plainLines.entries()) {
         const row = document.createElement('div');
@@ -828,6 +845,7 @@ const renderer = createRenderer<
       const empty = document.createElement('div');
       empty.className = 'pear-bf-lyrics-empty';
       empty.textContent = 'd(-_-)b';
+      host.classList.add('pear-bf-lyrics-host-empty');
       host.append(empty);
       return;
     }
@@ -901,17 +919,26 @@ const renderer = createRenderer<
       return;
     }
 
-    if (this.lyricsCurrentIndex !== targetIndex) {
+    const previousRenderableCount = rows
+      .slice(0, targetIndex)
+      .filter((row) => row.classList.contains('previous') && isRenderableRow(row))
+      .length;
+    const anchorRatio = Math.min(0.5, 0.34 + previousRenderableCount * 0.02);
+    const verticalLift = 100;
+    const anchorOffset = Math.max(
+      0,
+      scroller.clientHeight * anchorRatio - currentRow.clientHeight / 2 - verticalLift,
+    );
+    const centerOffset =
+      currentRow.offsetTop - scroller.scrollTop - anchorOffset;
+    const shouldRecenter =
+      this.lyricsCurrentIndex !== targetIndex || Math.abs(centerOffset) > 8;
+
+    if (shouldRecenter) {
       const isInitialPosition = this.lyricsCurrentIndex === -1;
       this.lyricsCurrentIndex = targetIndex;
-      const preferredOffset =
-        targetIndex <= 2
-          ? scroller.clientHeight * 0.22
-          : (scroller.clientHeight - currentRow.clientHeight) / 2;
-      const targetTop = currentRow.offsetTop - preferredOffset;
-
       scroller.scrollTo({
-        top: Math.max(0, targetTop),
+        top: Math.max(0, currentRow.offsetTop - anchorOffset),
         behavior: isInitialPosition ? 'auto' : 'smooth',
       });
     }
