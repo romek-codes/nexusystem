@@ -44,6 +44,10 @@
     };
     optmz.url = "github:romek-codes/optmz";
     affinity-nix.url = "github:mrshmllow/affinity-nix";
+    pear-desktop-plugins = {
+      url = "github:romek-codes/pear-desktop-plugins";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nurpkgs.url = "github:nix-community/NUR";
 
