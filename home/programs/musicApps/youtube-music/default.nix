@@ -1,22 +1,29 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 let
   inherit (lib)
     mkEnableOption
     mkIf
     mkDefault
     mkOption
-    mkPackageOption
     types
     ;
 
-  patchedPearDesktop = pkgs.pear-desktop.overrideAttrs (old: {
-    postPatch = (old.postPatch or "") + ''
-      mkdir -p src/plugins/better-fullscreen
-      cp -r ${./pear-desktop-plugins/better-fullscreen}/. src/plugins/better-fullscreen/
-      mkdir -p src/plugins/keyboard-hints
-      cp -r ${./pear-desktop-plugins/keyboard-hints}/. src/plugins/keyboard-hints/
-    '';
-  });
+  pluginFlake = inputs."pear-desktop-plugins";
+  defaultPackage = pluginFlake.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  defaultEnabledPlugins = [
+    "adblocker"
+    "album-color-theme"
+    "ambient-mode"
+    "compact-sidebar"
+    "discord"
+    "navigation"
+    "performance-improvement"
+    "shortcuts"
+    "synced-lyrics"
+    "video-quality-changer"
+    "better-fullscreen"
+    "keyboard-hints"
+  ];
 
   cfg = config.programs.pear-desktop;
   autoEnable = builtins.elem "youtube-music" config.var.musicApps;
@@ -28,11 +35,7 @@ let
     plugins = cfg.plugins;
     __internal__ = {
       migrations = {
-        version =
-          if cfg.migrationVersion != null then
-            cfg.migrationVersion
-          else
-            (cfg.package.version or "3.11.0");
+        version = cfg.package.version or "3.11.0";
       };
     };
   };
@@ -53,33 +56,19 @@ in
   options.programs.pear-desktop = {
     enable = mkEnableOption "Pear Desktop";
 
-    package = mkPackageOption pkgs "pear-desktop" { };
+    package = mkOption {
+      type = types.package;
+      default = defaultPackage;
+      defaultText = lib.literalExpression ''
+        inputs.pear-desktop-plugins.packages.''${pkgs.stdenv.hostPlatform.system}.default
+      '';
+      description = "Pear Desktop package to install.";
+    };
 
     url = mkOption {
       type = types.str;
       default = "https://music.youtube.com";
       description = "Startup URL for Pear Desktop.";
-    };
-
-    migrationVersion = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-      description = ''
-        Version written into the managed config for Pear Desktop migrations.
-        When unset, the module falls back to the selected package version.
-      '';
-    };
-
-    configFolderName = mkOption {
-      type = types.str;
-      default = "YouTube Music";
-      description = "Folder name used under XDG config home for Pear Desktop.";
-    };
-
-    configFileName = mkOption {
-      type = types.str;
-      default = "config.json";
-      description = "Pear Desktop config file name.";
     };
 
     options = mkOption {
@@ -136,55 +125,9 @@ in
   };
 
   config = mkIf effectiveEnable {
-    programs.pear-desktop.package = mkDefault patchedPearDesktop;
-
-    programs.pear-desktop.plugins.adblocker = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins."album-color-theme" = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins."ambient-mode" = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins."compact-sidebar" = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins.discord = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins.navigation = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins."performance-improvement" = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins.shortcuts = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins."synced-lyrics" = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins."video-quality-changer" = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins."better-fullscreen" = mkDefault {
-      enabled = true;
-    };
-
-    programs.pear-desktop.plugins."keyboard-hints" = mkDefault {
-      enabled = true;
-    };
+    programs.pear-desktop.plugins = lib.genAttrs defaultEnabledPlugins (_: {
+      enabled = mkDefault true;
+    });
 
     home.packages = [ cfg.package ];
 
@@ -193,8 +136,8 @@ in
         jq = lib.getExe pkgs.jq;
       in
       lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        out_dir="${config.xdg.configHome}/${cfg.configFolderName}"
-        out_config="$out_dir/${cfg.configFileName}"
+        out_dir="${config.xdg.configHome}/YouTube Music"
+        out_config="$out_dir/config.json"
         generated_config="${generatedConfig}"
         managed_hash="${managedConfigHash}"
 

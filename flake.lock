@@ -1250,6 +1250,26 @@
         "type": "github"
       }
     },
+    "pear-desktop-plugins": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1779666740,
+        "narHash": "sha256-JTDyefCBKMxQTTmtiFO070J1H8FDDeOfmq5INPTEZOE=",
+        "owner": "romek-codes",
+        "repo": "pear-desktop-plugins",
+        "rev": "9463cee79bd7a38be1f53a1766f8c35d294b4e6b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "romek-codes",
+        "repo": "pear-desktop-plugins",
+        "type": "github"
+      }
+    },
     "plugin-loader-src": {
       "flake": false,
       "locked": {
@@ -1314,6 +1334,7 @@
         "nixpkgs-hyprland": "nixpkgs-hyprland",
         "nurpkgs": "nurpkgs",
         "optmz": "optmz",
+        "pear-desktop-plugins": "pear-desktop-plugins",
         "sops-nix": "sops-nix",
         "spicetify-nix": "spicetify-nix",
         "stylix": "stylix",
