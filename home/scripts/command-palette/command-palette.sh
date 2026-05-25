@@ -22,7 +22,7 @@ selected=$(rofi -i -dmenu -show-icons -matching fuzzy -sorting-method fzf -sort 
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Search open windows (SUPER/ALT + TAB)" "window_list" "sow window switcher"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
-		"Screenshot (SUPER + A / ALT + PRINTSCREEN)" "screengrab" "ss screen capture print image save"
+		"Screenshot (SUPER + A / ALT + PRINTSCREEN)" "screengrab" "ss screen capture print image save snipping"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Toggle zen mode" "face-ninja" "focus"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
