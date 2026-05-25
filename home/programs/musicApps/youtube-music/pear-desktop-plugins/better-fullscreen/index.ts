@@ -38,6 +38,7 @@ const lyricsSlotId = 'pear-bf-lyrics-slot';
 const lyricsHostId = 'pear-bf-lyrics-host';
 const titleTextId = 'pear-bf-title';
 const bylineTextId = 'pear-bf-byline';
+const addToPlaylistButtonId = 'pear-bf-add-to-playlist';
 const progressId = 'pear-bf-progress';
 
 const defaultConfig: BetterFullscreenPluginConfig = {
@@ -332,11 +333,13 @@ const renderer = createRenderer<
     getAllLyricsTabs: () => HTMLElement[];
     getLyricsRenderer: () => HTMLElement | null;
     getSyncedLyricsContainer: () => HTMLElement | null;
+    getAddToPlaylistButton: () => HTMLButtonElement | null;
     ensureLyricsHost: () => HTMLElement | null;
     ensureShell: () => HTMLElement;
     removeShell: () => void;
     restoreMovedNodes: () => void;
     mountMediaIntoShell: () => void;
+    triggerAddToPlaylist: () => Promise<void>;
     mountLyricsIntoShell: () => void;
     fetchFullscreenLyrics: () => Promise<boolean>;
     renderFullscreenLyrics: () => void;
@@ -642,6 +645,10 @@ const renderer = createRenderer<
     );
   },
 
+  getAddToPlaylistButton() {
+    return document.getElementById(addToPlaylistButtonId) as HTMLButtonElement | null;
+  },
+
   ensureShell() {
     const existing = this.getShell();
     if (existing) {
@@ -655,8 +662,22 @@ const renderer = createRenderer<
         <section id="pear-bf-left">
           <div id="${mediaSlotId}"></div>
           <div id="pear-bf-meta">
-            <h1 id="${titleTextId}"></h1>
-            <p id="${bylineTextId}"></p>
+            <div id="pear-bf-meta-top">
+              <div id="pear-bf-meta-text">
+                <h1 id="${titleTextId}"></h1>
+                <p id="${bylineTextId}"></p>
+              </div>
+              <button
+                id="${addToPlaylistButtonId}"
+                type="button"
+                aria-label="Save to playlist"
+                title="Save to playlist"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M19 15a1 1 0 011 1v2h2a1 1 0 110 2h-2v2a1 1 0 11-2 0v-2h-2a1 1 0 110-2h2v-2a1 1 0 011-1Zm-6 4H4a1 1 0 110-2h9v2Zm7-8a1 1 0 110 2H4a1 1 0 110-2h16Zm0-6a1 1 0 110 2H4a1 1 0 010-2h16Z" />
+                </svg>
+              </button>
+            </div>
           </div>
           <div id="${progressId}">
             <div id="pear-bf-progress-track">
@@ -676,6 +697,12 @@ const renderer = createRenderer<
       </div>
     `;
 
+    shell
+      .querySelector<HTMLButtonElement>(`#${addToPlaylistButtonId}`)
+      ?.addEventListener('click', () => {
+        void this.triggerAddToPlaylist();
+      });
+
     document.body.append(shell);
     return shell;
   },
@@ -691,6 +718,244 @@ const renderer = createRenderer<
   mountMediaIntoShell() {
     this.restoreMovedNodes();
     this.updateMediaFrameVariables();
+  },
+
+  async triggerAddToPlaylist() {
+    const button = this.getAddToPlaylistButton();
+    if (button) {
+      button.disabled = true;
+      button.dataset.busy = 'true';
+    }
+
+    const finish = () => {
+      if (button) {
+        button.disabled = false;
+        delete button.dataset.busy;
+      }
+    };
+
+    const extractText = (value: unknown): string => {
+      if (!value || typeof value !== 'object') {
+        return '';
+      }
+
+      if ('text' in value && typeof value.text === 'string') {
+        return value.text.trim();
+      }
+
+      if ('runs' in value && Array.isArray(value.runs)) {
+        return value.runs
+          .map((run) =>
+            run && typeof run === 'object' && 'text' in run && typeof run.text === 'string'
+              ? run.text
+              : '',
+          )
+          .join('')
+          .trim();
+      }
+
+      return '';
+    };
+
+    const clickElement = (element: HTMLElement) => {
+      const renderer =
+        element.closest<HTMLElement>(
+          'ytmusic-chip-cloud-chip-renderer, ytmusic-menu-navigation-item-renderer, ytmusic-menu-service-item-renderer',
+        ) ?? element;
+      const targets = renderer === element ? [element] : [element, renderer];
+      const gestureEvent = {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        detail: { sourceEvent: null },
+      };
+
+      for (const target of targets) {
+        target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+        target.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        target.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+        target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+        target.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        target.dispatchEvent(new CustomEvent('tap', { bubbles: true, composed: true }));
+        (target as { fire?: (type: string, detail?: unknown) => void }).fire?.('tap');
+        (target as { fire?: (type: string, detail?: unknown) => void }).fire?.('click');
+      }
+
+      for (const target of targets) {
+        const candidate = target as {
+          onTap?: (event?: unknown) => void;
+          _onTap?: (event?: unknown) => void;
+          handleClick?: (event?: unknown) => void;
+          _handleClick?: (event?: unknown) => void;
+          activate?: () => void;
+          data?: Record<string, unknown>;
+          __data?: Record<string, unknown>;
+        };
+        candidate.onTap?.(gestureEvent);
+        candidate._onTap?.(gestureEvent);
+        candidate.handleClick?.(gestureEvent);
+        candidate._handleClick?.(gestureEvent);
+        candidate.activate?.();
+
+        const endpoint =
+          candidate.data?.navigationEndpoint ??
+          candidate.__data?.navigationEndpoint ??
+          candidate.data?.serviceEndpoint ??
+          candidate.__data?.serviceEndpoint;
+
+        if (
+          endpoint &&
+          typeof endpoint === 'object' &&
+          'handleClick' in endpoint &&
+          typeof endpoint.handleClick === 'function'
+        ) {
+          endpoint.handleClick(gestureEvent);
+        }
+      }
+
+      renderer.click();
+    };
+
+    const invokeTemporaryRenderer = async (
+      tagName: string,
+      data: unknown,
+      label: string,
+    ): Promise<void> => {
+      await customElements.whenDefined(tagName);
+
+      const renderer = document.createElement(tagName) as HTMLElement & {
+        data?: unknown;
+        set?: (path: string, value: unknown) => void;
+      };
+      renderer.setAttribute('aria-label', label);
+      Object.assign(renderer.style, {
+        position: 'fixed',
+        left: '-9999px',
+        top: '0',
+        width: '1px',
+        height: '1px',
+        opacity: '0',
+        pointerEvents: 'none',
+      });
+      renderer.data = data;
+      renderer.set?.('data', data);
+      document.body.append(renderer);
+
+      await new Promise<void>((resolve) => {
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(resolve);
+        });
+      });
+
+      clickElement(renderer);
+      window.setTimeout(() => {
+        renderer.remove();
+      }, 1500);
+    };
+
+    const queueState = (
+      document.querySelector<{
+        queue?: {
+          store?: {
+            store?: {
+              getState?: () => {
+                queue?: {
+                  header?: { buttons?: Array<{ chipCloudChipRenderer?: unknown }> };
+                  items?: unknown[];
+                  selectedItemIndex?: number;
+                };
+              };
+            };
+          };
+        };
+      }>('#queue')
+        ?.queue?.store?.store?.getState?.()
+    )?.queue;
+
+    const headerSaveChip = queueState?.header?.buttons?.find((buttonData) => {
+      const chip = buttonData?.chipCloudChipRenderer as
+        | { text?: unknown; navigationEndpoint?: { saveQueueToPlaylistCommand?: unknown } }
+        | undefined;
+      return (
+        chip &&
+        extractText(chip.text).toLowerCase() === 'save' &&
+        chip.navigationEndpoint?.saveQueueToPlaylistCommand
+      );
+    })?.chipCloudChipRenderer;
+
+    if (headerSaveChip) {
+      await invokeTemporaryRenderer(
+        'ytmusic-chip-cloud-chip-renderer',
+        headerSaveChip,
+        'Save to playlist',
+      );
+      finish();
+      return;
+    }
+
+    const selectedItem =
+      (queueState?.items?.[queueState.selectedItemIndex ?? -1] as
+        | {
+            playlistPanelVideoRenderer?: { menu?: { menuRenderer?: { items?: unknown[] } } };
+            playlistPanelVideoWrapperRenderer?: {
+              primaryRenderer?: {
+                playlistPanelVideoRenderer?: {
+                  menu?: { menuRenderer?: { items?: unknown[] } };
+                };
+              };
+            };
+          }
+        | undefined) ?? null;
+
+    const selectedRenderer =
+      selectedItem?.playlistPanelVideoRenderer ??
+      selectedItem?.playlistPanelVideoWrapperRenderer?.primaryRenderer?.playlistPanelVideoRenderer;
+    const selectedMenuItems = selectedRenderer?.menu?.menuRenderer?.items ?? [];
+    const addToPlaylistItem = selectedMenuItems.find((item) => {
+      if (!item || typeof item !== 'object') {
+        return false;
+      }
+
+      const navigationItem = 'menuNavigationItemRenderer' in item
+        ? item.menuNavigationItemRenderer
+        : undefined;
+      const serviceItem = 'menuServiceItemRenderer' in item
+        ? item.menuServiceItemRenderer
+        : undefined;
+      const rendererItem = (navigationItem ?? serviceItem) as
+        | {
+            text?: unknown;
+            navigationEndpoint?: { addToPlaylistEndpoint?: unknown };
+          }
+        | undefined;
+      const text = extractText(rendererItem?.text).toLowerCase();
+
+      return (
+        Boolean(rendererItem?.navigationEndpoint?.addToPlaylistEndpoint) ||
+        text === 'save to playlist'
+      );
+    }) as
+      | {
+          menuNavigationItemRenderer?: unknown;
+          menuServiceItemRenderer?: unknown;
+        }
+      | undefined;
+
+    const nativeMenuRenderer =
+      addToPlaylistItem?.menuNavigationItemRenderer ??
+      addToPlaylistItem?.menuServiceItemRenderer;
+
+    if (nativeMenuRenderer) {
+      await invokeTemporaryRenderer(
+        addToPlaylistItem?.menuNavigationItemRenderer
+          ? 'ytmusic-menu-navigation-item-renderer'
+          : 'ytmusic-menu-service-item-renderer',
+        nativeMenuRenderer,
+        'Save to playlist',
+      );
+    }
+
+    finish();
   },
 
   mountLyricsIntoShell() {
