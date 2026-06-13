@@ -17,6 +17,23 @@
       };
     };
     home.file.".mozilla/firefox/default/chrome/config.css".force = true;
+    home.file.".mozilla/firefox/default/chrome/userContent.css" = {
+      force = true;
+      text = ''
+        /*    __            __  ____            */
+        /*   / /____  _  __/ /_/ __/___  _  __  */
+        /*  / __/ _ \| |/_/ __/ /_/ __ \| |/_/  */
+        /* / /_/  __/>  </ /_/ __/ /_/ />  <    */
+        /* \__/\___/_/|_|\__/_/  \____/_/|_|    */
+
+        @import url("content/about.css");
+        @import url("content/newtab.css");
+
+        /* configurations - DO NOT CHANGE ORDER */
+        @import url("defaults.css");
+        @import url("config.css");
+      '';
+    };
 
     home.activation.firefoxTextfoxRealFiles = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
             firefox_chrome_dir="$HOME/.mozilla/firefox/default/chrome"
@@ -50,6 +67,7 @@
 
     programs.firefox = {
       enable = true;
+      configPath = ".mozilla/firefox";
       profiles.default = {
         id = 0;
         extensions.force = true;

@@ -96,8 +96,6 @@ selected=$(rofi -i -dmenu -show-icons -matching fuzzy -sorting-method fzf -sort 
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Jump to timestamp" "preferences-system-time-symbolic" "seek skip position timestamp jump media sound playerctl"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
-		"Grab rogue windows" "window-restore-symbolic" ""
-	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Clear clipboard history" "document-cleanup-symbolic" ""
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Set brightness" "display-brightness-symbolic" "brightness sb screen display backlight"
@@ -331,9 +329,6 @@ elif [[ "$selected" == *"Jump to timestamp"* ]]; then
 	command_found=1
 elif [[ "$selected" == *"Mute"* ]]; then
 	sound-toggle
-	command_found=1
-elif [[ "$selected" == *"Grab rogue windows"* ]]; then
-	hyprctl dispatch split:grabroguewindows
 	command_found=1
 elif [[ "$selected" == *"Clear clipboard history"* ]]; then
 	cliphist wipe

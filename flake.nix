@@ -48,33 +48,74 @@
       url = "github:romek-codes/pear-desktop-plugins";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    hyprsplit = {
+      url = "github:shezdy/hyprsplit";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    pineconemc = {
+      url = "github:ElyPrismLauncher/Launcher/11.0.2";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nurpkgs.url = "github:nix-community/NUR";
 
-    happy = {
-      url = "github:slopus/happy";
-      flake = false;
-    };
   };
 
   outputs =
     inputs@{ nixpkgs, ... }:
     let
+      happyRev = "df4cdae8e7fca04c0c65aef933bb28a01a346d77";
+      happyHash = "sha256-FUs/0gqm0rlpThqaOTC1otFPoAnFyFhBrKHcbGefO9o=";
       sharedModules = [
         {
           nixpkgs = {
             overlays = [
+              inputs.affinity-nix.overlays.default
               (final: prev: {
                 happy = prev.callPackage ./home/programs/agents/happy.nix {
-                  src = inputs.happy;
-                  version = inputs.happy.shortRev;
+                  src = prev.fetchFromGitHub {
+                    owner = "slopus";
+                    repo = "happy";
+                    rev = happyRev;
+                    hash = happyHash;
+                  };
+                  version = builtins.substring 0 7 happyRev;
                 };
+              })
+              (final: prev: {
+                pineconemc =
+                  let
+                    pineconePackages =
+                      inputs.pineconemc.packages.${prev.stdenv.hostPlatform.system};
+                    pineconeUnwrapped =
+                      (pineconePackages.prismlauncher-unwrapped.override {
+                        extra-cmake-modules = final.kdePackages.extra-cmake-modules;
+                      }).overrideAttrs
+                        (old: {
+                          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
+                            final.pkg-config
+                          ];
+                        });
+                  in
+                  pineconePackages.prismlauncher.override {
+                    prismlauncher-unwrapped = pineconeUnwrapped;
+                  };
               })
               (final: prev: {
                 rofi-rbw-wayland = prev.rofi-rbw-wayland.overrideAttrs (old: {
                   patches = (old.patches or [ ]) ++ [
                     ./home/system/rofi/patches/rofi-rbw-wl-copy-sensitive.patch
                   ];
+                });
+              })
+              (final: prev: {
+                hyprpanel = prev.hyprpanel.overrideAttrs (old: {
+                  postPatch = (old.postPatch or "") + ''
+                    substituteInPlace src/components/bar/modules/workspaces/workspaces.tsx \
+                      --replace-fail "hyprlandService.dispatch('workspace', wsId.toString());" "hyprlandService.dispatch('hl.dsp.focus({ workspace = ' + wsId + ' })', \"\");"
+                    substituteInPlace src/services/workspace/index.ts \
+                      --replace-fail "hyprlandService.dispatch('workspace', targetWorkspaceNumber.toString());" "hyprlandService.dispatch('hl.dsp.focus({ workspace = ' + targetWorkspaceNumber + ' })', \"\");"
+                  '';
                 });
               })
               (final: prev: {

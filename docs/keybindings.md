@@ -12,7 +12,7 @@
 | Move app to Workspace | SHIFT + :material-microsoft-windows: + 1-9 | — |
 | Terminal (footclient) | :material-microsoft-windows: + RETURN | — |
 | File explorer (thunar) | :material-microsoft-windows: + E | — |
-| $ctrlMod,L, exec, lock" | CTRL + :material-microsoft-windows: + L | — |
+| Lock screen | CTRL + :material-microsoft-windows: + L | — |
 | Launch an app | :material-microsoft-windows: + P | — |
 | Search opened windows | :material-microsoft-windows: + TAB | ALTTAB |
 | Rofi-rbw (Bitwarden) | :material-microsoft-windows: + B | — |

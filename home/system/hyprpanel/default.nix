@@ -1,6 +1,6 @@
 # Hyprpanel is the bar on top of the screen
 # Display informations like workspaces, battery, wifi, ...
-{ inputs, config, lib, ... }:
+{ inputs, config, lib, startCommand, ... }:
 let
   transparentButtons = config.theme.bar-transparentButtons;
 
@@ -35,7 +35,7 @@ let
     ++ [ "network" "clock" "notifications" ];
 in {
 
-  wayland.windowManager.hyprland.settings.exec-once = [ "hyprpanel" ];
+  wayland.windowManager.hyprland.settings.on = [ (startCommand "hyprpanel") ];
 
   home.file.".config/hyprpanel/modules.json".text = builtins.toJSON {
     "custom/ps4-battery" = {

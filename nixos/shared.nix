@@ -7,6 +7,7 @@
     ./printers.nix
     ./fonts.nix
     ./home-manager.nix
+    ./codex.nix
     ./docker.nix
     ./nix.nix
     ./systemd-boot.nix
