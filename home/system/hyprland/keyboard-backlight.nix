@@ -1,5 +1,5 @@
 # Turn the keyboard red/off when the battery is low
-{ pkgs, config, ... }:
+{ pkgs, config, startCommand, ... }:
 let
   keyboard-backlight = pkgs.writeShellScriptBin "keyboard-backlight" ''
     function set_keyboard_backlight {
@@ -30,4 +30,4 @@ let
   '';
 
   command = "bash ${keyboard-backlight}/bin/keyboard-backlight &";
-in { wayland.windowManager.hyprland.settings.exec-once = [ command ]; }
+in { wayland.windowManager.hyprland.settings.on = [ (startCommand command) ]; }

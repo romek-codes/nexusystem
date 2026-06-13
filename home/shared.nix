@@ -19,6 +19,7 @@
   ];
 
   home.packages = with pkgs; [
+    crush
     obsidian # Note taking app
     gnome-calendar # Calendar
     gnome-clocks

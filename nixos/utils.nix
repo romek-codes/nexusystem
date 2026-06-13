@@ -69,8 +69,10 @@ in
       xkb.layout = keyboardLayout;
       xkb.variant = "";
       # For displaylink
-      videoDrivers =
-        lib.optionals displaylinkSupport [ "displaylink" "modesetting" ];
+      videoDrivers = lib.optionals displaylinkSupport [
+        "displaylink"
+        "modesetting"
+      ];
     };
     gnome.gnome-keyring.enable = true;
     psd = {
@@ -119,18 +121,22 @@ in
     nixos.enable = false;
   };
 
-  environment.systemPackages = with pkgs; [
-    hyprland-qtutils
-    fd
-    bc
-    gcc
-    git-ignore
-    xdg-utils
-    wget
-    curl
-    vim
-    ddcutil
-  ] ++ lib.optionals displaylinkSupport [ displaylink ];
+  environment.systemPackages =
+    with pkgs;
+    [
+      bubblewrap
+      hyprland-qtutils
+      fd
+      bc
+      gcc
+      git-ignore
+      xdg-utils
+      wget
+      curl
+      vim
+      ddcutil
+    ]
+    ++ lib.optionals displaylinkSupport [ displaylink ];
 
   xdg.portal = {
     enable = true;

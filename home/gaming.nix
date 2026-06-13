@@ -10,7 +10,7 @@
       (lutris.override { extraPkgs = pkgs: [ fuse ]; })
       pcsx2
       rpcs3
-      prismlauncher
+      pineconemc
       mangohud # Performance overlay for games
       r2modman # Mod manager for supported games
       # linux-wallpaperengine # wallpaper engine for linux

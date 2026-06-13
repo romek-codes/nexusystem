@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  startCommand,
   ...
 }:
 let
@@ -29,7 +30,7 @@ in
   # Need to setup scene to capture and "file -> settings -> hotkeys -> save replay" hotkey.
   # Couldn't find a way to do this declaratively.
   # NOTE: Don't start on laptops unless you really need to. Gonna eat up your battery.
-  wayland.windowManager.hyprland.settings.exec-once = lib.optional (
+  wayland.windowManager.hyprland.settings.on = lib.optional (
     !isLaptop
-  ) "bash -lc '${obsSentinelFix} exec obs --startreplaybuffer --minimize-to-tray'";
+  ) (startCommand "bash -lc '${obsSentinelFix} exec obs --startreplaybuffer --minimize-to-tray'");
 }

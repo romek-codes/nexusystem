@@ -117,7 +117,6 @@ Each host imports `../../nixos/shared.nix` and a host `home.nix` via
     `xdg-desktop-portal-hyprland`. Leaving `QT_STYLE_OVERRIDE=kvantum` in place
     can crash the picker; clearing it makes the picker start but still white.
   - Status: picker works, but stays white for now (best stable state).
-
 ## Scripts and tooling
 
 - Scripts are aggregated in `home/scripts/default.nix`.
@@ -154,5 +153,14 @@ Scripts are exposed via Home Manager from `home/scripts/`:
 
 - Serve docs locally (Material): `nix-shell -p python313Packages.mkdocs python313Packages.mkdocs-material python313Packages.pymdown-extensions --run "mkdocs serve -a 127.0.0.1:8000"`.
 - Serve docs in background: `nohup nix-shell -p python313Packages.mkdocs python313Packages.mkdocs-material python313Packages.pymdown-extensions --run "mkdocs serve -a 127.0.0.1:8000" > /tmp/mkdocs-serve.log 2>&1 & echo $!`; stop later with `kill <PID>` or `pkill -f "mkdocs serve"`.
+- After changing Hyprland config, plugins, overlays, or Hyprland-related
+  packages, build and verify `meshify` without switching:
+  ```
+  sudo nixos-rebuild build --flake .#meshify
+  GEN=$(readlink -f result)
+  HM=$(nix build --no-link --print-out-paths .#nixosConfigurations.meshify.config.home-manager.users.romek.home.activationPackage)
+  "$GEN/sw/bin/Hyprland" --verify-config --config "$HM/home-files/.config/hypr/hyprland.lua"
+  ```
+  Expected final output includes `config ok`.
 - Preferred rebuild from repo root:
   `git add . && nh os switch -H <hostname> <configDirectory>`.

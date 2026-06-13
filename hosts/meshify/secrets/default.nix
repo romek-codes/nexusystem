@@ -1,6 +1,6 @@
 # Those are my secrets, encrypted with sops
 # You shouldn't import this file, unless you edit it
-{ pkgs, inputs, ... }: {
+{ pkgs, inputs, startCommand, ... }: {
   imports = [ inputs.sops-nix.homeManagerModules.sops ];
 
   sops = {
@@ -34,6 +34,6 @@
   systemd.user.services.mbsync.Unit.After = [ "sops-nix.service" ];
   home.packages = with pkgs; [ sops age ];
 
-  wayland.windowManager.hyprland.settings.exec-once =
-    [ "systemctl --user start sops-nix" ];
+  wayland.windowManager.hyprland.settings.on =
+    [ (startCommand "systemctl --user start sops-nix") ];
 }

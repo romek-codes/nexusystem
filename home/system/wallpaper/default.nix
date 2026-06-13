@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, startCommand, ... }:
 
 let
   helpers = import ../../../helpers { inherit lib; };
@@ -35,9 +35,9 @@ in {
   # Use mpvpaper for animated backgrounds
   home.packages = with pkgs; lib.mkIf isAnimated [ mpvpaper ];
 
-  wayland.windowManager.hyprland.settings.exec-once = lib.mkIf isAnimated [''
-    mpvpaper -o "no-audio --loop --panscan=1.0" ALL "${wallpaperPath}" & echo $! > /tmp/mpvpaper.pid
-  ''];
+  wayland.windowManager.hyprland.settings.on = lib.mkIf isAnimated [
+    (startCommand ''mpvpaper -o "no-audio --loop --panscan=1.0" ALL "${wallpaperPath}" & echo $! > /tmp/mpvpaper.pid'')
+  ];
 
   # Image rotation in case somebody wants it
   # wayland.windowManager.hyprland.settings.exec-once = lib.mkIf isAnimated [
