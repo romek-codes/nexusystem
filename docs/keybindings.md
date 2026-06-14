@@ -34,7 +34,7 @@
 | Screenshot monitor | PRINT | — |
 | Screenshot window | SHIFT + :material-microsoft-windows: + PRINT | — |
 | Screenshot region then edit | ALTPRINT | :material-microsoft-windows: + A |
-| Toggle hyprpanel | SHIFT + :material-microsoft-windows: + T | — |
+| Toggle Noctalia | SHIFT + :material-microsoft-windows: + T | — |
 | Clipboard history with rofi | :material-microsoft-windows: + V | — |
 | Nerdfont and emoji picker with rofi | SHIFT + :material-microsoft-windows: + E | — |
 | Toggle blue light | :material-microsoft-windows: + F2 | — |

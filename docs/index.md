@@ -23,7 +23,7 @@ customization effortless.
 
 ## For Developers
 
-- 💻 **Hyprland-centric** - Preconfigured ecosystem (Hyprlock, Hyprpanel, etc.).
+- 💻 **Hyprland-centric** - Preconfigured ecosystem (Hyprlock, Noctalia, etc.).
 - 🔧 **Pure Lua Neovim** setup (easily modifiable).
 - 🖥️ **Multi-machine support** - easily extend config across different systems.
 - ⚙️ **Variable-based setup** - customize everything through simple

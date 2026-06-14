@@ -26,7 +26,7 @@
     ./system/hyprland
     ./system/hypridle
     ./system/hyprlock
-    ./system/hyprpanel
+    ./system/noctalia
     ./system/rofi
     ./system/mime
     ./system/udiskie
@@ -45,7 +45,6 @@
     playerctl # Media controls
     rbw # Password manager
     pinentry-gnome3
-    planify # Todos / Todoist
 
     # Utils
     libnotify

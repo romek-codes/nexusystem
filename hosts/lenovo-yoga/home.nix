@@ -8,7 +8,7 @@
 
     packages = with pkgs; [ ];
 
-    # Import my profile picture, used by the hyprpanel dashboard
+    # Import my profile picture for shell/dashboard widgets
     file.".face.icon" = { source = ../profile_picture.png; };
 
     # Don't touch this

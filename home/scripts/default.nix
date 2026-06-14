@@ -6,7 +6,7 @@
     ./sounds
     ./brightness
     ./suspend-and-screen-lock
-    ./hyprpanel
+    ./noctalia
     ./zen-mode
     ./blue-light-filter
     ./theme-switch

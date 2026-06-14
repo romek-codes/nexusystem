@@ -1,5 +1,5 @@
 { config, lib, ... }: {
-  # Hyprpanel dependency, shows power profile options in battery module, not compatible with having tlp.enabled as well.
+  # Shell battery widget dependency, shows power profile options in battery module, not compatible with having tlp.enabled as well.
   # services.power-profiles-daemon.enable =
   #   lib.mkIf (config.var.isLaptop or false) true;
 
