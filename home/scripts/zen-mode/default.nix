@@ -11,7 +11,7 @@ let
   zen-mode-on = pkgs.writeShellScriptBin "zen-mode-on"
     # bash
     ''
-      hyprpanel-hide
+      noctalia-hide
 
       hyprctl --batch "\
           keyword animations:enabled 0;\
@@ -24,10 +24,7 @@ let
           keyword decoration:inactive_opacity 1;\
           keyword decoration:active_opacity 1"
 
-      status=$(hyprpanel toggleDnd)
-      if [[ $status == "Disabled" ]]; then
-        hyprpanel toggleDnd
-      fi
+      noctalia msg notification-dnd-set on >/dev/null 2>&1 || true
 
       echo "1" > /tmp/zen-mode
     '';
@@ -36,13 +33,10 @@ let
     # bash
     ''
       hyprctl reload
-      hyprpanel-show
+      noctalia-show
       rm /tmp/zen-mode
 
-      status=$(hyprpanel toggleDnd)
-      if [[ $status == "Enabled" ]]; then
-        hyprpanel toggleDnd
-      fi
+      noctalia msg notification-dnd-set off >/dev/null 2>&1 || true
     '';
 
   zen-mode-toggle = pkgs.writeShellScriptBin "zen-mode-toggle"

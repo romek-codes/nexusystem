@@ -9,7 +9,7 @@
     # Add extra programs that will only be on this host
     packages = with pkgs; [ ];
 
-    # Import profile picture, used by the hyprpanel dashboard
+    # Import profile picture for shell/dashboard widgets
     file.".face.icon" = { source = ../profile_picture.png; };
 
     # Don't touch this

@@ -1,6 +1,5 @@
 { config, lib, ... }:
 {
-  # imports = [ ../../themes/initial-d.nix ];
   imports = [ ../../themes/initial-d.nix ];
 
   options.var = lib.mkOption {
@@ -40,11 +39,17 @@
       };
 
       obsidianVaults = [
-        { name = "personal"; path = "/home/romek/notes/personal"; }
+        {
+          name = "personal";
+          path = "/home/romek/notes/personal";
+        }
       ];
 
       brunoCollections = [
-        { name = "Nix"; path = "/home/romek/notes/personal/bruno"; }
+        {
+          name = "Nix";
+          path = "/home/romek/notes/personal/bruno";
+        }
       ];
 
       autoUpgrade = false;

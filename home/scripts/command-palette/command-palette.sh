@@ -14,8 +14,6 @@ selected=$(rofi -i -dmenu -show-icons -matching fuzzy -sorting-method fzf -sort 
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Toggle blue light filter (SUPER + F2)" "preferences-desktop-display-nightcolor" "blf eye strain redshift flux"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
-		"Todos" "todoist" "todo todoist td planify tasks organize productivity"
-	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Color picker" "color-picker" "cp pick color hex rgb design development"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"File explorer (SUPER + E)" "system-file-manager" "browse folder directory thunar manager"
@@ -62,9 +60,9 @@ selected=$(rofi -i -dmenu -show-icons -matching fuzzy -sorting-method fzf -sort 
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Toggle floating (SUPER + T)" "window-duplicate" "hyprland wm tile floating window"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
-		"Toggle hyprpanel / bar (SUPER + SHIFT + T)" "panel" "hyprland wm hyprpanel bar status hide show"
+		"Toggle Noctalia / bar (SUPER + SHIFT + T)" "panel" "hyprland wm noctalia bar status hide show"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
-		"Restart hyprpanel / bar" "view-refresh-symbolic" "hyprland wm hyprpanel bar restart reload"
+		"Restart Noctalia / bar" "view-refresh-symbolic" "hyprland wm noctalia bar restart reload"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Open terminal (SUPER + ENTER)" "utilities-terminal" "term foot wm console shell command"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
@@ -154,9 +152,6 @@ elif [[ "$selected" == *"Reboot"* ]]; then
 		systemctl reboot
 	fi
 	command_found=1
-elif [[ "$selected" == *"Todos"* ]]; then
-	uwsm app -- io.github.alainm23.planify
-	command_found=1
 elif [[ "$selected" == *"Suspend"* ]]; then
 	if confirm_action "Suspend" "Suspend now?"; then
 		systemctl suspend
@@ -173,11 +168,11 @@ elif [[ "$selected" == *"Toggle fullscreen"* ]]; then
 elif [[ "$selected" == *"Toggle floating"* ]]; then
 	hyprctl dispatch togglefloating
 	command_found=1
-elif [[ "$selected" == *"Toggle hyprpanel / bar"* ]]; then
-	hyprpanel-toggle
+elif [[ "$selected" == *"Toggle Noctalia / bar"* ]]; then
+	noctalia-toggle
 	command_found=1
-elif [[ "$selected" == *"Restart hyprpanel / bar"* ]]; then
-	hyprpanel restart
+elif [[ "$selected" == *"Restart Noctalia / bar"* ]]; then
+	noctalia-reload
 	command_found=1
 elif [[ "$selected" == *"Search apps"* ]]; then
 	app-menu
@@ -354,20 +349,30 @@ elif [[ "$selected" == *"Set brightness"* ]]; then
 	fi
 	command_found=1
 elif [[ "$selected" == *"Clear notifications"* ]]; then
-	hyprpanel clearNotifications
+	if noctalia msg notification-clear-active >/dev/null && noctalia msg notification-clear-history >/dev/null; then
+		notify-send "Notifications" "Cleared"
+	else
+		notify-send "Notifications" "Noctalia is not reachable" -i dialog-warning
+	fi
 	command_found=1
 elif [[ "$selected" == *"Toggle do not disturb"* ]]; then
-	status=$(hyprpanel toggleDnd)
-	if [[ $status == "Enabled" ]]; then
+	status=$(noctalia msg notification-dnd-status 2>/dev/null)
+	if [[ $status == "off" ]]; then
 		title="󰳙  Do not disturb activated"
 		description="Do not disturb is now activated!"
-		hyprpanel toggleDnd
-		notify-send "$title" "$description"
-		hyprpanel toggleDnd
+		if noctalia msg notification-dnd-set on >/dev/null; then
+			notify-send "$title" "$description"
+		else
+			notify-send "Do not disturb" "Noctalia is not reachable" -i dialog-warning
+		fi
 	else
 		title="󰕦  Do not disturb deactivated"
 		description="Do not disturb is now deactivated!"
-		notify-send "$title" "$description"
+		if noctalia msg notification-dnd-set off >/dev/null; then
+			notify-send "$title" "$description"
+		else
+			notify-send "Do not disturb" "Noctalia is not reachable" -i dialog-warning
+		fi
 	fi
 	command_found=1
 elif [[ "$selected" == *"Close window"* ]]; then

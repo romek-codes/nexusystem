@@ -83,7 +83,7 @@ in
       (bind "ALT + Print" (exec "screenshot region swappy")) # Screenshot region then edit
       (bind "${modKey} + A" (exec "screenshot region swappy")) # Screenshot region then edit
 
-      (bind "${shiftModKey} + T" (exec "hyprpanel-toggle")) # Toggle hyprpanel
+      (bind "${shiftModKey} + T" (exec "noctalia-toggle")) # Toggle Noctalia
       (bind "${modKey} + V" (exec "rofi-cliphist")) # Clipboard history with rofi
       (bind "${shiftModKey} + E" (exec "rofimoji -f geometric_shapes geometric_shapes_extended nerd_font emojis")) # Nerdfont and emoji picker with rofi
 

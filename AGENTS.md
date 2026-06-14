@@ -55,7 +55,7 @@ Each host imports `../../nixos/shared.nix` and a host `home.nix` via
 
 - Core system: audio, bluetooth, printers, fonts, nix, users, utils, pam.
 - Boot/display: systemd-boot, pseudo-display-manager.
-- Desktop: hyprland, glance, stylix, waydroid.
+- Desktop: hyprland, noctalia, glance, stylix, waydroid.
 - Services: docker, syncthing, gpg.
 - Optional for games: steam, gamemode, affinity.
 
@@ -73,7 +73,7 @@ Each host imports `../../nixos/shared.nix` and a host `home.nix` via
 ## Home Manager layout
 
 - `home/essentials.nix`: core programs, scripts, and system UI (Hyprland,
-  hypridle, hyprlock, hyprpanel, rofi, mime, udiskie, cliphist, wallpaper).
+  hypridle, hyprlock, noctalia, rofi, mime, udiskie, cliphist, wallpaper).
 - `home/shared.nix`: extra apps and utilities shared by most hosts.
 - `home/programs/`: modular per-app Home Manager configs (browsers, editors,
   git, shell, etc.).
@@ -135,7 +135,7 @@ Each host imports `../../nixos/shared.nix` and a host `home.nix` via
 
 Scripts are exposed via Home Manager from `home/scripts/`:
 
-- Blue light filter, brightness, hyprpanel, openvpn, screenshot, sound.
+- Blue light filter, brightness, noctalia, openvpn, screenshot, sound.
 - Suspend and screen lock toggles.
 - Zen mode for focus in Hyprland.
 

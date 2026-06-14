@@ -4,7 +4,10 @@
     nixpkgs-hyprland.url = "github:nixos/nixpkgs?rev=721147581bdb31ac6817a9152f6454675b15afae";
     nixpkgs-claude.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
-    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
+    noctalia = {
+      url = "github:noctalia-dev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     stylix.url = "github:danth/stylix";
     apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
     sops-nix.url = "github:Mic92/sops-nix";
@@ -106,16 +109,6 @@
                   patches = (old.patches or [ ]) ++ [
                     ./home/system/rofi/patches/rofi-rbw-wl-copy-sensitive.patch
                   ];
-                });
-              })
-              (final: prev: {
-                hyprpanel = prev.hyprpanel.overrideAttrs (old: {
-                  postPatch = (old.postPatch or "") + ''
-                    substituteInPlace src/components/bar/modules/workspaces/workspaces.tsx \
-                      --replace-fail "hyprlandService.dispatch('workspace', wsId.toString());" "hyprlandService.dispatch('hl.dsp.focus({ workspace = ' + wsId + ' })', \"\");"
-                    substituteInPlace src/services/workspace/index.ts \
-                      --replace-fail "hyprlandService.dispatch('workspace', targetWorkspaceNumber.toString());" "hyprlandService.dispatch('hl.dsp.focus({ workspace = ' + targetWorkspaceNumber + ' })', \"\");"
-                  '';
                 });
               })
               (final: prev: {

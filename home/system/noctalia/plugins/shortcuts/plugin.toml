@@ -1,0 +1,31 @@
+id = "nexusystem/shortcuts"
+name = "Nexusystem shortcuts"
+version = "1.0.0"
+min_noctalia = "5.0.0"
+author = "nexusystem"
+description = "Control-center shortcuts with nexusystem labels and notifications."
+icon = "apps"
+
+[[shortcut]]
+id = "wifi"
+entry = "wifi.luau"
+
+[[shortcut]]
+id = "bluetooth"
+entry = "bluetooth.luau"
+
+[[shortcut]]
+id = "suspend_screenlock"
+entry = "suspend-screenlock.luau"
+
+[[shortcut]]
+id = "blue_light"
+entry = "blue-light.luau"
+
+[[shortcut]]
+id = "dnd"
+entry = "dnd.luau"
+
+[[shortcut]]
+id = "session"
+entry = "session.luau"
