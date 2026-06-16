@@ -11,6 +11,7 @@
       pcsx2
       rpcs3
       pineconemc
+      jdk25
       mangohud # Performance overlay for games
       r2modman # Mod manager for supported games
       # linux-wallpaperengine # wallpaper engine for linux
