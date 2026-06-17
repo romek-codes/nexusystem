@@ -71,13 +71,11 @@ rec {
     in lib.any (ext: lib.strings.hasSuffix ext lower) staticExtensions;
 
   isGif = path:
-    if builtins.isString path then
-      let
-        lower = lib.strings.toLower path;
-        staticExtensions = [ ".gif" ];
-      in lib.any (ext: lib.strings.hasSuffix ext lower) staticExtensions
-    else
-      false;
+    let
+      pathStr = if builtins.isPath path then toString path else path;
+      lower = lib.strings.toLower pathStr;
+      staticExtensions = [ ".gif" ];
+    in lib.any (ext: lib.strings.hasSuffix ext lower) staticExtensions;
 
   isEmpty = value: value == null || value == false || value == "";
 
