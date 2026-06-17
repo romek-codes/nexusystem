@@ -4,7 +4,11 @@
 let
   helpers = import ../helpers { inherit lib; };
   backgroundImage = config.theme.backgroundImage;
-  isStatic = helpers.isStaticImage backgroundImage;
+  sddmBackgroundFallback = pkgs.runCommand "sddm-background-base00.png" {
+    nativeBuildInputs = [ pkgs.imagemagick ];
+  } ''
+    magick -size 1x1 "xc:#${config.lib.stylix.colors.base00}" "$out"
+  '';
 
   sddm-astronaut = pkgs.sddm-astronaut.override {
     embeddedTheme = "pixel_sakura";
@@ -14,7 +18,13 @@ let
       || helpers.isStaticImage backgroundImage then
         "${toString backgroundImage}"
       else
-        "#${config.lib.stylix.colors.base00}";
+        "${sddmBackgroundFallback}";
+      BackgroundColor = "#${config.lib.stylix.colors.base00}";
+      DimBackgroundColor = "#${config.lib.stylix.colors.base00}";
+      FormBackgroundColor = "#${config.lib.stylix.colors.base00}";
+      DimBackground = "0.0";
+      PartialBlur = "false";
+      FullBlur = "false";
       HeaderTextColor = "#${config.lib.stylix.colors.base06}";
       DateTextColor = "#${config.lib.stylix.colors.base06}";
       TimeTextColor = "#${config.lib.stylix.colors.base06}";
