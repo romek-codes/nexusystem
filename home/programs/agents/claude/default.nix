@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ lib, pkgs, config, ... }:
 
 let
   systemAgents = import ../system-agents.nix { inherit config; };
@@ -57,6 +57,7 @@ in
     pkgs.claude-code
     pkgs.claude-agent-acp
     pkgs.happy
+    pkgs.mcp-nixos
     pkgs.rtk
   ];
 
@@ -70,6 +71,12 @@ in
     statusLine = {
       type = "command";
       command = "${statusline}";
+    };
+    mcpServers = {
+      nixos = {
+        command = lib.getExe pkgs.mcp-nixos;
+        args = [ ];
+      };
     };
   };
 }
