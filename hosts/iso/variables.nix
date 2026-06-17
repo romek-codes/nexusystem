@@ -34,6 +34,10 @@
       obsidianVaults = [ ];
       brunoCollections = [ ];
 
+      browsers = [ "firefox" ];
+      editors = [ "nvim" ];
+      musicApps = [ ];
+
       monitorConfig = [ ];
     };
   };
