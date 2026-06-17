@@ -182,6 +182,14 @@ in
         settings_show_advanced = true;
         middle_click_opens_widget_settings = true;
         clipboard_enabled = false;
+        screen_time_enabled = true;
+
+        screenshot = {
+          save_to_file = false;
+          copy_to_clipboard = false;
+          freeze_screen = false;
+          pipe_to_command = false;
+        };
 
         panel = {
           transparency_mode = "solid";
@@ -338,6 +346,14 @@ in
         unit = "celsius";
       };
 
+      lockscreen = {
+        enabled = false;
+      };
+
+      lockscreen_widgets = {
+        enabled = false;
+      };
+
       notification = {
         enable_daemon = true;
         layer = "top";
@@ -350,11 +366,11 @@ in
       wallpaper.enabled = false;
 
       osd = {
-        position = "center_left";
-        orientation = "vertical";
+        position = "top_center";
+        orientation = "horizontal";
         background_opacity = 0.97;
-        offset_x = 10;
-        offset_y = 0;
+        offset_x = 0;
+        offset_y = 8;
       };
     };
 
