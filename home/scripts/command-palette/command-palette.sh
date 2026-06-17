@@ -54,8 +54,6 @@ selected=$(rofi -i -dmenu -show-icons -matching fuzzy -sorting-method fzf -sort 
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Calculator (SUPER + C)" "accessories-calculator" "calc math compute formula arithmetic"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
-		"Change keyboard layout (SUPER + SPACE)" "input-keyboard" "ckl keyboard input language layout switch"
-	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Toggle fullscreen (SUPER + F)" "view-fullscreen-symbolic" "hyprland wm fullscreen maximize"
 	printf "%s\0icon\x1f%s\x1fmeta\x1f%s\n" \
 		"Toggle floating (SUPER + T)" "window-duplicate" "hyprland wm tile floating window"
@@ -273,9 +271,6 @@ elif [[ "$selected" == *"File explorer"* ]]; then
 	command_found=1
 elif [[ "$selected" == *"Lock screen"* ]]; then
 	lock
-	command_found=1
-elif [[ "$selected" == *"Change keyboard layout"* ]]; then
-	change-keyboard-layout
 	command_found=1
 elif [[ "$selected" == *"Toggle zen mode"* ]]; then
 	zen-mode-toggle

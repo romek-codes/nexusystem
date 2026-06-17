@@ -221,7 +221,7 @@ in
         input = {
           kb_layout = "${keyboardLayout}${extraKeyboardLayouts}";
 
-          kb_options = "caps:escape";
+          kb_options = "caps:escape,grp:win_space_toggle";
           follow_mouse = 1;
           sensitivity = 0.5;
           repeat_delay = 300;

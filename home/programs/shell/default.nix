@@ -6,6 +6,5 @@
     ./zoxide.nix
     ./tmux.nix
     ./eza.nix
-    ./jq.nix # For change-keyboard-layout
   ];
 }
