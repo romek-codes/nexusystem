@@ -1,8 +1,15 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-hyprland.url = "github:nixos/nixpkgs?rev=721147581bdb31ac6817a9152f6454675b15afae";
     nixpkgs-claude.url = "github:nixos/nixpkgs/nixos-unstable";
+    hyprland = {
+      url = "github:hyprwm/Hyprland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    hypr-dynamic-cursors = {
+      url = "github:VirtCode/hypr-dynamic-cursors";
+      inputs.hyprland.follows = "hyprland";
+    };
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     noctalia = {
       url = "github:noctalia-dev/noctalia";
