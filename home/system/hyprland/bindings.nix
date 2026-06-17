@@ -54,7 +54,6 @@ in
       (bind "ALT + Tab" (exec "opened-windows")) # Search opened windows
       (bind "${modKey} + B" (exec "rofi-rbw")) # Rofi-rbw (Bitwarden)
       (bind "${modKey} + C" (exec "rofi -show calc -modi calc -no-show-match -no-sort")) # Calculator
-      (bind "${modKey} + Space" (exec "change-keyboard-layout")) # Change keyboard layout
       (bind "${modKey} + Q" "hl.dsp.window.close()") # Close window
       (bind "${shiftModKey} + Q" (exec "hyprctl dispatch 'hl.dsp.window.kill()'")) # Force kill window
       (bind "${modKey} + T" "hl.dsp.window.float()") # Toggle Floating
