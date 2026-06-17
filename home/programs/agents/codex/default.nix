@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ lib, pkgs, config, ... }:
 let
   systemAgents = import ../system-agents.nix { inherit config; };
   systemBwrapShim = pkgs.runCommandCC "codex-system-bwrap-shim" { } ''
@@ -27,8 +27,35 @@ in
     codexWithSystemBwrap
     pkgs.codex-acp
     pkgs.happy
+    pkgs.mcp-nixos
     pkgs.rtk
   ];
 
   home.file.".codex/AGENTS.md".text = systemAgents;
+
+  home.activation.codexMcpNixos = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    codex_config="$HOME/.codex/config.toml"
+    tmp_config="$(mktemp)"
+
+    mkdir -p "$HOME/.codex"
+
+    if [ -f "$codex_config" ]; then
+      ${pkgs.gawk}/bin/awk '
+        /^\[mcp_servers\.nixos(\.|\])/{ skip = 1; next }
+        /^\[/ { skip = 0 }
+        !skip { print }
+      ' "$codex_config" > "$tmp_config"
+    else
+      : > "$tmp_config"
+    fi
+
+    cat >> "$tmp_config" <<'EOF'
+
+[mcp_servers.nixos]
+command = "${lib.getExe pkgs.mcp-nixos}"
+EOF
+
+    install -m 0600 "$tmp_config" "$codex_config"
+    rm -f "$tmp_config"
+  '';
 }
