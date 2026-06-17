@@ -357,6 +357,12 @@ in
           match.namespace = "launcher";
         }
         {
+          blur = false;
+          xray = false;
+          ignore_alpha = 1.0;
+          match.namespace = "^noctalia-bar-main$";
+        }
+        {
           no_anim = true;
           match.namespace = "^ags-.*";
         }
