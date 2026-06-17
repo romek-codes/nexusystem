@@ -8,7 +8,7 @@
         ignore_dbus_inhibit = false;
         lock_cmd = "pidof hyprlock || lock";
         before_sleep_cmd = "lock";
-        after_sleep_cmd = "hyprctl dispatch dpms on";
+        after_sleep_cmd = "hyprctl dispatch 'hl.dsp.dpms(\"on\")'";
       };
 
       listener = [
