@@ -32,6 +32,8 @@ let
     };
   };
 in {
+  services.displayManager.defaultSession = "hyprland-uwsm";
+
   services.displayManager = {
     sddm = {
       package = pkgs.kdePackages.sddm;
