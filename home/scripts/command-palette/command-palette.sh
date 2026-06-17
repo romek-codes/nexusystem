@@ -159,14 +159,14 @@ elif [[ "$selected" == *"Suspend"* ]]; then
 	command_found=1
 elif [[ "$selected" == *"Logout"* ]]; then
 	if confirm_action "Logout" "Log out now?"; then
-		hyprctl dispatch exit
+		hyprctl dispatch 'hl.dsp.exit()'
 	fi
 	command_found=1
 elif [[ "$selected" == *"Toggle fullscreen"* ]]; then
-	hyprctl dispatch fullscreen
+	hyprctl dispatch 'hl.dsp.window.fullscreen()'
 	command_found=1
 elif [[ "$selected" == *"Toggle floating"* ]]; then
-	hyprctl dispatch togglefloating
+	hyprctl dispatch 'hl.dsp.window.float({ action = "toggle" })'
 	command_found=1
 elif [[ "$selected" == *"Toggle Noctalia / bar"* ]]; then
 	noctalia-toggle
@@ -376,7 +376,7 @@ elif [[ "$selected" == *"Toggle do not disturb"* ]]; then
 	fi
 	command_found=1
 elif [[ "$selected" == *"Close window"* ]]; then
-	hyprctl dispatch killactive
+	hyprctl dispatch 'hl.dsp.window.kill()'
 	command_found=1
 elif [[ "$selected" == *"Bluetooth"* ]]; then
 	uwsm app -- blueman-manager
