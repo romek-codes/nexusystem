@@ -1,4 +1,5 @@
 {
+  config,
   ctrlMod,
   lib,
   mod,
@@ -8,7 +9,10 @@
   ...
 }:
 let
+  helpers = import ../../../helpers { inherit lib; };
   lua = lib.generators.mkLuaInline;
+  lidSwitchAction = helpers.resolveLidSwitchAction
+    (config.var.lidSwitchAction or "suspend");
   bind = key: dispatcher: {
     _args = [
       key
@@ -103,13 +107,13 @@ in
       (bindWithFlags "XF86AudioPlay" (exec "${pkgs.playerctl}/bin/playerctl play-pause") locked) # Play/Pause Song
       (bindWithFlags "XF86AudioNext" (exec "${pkgs.playerctl}/bin/playerctl next") locked) # Next Song
       (bindWithFlags "XF86AudioPrev" (exec "${pkgs.playerctl}/bin/playerctl previous") locked) # Previous Song
-      (bindWithFlags "switch:Lid Switch" (exec "systemctl suspend") locked) # Lock screen on lid closed (laptop)
       (bindWithFlags "SUPER + SUPER_L" (exec "command-palette") release) # Command Palette
       (bindWithFlags "XF86AudioRaiseVolume" (exec "sound-up") lockedRepeating) # Sound Up
       (bindWithFlags "XF86AudioLowerVolume" (exec "sound-down") lockedRepeating) # Sound Down
       (bindWithFlags "XF86MonBrightnessUp" (exec "brightness-up") lockedRepeating) # Brightness Up
       (bindWithFlags "XF86MonBrightnessDown" (exec "brightness-down") lockedRepeating) # Brightness Down
-    ];
+    ] ++ lib.optional (config.var.isLaptop && lidSwitchAction != null && lidSwitchAction != "")
+      (bindWithFlags "switch:Lid Switch" (exec lidSwitchAction) locked);
 
   };
 }

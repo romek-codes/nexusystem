@@ -105,4 +105,19 @@ rec {
   };
 
   editorBinaryMap = { vscode = "code"; };
+
+  lidSwitchActionCommandMap = {
+    nothing = null;
+    suspend = "systemctl suspend";
+    lock = "loginctl lock-session";
+    hibernate = "systemctl hibernate";
+    hybrid-sleep = "systemctl hybrid-sleep";
+    poweroff = "systemctl poweroff";
+  };
+
+  resolveLidSwitchAction = action:
+    if isEmpty action then
+      null
+    else
+      lidSwitchActionCommandMap.${action} or action;
 }
