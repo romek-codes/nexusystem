@@ -53,6 +53,7 @@ class LaunchSpec:
     command: list[str]
     tool: str
     session_id: str
+    cwd: str
 
 
 class RehDataTable(DataTable):
@@ -659,7 +660,10 @@ class RehApp(App[None]):
             f"resume selected tool={record.tool} session={record.session_id} command={' '.join(command)}"
         )
         self.selection = LaunchSpec(
-            command=command, tool=record.tool, session_id=record.session_id
+            command=command,
+            tool=record.tool,
+            session_id=record.session_id,
+            cwd=record.cwd,
         )
         self.exit()
 
@@ -1261,6 +1265,17 @@ def launch_selection(selection: LaunchSpec | None) -> int:
         log_event("launch skipped: no selection")
         return 0
     try:
+        session_cwd = Path(selection.cwd)
+        if not session_cwd.exists():
+            log_event(f"exec failed missing cwd: {selection.cwd}")
+            print(f"reh: session cwd does not exist: {selection.cwd}", file=sys.stderr)
+            return 127
+        if not session_cwd.is_dir():
+            log_event(f"exec failed invalid cwd: {selection.cwd}")
+            print(f"reh: session cwd is not a directory: {selection.cwd}", file=sys.stderr)
+            return 127
+        os.chdir(selection.cwd)
+        log_event(f"cwd changed to {selection.cwd}")
         log_event(f"exec start command={' '.join(selection.command)}")
         os.execv(selection.command[0], selection.command)
     except FileNotFoundError as exc:
