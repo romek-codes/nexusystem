@@ -127,7 +127,6 @@ in
 
     settings = {
       on = [
-        (startCommand "lock") # pseudo display manager
         (startCommand "dbus-update-activation-environment --systemd --all &")
         (startCommand "systemctl --user enable --now hypridle.service &")
         (startCommand "foot --server & echo $! > /tmp/foot-server.pid")

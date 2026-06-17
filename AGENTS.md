@@ -54,7 +54,7 @@ Each host imports `../../nixos/shared.nix` and a host `home.nix` via
 `nixos/shared.nix` imports the system-wide stack:
 
 - Core system: audio, bluetooth, printers, fonts, nix, users, utils, pam.
-- Boot/display: systemd-boot, pseudo-display-manager.
+- Boot/display: systemd-boot, sddm.
 - Desktop: hyprland, noctalia, glance, stylix, waydroid.
 - Services: docker, syncthing, gpg.
 - Optional for games: steam, gamemode, affinity.

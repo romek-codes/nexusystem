@@ -11,8 +11,7 @@
     ./docker.nix
     ./nix.nix
     ./systemd-boot.nix
-    # ./sddm.nix # Replaced for better support of mp4 backgrounds.
-    ./pseudo-display-manager.nix
+    ./sddm.nix
     ./users.nix
     ./utils.nix
     ./hyprland.nix
