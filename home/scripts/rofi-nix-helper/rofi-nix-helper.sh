@@ -14,6 +14,7 @@ run_command() {
 print_menu() {
   local options=(
     "builder;Rebuild;rofi-nix-helper rebuild"
+    "power-profile-power-saver-symbolic;Rebuild (throttled);rofi-nix-helper rebuild_throttled"
     "internet-archive;Search;rofi-nix-helper search"
     "edit-clear;Clean;rofi-nix-helper clean"
     "system-upgrade;Upgrade;rofi-nix-helper upgrade"
@@ -32,6 +33,7 @@ print_menu() {
 ui() {
   local options=(
     "Rebuild;rofi-nix-helper rebuild"
+    "Rebuild (throttled);rofi-nix-helper rebuild_throttled"
     "Search;rofi-nix-helper search"
     "Clean;rofi-nix-helper clean"
     "Upgrade;rofi-nix-helper upgrade"
@@ -58,6 +60,12 @@ ui() {
 case "$1" in
   rebuild)
     run_command "cd \"$CONFIG_DIRECTORY\" && git add . && nvd-system-diff nh os switch -H \"$HOSTNAME\" \"$CONFIG_DIRECTORY\""
+    ;;
+  rebuild_throttled)
+    local total_cores; total_cores=$(nproc)
+    local throttle_cores=$(( total_cores / 2 < 1 ? 1 : total_cores / 2 ))
+    local throttle_jobs=$(( total_cores / 4 < 1 ? 1 : total_cores / 4 ))
+    run_command "cd \"$CONFIG_DIRECTORY\" && git add . && nvd-system-diff nice -n 10 nh os switch -H \"$HOSTNAME\" \"$CONFIG_DIRECTORY\" -- --cores $throttle_cores -j $throttle_jobs"
     ;;
   search)
     run_command "echo -n 'Search input: ' && read search_term && nh search \$search_term"
