@@ -19,5 +19,5 @@
   # https://github.com/nix-community/nixos-generators/issues/281
   networking.wireless.enable = lib.mkForce false;
 
-  boot.kernelPackages = lib.mkForce pkgs.linuxPackages_6_14;
+  boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
 }
