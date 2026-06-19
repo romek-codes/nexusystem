@@ -72,11 +72,25 @@ in
       type = "command";
       command = "${statusline}";
     };
-    mcpServers = {
-      nixos = {
-        command = lib.getExe pkgs.mcp-nixos;
-        args = [ ];
-      };
-    };
   };
+
+  home.activation.claudeMcpNixos = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    claude_mcp="$HOME/.claude.json"
+    tmp="$(mktemp)"
+
+    mkdir -p "$HOME/.claude"
+
+    if [ -f "$claude_mcp" ]; then
+      ${pkgs.jq}/bin/jq 'del(.mcpServers.nixos)' "$claude_mcp" > "$tmp"
+    else
+      printf '{"mcpServers":{}}' > "$tmp"
+    fi
+
+    ${pkgs.jq}/bin/jq --arg cmd "${lib.getExe pkgs.mcp-nixos}" \
+      '.mcpServers = (.mcpServers // {}) | .mcpServers.nixos = {"type": "stdio", "command": $cmd, "args": []}' \
+      "$tmp" > "$tmp.new"
+
+    install -m 0600 "$tmp.new" "$claude_mcp"
+    rm -f "$tmp" "$tmp.new"
+  '';
 }
