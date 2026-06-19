@@ -155,11 +155,11 @@ elif [[ "$selected" == *"Suspend"* ]]; then
 		systemctl suspend
 	fi
 	command_found=1
-elif [[ "$selected" == *"Logout"* ]]; then
-	if confirm_action "Logout" "Log out now?"; then
-		hyprctl dispatch 'hl.dsp.exit()'
-	fi
-	command_found=1
+	elif [[ "$selected" == *"Logout"* ]]; then
+		if confirm_action "Logout" "Log out now?"; then
+			uwsm stop
+		fi
+		command_found=1
 elif [[ "$selected" == *"Toggle fullscreen"* ]]; then
 	hyprctl dispatch 'hl.dsp.window.fullscreen()'
 	command_found=1
