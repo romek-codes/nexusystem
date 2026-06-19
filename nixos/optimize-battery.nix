@@ -1,16 +1,8 @@
 { config, lib, ... }: {
-  # Shell battery widget dependency, shows power profile options in battery module, not compatible with having tlp.enabled as well.
-  # services.power-profiles-daemon.enable =
-  #   lib.mkIf (config.var.isLaptop or false) true;
+  # Noctalia exposes power-profile switching via power-profiles-daemon.
+  # Keep one backend only; TLP and PPD conflict on laptops.
+  services.power-profiles-daemon.enable =
+    lib.mkIf (config.var.isLaptop or false) true;
 
-  services.tlp = lib.mkIf (config.var.isLaptop or false) {
-    enable = true;
-    settings = {
-      CPUBOOSTON_AC = 1;
-      CPUBOOSTON_BAT = 0;
-      CPUSCALINGGOVERNORONAC = "performance";
-      CPUSCALINGGOVERNORONBAT = "powersave";
-      STOPCHARGETHRESH_BAT0 = 95;
-    };
-  };
+  services.tlp.enable = lib.mkIf (config.var.isLaptop or false) false;
 }
