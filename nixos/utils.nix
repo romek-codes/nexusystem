@@ -140,7 +140,7 @@ in
 
   xdg.portal = {
     enable = true;
-    xdgOpenUsePortal = true;
+    xdgOpenUsePortal = false;
     config = {
       common.default = [ "hyprland" ];
       hyprland.default = [
