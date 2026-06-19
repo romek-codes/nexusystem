@@ -92,6 +92,7 @@ let
     "bluetooth"
   ]
   ++ lib.optional isLaptop "battery"
+  ++ lib.optional isLaptop "power_profile"
   ++ [
     "network"
     "notifications"
@@ -189,6 +190,10 @@ in
           copy_to_clipboard = false;
           freeze_screen = false;
           pipe_to_command = false;
+        };
+
+        services = {
+          ddcutil = true;
         };
 
         panel = {
@@ -339,6 +344,11 @@ in
           { type = "nexusystem/shortcuts:dnd"; }
           { type = "nexusystem/shortcuts:session"; }
         ];
+      };
+
+      hooks = {
+        power_profile_changed =
+          "notify-send 'Power Profile' \"Switched to \${NOCTALIA_POWER_PROFILE} (\${NOCTALIA_POWER_PROFILE_ORIGIN})\"";
       };
 
       weather = {
