@@ -282,11 +282,19 @@ in
           match.class = "^(zen)$";
         }
         {
+          float = true;
+          center = true;
+          pin = true;
           stay_focused = true;
+          dim_around = true;
           match.class = "^(pinentry)$";
         }
         {
+          float = true;
+          center = true;
+          pin = true;
           stay_focused = true;
+          dim_around = true;
           match.class = "^(gcr-prompter)$";
         }
         {
@@ -317,10 +325,6 @@ in
           center = true;
           match.class = "^(Gimp-2.10)$";
           match.title = ".*Sharpen.*";
-        }
-        {
-          dim_around = true;
-          match.class = "^(gcr-prompter)$";
         }
         {
           dim_around = true;
