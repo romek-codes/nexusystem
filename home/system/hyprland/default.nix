@@ -223,7 +223,8 @@ in
 
           kb_options = "caps:escape,grp:win_space_toggle";
           follow_mouse = 1;
-          sensitivity = 0.5;
+          accel_profile = "flat";
+          sensitivity = 0;
           repeat_delay = 300;
           repeat_rate = 50;
           numlock_by_default = true;
