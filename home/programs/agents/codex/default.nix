@@ -45,16 +45,17 @@ in
 
     mkdir -p "$HOME/.codex"
     mkdir -p "$(dirname "${memoryFilePath}")"
+    printf 'vim_mode_default = true\n' > "$tmp_config"
 
     if [ -f "$codex_config" ]; then
       ${pkgs.gawk}/bin/awk '
+        /^\[/ { in_table = 1 }
+        !in_table && /^[[:space:]]*vim_mode_default[[:space:]]*=/ { next }
         /^\[mcp_servers\.nixos(\.|\])/{ skip = 1; next }
         /^\[mcp_servers\.memory(\.|\])/{ skip = 1; next }
         /^\[/ { skip = 0 }
         !skip { print }
-      ' "$codex_config" > "$tmp_config"
-    else
-      : > "$tmp_config"
+      ' "$codex_config" >> "$tmp_config"
     fi
 
     cat >> "$tmp_config" <<EOF
