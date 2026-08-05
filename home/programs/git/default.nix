@@ -29,7 +29,7 @@ in {
       user.name = username;
       user.email = email;
       init.defaultBranch = "main";
-      pull.rebase = "false";
+      pull.rebase = "true";
       push.default = "current";
       push.autoSetupRemote = true;
       branch.autoSetupMerge = "simple";
