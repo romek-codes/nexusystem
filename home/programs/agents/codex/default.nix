@@ -24,6 +24,10 @@ C
   '';
 in
 {
+  imports = [
+    (import ../skills/hallmark.nix { target = ".codex"; })
+  ];
+
   home.packages = [
     codexWithSystemBwrap
     pkgs.codex-acp
