@@ -54,6 +54,10 @@ let
   '';
 in
 {
+  imports = [
+    (import ../skills/hallmark.nix { target = ".claude"; })
+  ];
+
   home.packages = [
     pkgs.claude-code
     pkgs.claude-agent-acp
