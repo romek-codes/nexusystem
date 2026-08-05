@@ -1,6 +1,6 @@
 { config, lib, ... }:
 {
-  imports = [ ../../themes/initial-d.nix ];
+  imports = [ ../../themes/touch-grass.nix ];
 
   options.var = lib.mkOption {
     type = lib.types.attrs;
