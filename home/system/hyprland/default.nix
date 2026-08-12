@@ -156,7 +156,6 @@ in
       );
 
       env = [
-        (env "XDG_CURRENT_DESKTOP" "Hyprland")
         (env "MOZ_ENABLE_WAYLAND" "1")
         (env "ANKI_WAYLAND" "1")
         (env "DISABLE_QT5_COMPAT" "0")
