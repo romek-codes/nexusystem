@@ -3,6 +3,7 @@ let helpers = import ../helpers { inherit lib; };
 in {
   config.stylix = {
     enable = true;
+    targets.regreet.enable = false;
     polarity = config.theme.polarity;
 
     cursor = {
