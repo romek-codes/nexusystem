@@ -28,6 +28,6 @@ in {
       "--height 20%"
     ];
     defaultCommand = "fd --type file --follow"; # FZF_DEFAULT_COMMAND
-    fileWidgetCommand = "fd --type file --follow"; # FZF_CTRL_T_COMMAND
+    fileWidget.command = "fd --type file --follow"; # FZF_CTRL_T_COMMAND
   };
 }
