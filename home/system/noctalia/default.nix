@@ -166,15 +166,15 @@ in
       };
 
       theme = {
-        mode = config.theme.polarity or "dark";
-        source = "custom";
-        custom_palette = "nexusystem";
+        mode = lib.mkForce (config.theme.polarity or "dark");
+        source = lib.mkForce "custom";
+        custom_palette = lib.mkForce "nexusystem";
       };
 
       shell = {
         ui_scale = 1.0;
         corner_radius_scale = 1.0;
-        font_family = font;
+        font_family = lib.mkForce font;
         avatar_path = "${config.home.homeDirectory}/.face.icon";
         time_format = "{:%H:%M}";
         date_format = "{:%d.%m.%Y}";
@@ -220,7 +220,7 @@ in
           reserve_space = true;
           layer = "top";
           thickness = 38;
-          background_opacity = barBackgroundOpacity;
+          background_opacity = lib.mkForce barBackgroundOpacity;
           border = accentAlt;
           border_width = if transparent then 0 else lib.min borderSize 1;
           shadow = false;
@@ -367,7 +367,7 @@ in
       notification = {
         enable_daemon = true;
         layer = "top";
-        background_opacity = 0.90;
+        background_opacity = lib.mkForce 0.90;
         offset_x = 20;
         offset_y = 8;
         show_actions = true;
@@ -378,7 +378,7 @@ in
       osd = {
         position = "top_center";
         orientation = "horizontal";
-        background_opacity = 0.97;
+        background_opacity = lib.mkForce 0.97;
         offset_x = 0;
         offset_y = 8;
       };
