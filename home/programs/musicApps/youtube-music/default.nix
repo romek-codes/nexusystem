@@ -11,7 +11,7 @@ let
   pluginFlake = inputs."pear-desktop-plugins";
   defaultPackage = pluginFlake.packages.${pkgs.stdenv.hostPlatform.system}.default;
   defaultEnabledPlugins = [
-    "adblocker"
+    "do-not-track"
     "album-color-theme"
     "ambient-mode"
     "compact-sidebar"
