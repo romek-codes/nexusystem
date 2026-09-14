@@ -39,6 +39,7 @@ in {
   };
 
   # home.packages = with pkgs; [ git-lfs ];
+  home.packages = with pkgs; [ difftastic ];
 
   programs.gpg.enable = true;
 
