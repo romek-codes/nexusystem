@@ -24,6 +24,12 @@ in
         # commit.signOff = true;
         parseEmoji = true;
         overrideGpg = true;
+        diffRenderers = [
+          {
+            type = "extDiff";
+            command = "difft --color=always --context={{diffContext}}";
+          }
+        ];
       };
       gui = {
         theme = {
