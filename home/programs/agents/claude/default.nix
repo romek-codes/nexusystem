@@ -2,6 +2,7 @@
 
 let
   systemAgents = import ../system-agents.nix { inherit config; };
+  memoryFilePath = "${config.home.homeDirectory}/.local/share/agent-memory/memory.json";
   statusline = pkgs.writeShellScript "claude-statusline" ''
     input=$(cat)
 
@@ -58,6 +59,7 @@ in
     pkgs.claude-agent-acp
     pkgs.happy
     pkgs.mcp-nixos
+    pkgs.mcp-server-memory
     pkgs.rtk
   ];
 
@@ -67,11 +69,13 @@ in
     enabledPlugins = {
       "superpowers@claude-plugins-official" = true;
       "frontend-design@claude-plugins-official" = true;
+      "ponytail@ponytail" = true;
     };
     statusLine = {
       type = "command";
       command = "${statusline}";
     };
+    editorMode = "vim";
   };
 
   home.activation.claudeMcpNixos = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -79,15 +83,21 @@ in
     tmp="$(mktemp)"
 
     mkdir -p "$HOME/.claude"
+    mkdir -p "$(dirname "${memoryFilePath}")"
 
     if [ -f "$claude_mcp" ]; then
-      ${pkgs.jq}/bin/jq 'del(.mcpServers.nixos)' "$claude_mcp" > "$tmp"
+      ${pkgs.jq}/bin/jq 'del(.mcpServers.nixos) | del(.mcpServers.memory)' "$claude_mcp" > "$tmp"
     else
       printf '{"mcpServers":{}}' > "$tmp"
     fi
 
-    ${pkgs.jq}/bin/jq --arg cmd "${lib.getExe pkgs.mcp-nixos}" \
-      '.mcpServers = (.mcpServers // {}) | .mcpServers.nixos = {"type": "stdio", "command": $cmd, "args": []}' \
+    ${pkgs.jq}/bin/jq \
+      --arg nixosCmd "${lib.getExe pkgs.mcp-nixos}" \
+      --arg memoryCmd "${lib.getExe pkgs.mcp-server-memory}" \
+      --arg memoryPath "${memoryFilePath}" \
+      '.mcpServers = (.mcpServers // {})
+       | .mcpServers.nixos = {"type": "stdio", "command": $nixosCmd, "args": []}
+       | .mcpServers.memory = {"type": "stdio", "command": $memoryCmd, "args": [], "env": {"MEMORY_FILE_PATH": $memoryPath}}' \
       "$tmp" > "$tmp.new"
 
     install -m 0600 "$tmp.new" "$claude_mcp"
