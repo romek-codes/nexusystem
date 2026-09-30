@@ -1,4 +1,6 @@
 { pkgs, lib, ... }: {
+  boot.kernelModules = [ "btusb" ];
+
   environment.systemPackages = with pkgs; [ blueman ];
   hardware.bluetooth = {
     enable = true;
