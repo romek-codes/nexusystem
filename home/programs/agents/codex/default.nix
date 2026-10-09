@@ -1,25 +1,36 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 let
   systemAgents = import ../system-agents.nix { inherit config; };
   memoryFilePath = "${config.home.homeDirectory}/.local/share/agent-memory/memory.json";
   systemBwrapShim = pkgs.runCommandCC "codex-system-bwrap-shim" { } ''
-    cat > bwrap-shim.c <<'C'
-#include <unistd.h>
+        cat > bwrap-shim.c <<'C'
+    #include <unistd.h>
 
-int main(int argc, char **argv)
-{
-    argv[0] = "/run/wrappers/bin/bwrap";
-    execv(argv[0], argv);
-    return 127;
-}
-C
-    $CC bwrap-shim.c -o $out
+    int main(int argc, char **argv)
+    {
+        argv[0] = "/run/wrappers/bin/bwrap";
+        execv(argv[0], argv);
+        return 127;
+    }
+    C
+        $CC bwrap-shim.c -o $out
   '';
   codexWithSystemBwrap = pkgs.runCommand "codex-with-system-bwrap" { } ''
-    mkdir -p $out/bin/codex-resources
+    mkdir -p $out/bin
 
     cp -a ${pkgs.codex}/share $out/share
+    cp -a ${pkgs.codex}/bin/. $out/bin/
+    chmod -R u+w $out/bin
+    rm -f $out/bin/codex
     install -m 0755 ${pkgs.codex}/bin/.codex-wrapped $out/bin/codex
+
+    mkdir -p $out/bin/codex-resources
+    rm -f $out/bin/codex-resources/bwrap
     install -m 0755 ${systemBwrapShim} $out/bin/codex-resources/bwrap
   '';
 in
