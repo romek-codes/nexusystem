@@ -51,37 +51,40 @@ in
   home.file.".codex/AGENTS.md".text = systemAgents;
 
   home.activation.codexMcpNixos = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    codex_config="$HOME/.codex/config.toml"
-    tmp_config="$(mktemp)"
+        codex_config="$HOME/.codex/config.toml"
+        tmp_config="$(mktemp)"
 
-    mkdir -p "$HOME/.codex"
-    mkdir -p "$(dirname "${memoryFilePath}")"
-    printf 'vim_mode_default = true\n' > "$tmp_config"
+        mkdir -p "$HOME/.codex"
+        mkdir -p "$(dirname "${memoryFilePath}")"
+        printf '%s\n' \
+          'model = "gpt-6-sol"' \
+          'model_reasoning_effort = "medium"' \
+          'vim_mode_default = true' > "$tmp_config"
 
-    if [ -f "$codex_config" ]; then
-      ${pkgs.gawk}/bin/awk '
-        /^\[/ { in_table = 1 }
-        !in_table && /^[[:space:]]*vim_mode_default[[:space:]]*=/ { next }
-        /^\[mcp_servers\.nixos(\.|\])/{ skip = 1; next }
-        /^\[mcp_servers\.memory(\.|\])/{ skip = 1; next }
-        /^\[/ { skip = 0 }
-        !skip { print }
-      ' "$codex_config" >> "$tmp_config"
-    fi
+        if [ -f "$codex_config" ]; then
+          ${pkgs.gawk}/bin/awk '
+            /^\[/ { in_table = 1 }
+            !in_table && /^[[:space:]]*(model|model_reasoning_effort|vim_mode_default)[[:space:]]*=/ { next }
+            /^\[mcp_servers\.nixos(\.|\])/{ skip = 1; next }
+            /^\[mcp_servers\.memory(\.|\])/{ skip = 1; next }
+            /^\[/ { skip = 0 }
+            !skip { print }
+          ' "$codex_config" >> "$tmp_config"
+        fi
 
-    cat >> "$tmp_config" <<EOF
+        cat >> "$tmp_config" <<EOF
 
-[mcp_servers.nixos]
-command = "${lib.getExe pkgs.mcp-nixos}"
+    [mcp_servers.nixos]
+    command = "${lib.getExe pkgs.mcp-nixos}"
 
-[mcp_servers.memory]
-command = "${lib.getExe pkgs.mcp-server-memory}"
+    [mcp_servers.memory]
+    command = "${lib.getExe pkgs.mcp-server-memory}"
 
-[mcp_servers.memory.env]
-MEMORY_FILE_PATH = "${memoryFilePath}"
-EOF
+    [mcp_servers.memory.env]
+    MEMORY_FILE_PATH = "${memoryFilePath}"
+    EOF
 
-    install -m 0600 "$tmp_config" "$codex_config"
-    rm -f "$tmp_config"
+        install -m 0600 "$tmp_config" "$codex_config"
+        rm -f "$tmp_config"
   '';
 }
