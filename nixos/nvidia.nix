@@ -28,7 +28,7 @@ in {
     NIXOS_OZONE_WL = "1"; # Wayland support for Electron apps
     __GL_GSYNC_ALLOWED = "1"; # Enable G-Sync if available
     __GL_VRR_ALLOWED = "1"; # Enable VRR (Variable Refresh Rate)
-    WLR_DRM_NO_ATOMIC = "1"; # Fix for some issues with Hyprland
+    # WLR_DRM_NO_ATOMIC = "1"; # Fix for some issues with Hyprland — disabled to test gamma/blue-light-filter on DP monitors
     NVD_BACKEND = "direct"; # Configuration for new driver
     MOZ_ENABLE_WAYLAND = "1"; # Wayland support for Firefox
   };
