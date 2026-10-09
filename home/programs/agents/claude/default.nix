@@ -70,6 +70,7 @@ in
   home.file.".claude/CLAUDE.md".text = systemAgents;
 
   home.file.".claude/settings.json".text = builtins.toJSON {
+    model = "sonnet";
     enabledPlugins = {
       "superpowers@claude-plugins-official" = true;
       "frontend-design@claude-plugins-official" = true;
