@@ -38,7 +38,9 @@
     xsane # Scanner app
     filezilla # FTP/SFTP client
     warehouse # Flatpak app manager
-    scribus # Desktop publishing app
+    # scribus # Desktop publishing app — disabled: libqxp fails to build on
+    # current nixpkgs (boost/math/constants/constants.hpp not found during
+    # configure), unrelated upstream regression. Re-enable once fixed.
     # Dev
     gh # GitHub CLI
     lazydocker # Terminal UI for Docker
