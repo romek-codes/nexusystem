@@ -1,19 +1,13 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 
-let
-  bubblewrapSetuid = pkgs.bubblewrap.overrideAttrs (oldAttrs: {
-    mesonFlags = (oldAttrs.mesonFlags or [ ]) ++ [ "-Dsupport_setuid=true" ];
-  });
-in
 {
-  # Codex executes shell commands through bubblewrap. Use the setuid wrapper
-  # because bubblewrap rejects the old file-capability mode with:
-  # "Unexpected capabilities but not setuid, old file caps config?"
+  # Codex's wrapped binary execs /run/wrappers/bin/bwrap directly, so keep
+  # the wrapper entry around for that stable path. bubblewrap 0.12.0 dropped
+  # setuid-build support upstream (unprivileged user namespaces are relied
+  # on instead), so this no longer needs the setuid/capabilities hack.
   security.wrappers.bwrap = {
     owner = "root";
     group = "root";
-    source = "${bubblewrapSetuid}/bin/bwrap";
-    capabilities = lib.mkForce "";
-    setuid = lib.mkForce true;
+    source = "${pkgs.bubblewrap}/bin/bwrap";
   };
 }
