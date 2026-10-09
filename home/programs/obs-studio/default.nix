@@ -21,7 +21,9 @@ in
     plugins = with pkgs.obs-studio-plugins; [
       obs-backgroundremoval
       obs-pipewire-audio-capture
-      obs-composite-blur
+      # obs-composite-blur # disabled: fails to build on current nixpkgs
+      # (discarded-qualifiers treated as error in obs-utils.c), unrelated
+      # upstream regression. Re-enable once fixed.
       obs-vkcapture
     ];
   };
