@@ -111,13 +111,6 @@
                   };
               })
               (final: prev: {
-                rofi-rbw-wayland = prev.rofi-rbw-wayland.overrideAttrs (old: {
-                  patches = (old.patches or [ ]) ++ [
-                    ./home/system/rofi/patches/rofi-rbw-wl-copy-sensitive.patch
-                  ];
-                });
-              })
-              (final: prev: {
                 openldap = prev.openldap.overrideAttrs (_: {
                   doCheck = false;
                 });
