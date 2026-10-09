@@ -18,7 +18,7 @@ let
     audio = [ "mpv.desktop" ];
     video = [ "mpv.desktop" ];
     directory = [ "thunar.desktop" ];
-    office = [ "libreoffice.desktop" ];
+    office = [ "onlyoffice-desktopeditors.desktop" ];
     pdf = [ "org.pwmt.zathura.desktop" ];
     terminal = [ "foot.desktop" ];
     discord = [ "discord.desktop" ];
@@ -76,6 +76,14 @@ let
       "application/vnd.ms-excel"
       "application/vnd.ms-powerpoint"
       "application/rtf"
+      "application/vnd.ms-word.document.macroEnabled.12"
+      "application/vnd.ms-excel.sheet.macroEnabled.12"
+      "application/vnd.ms-powerpoint.presentation.macroEnabled.12"
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.template"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.template"
+      "application/vnd.openxmlformats-officedocument.presentationml.template"
+      "application/vnd.openxmlformats-officedocument.presentationml.slideshow"
+      "text/csv"
     ];
     pdf = [ "application/pdf" ];
     terminal = [ "x-scheme-handler/terminal" ];
