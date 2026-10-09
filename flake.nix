@@ -1,7 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-claude.url = "github:nixos/nixpkgs/nixos-unstable";
     hyprland = {
       url = "github:hyprwm/Hyprland";
     };
