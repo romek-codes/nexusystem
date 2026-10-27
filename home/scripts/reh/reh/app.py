@@ -207,9 +207,29 @@ def load_sessions() -> list[SessionRecord]:
     return sorted(sessions, key=lambda record: record.updated_at, reverse=True)
 
 
-def _clean_preview_text(text: str) -> str:
+def recent_sessions(
+    count: int | None, *, include_current: bool = False, within_seconds: float | None = None
+) -> list[SessionRecord]:
+    current_ids = set()
+    if not include_current:
+        current_ids = {
+            value
+            for name in ("CODEX_SESSION_ID", "CODEX_THREAD_ID", "CLAUDE_SESSION_ID")
+            if (value := os.environ.get(name))
+        }
+    cutoff = time.time() - within_seconds if within_seconds is not None else None
+    records = [
+        record
+        for record in load_sessions()
+        if record.session_id not in current_ids
+        and (cutoff is None or record.updated_at >= cutoff)
+    ]
+    return records if count is None else records[:count]
+
+
+def _clean_preview_text(text: str, limit: int = 240) -> str:
     flattened = " ".join(text.split())
-    return flattened[:240] + ("..." if len(flattened) > 240 else "")
+    return flattened[:limit] + ("..." if len(flattened) > limit else "")
 
 
 def _extract_codex_user_texts(path: Path) -> list[str]:
@@ -329,7 +349,9 @@ def _dedupe_lines(lines: list[str]) -> list[str]:
     return deduped
 
 
-def load_transcript_lines(record: SessionRecord) -> list[str]:
+def load_transcript_lines(
+    record: SessionRecord, *, preview_limit: int = 240, include_reasoning: bool = True
+) -> list[str]:
     path = Path(record.transcript_path)
     lines: list[str] = []
     try:
@@ -351,11 +373,11 @@ def load_transcript_lines(record: SessionRecord) -> list[str]:
                         if message_type == "user_message":
                             text = payload.get("message")
                             if isinstance(text, str) and text.strip():
-                                lines.append(f"user> {_clean_preview_text(text)}")
-                        elif message_type == "agent_reasoning":
+                                lines.append(f"user> {_clean_preview_text(text, preview_limit)}")
+                        elif message_type == "agent_reasoning" and include_reasoning:
                             text = payload.get("text")
                             if isinstance(text, str) and text.strip():
-                                lines.append(f"assistant> {_clean_preview_text(text)}")
+                                lines.append(f"assistant> {_clean_preview_text(text, preview_limit)}")
                     elif entry_type == "response_item":
                         payload = entry.get("payload", {})
                         if payload.get("type") != "message":
@@ -378,7 +400,7 @@ def load_transcript_lines(record: SessionRecord) -> list[str]:
                                 texts.append(text)
                         for text in texts:
                             if text.strip():
-                                lines.append(f"{role}> {_clean_preview_text(text)}")
+                                lines.append(f"{role}> {_clean_preview_text(text, preview_limit)}")
                 else:
                     message_type = entry.get("type")
                     if message_type not in {"user", "assistant"}:
@@ -392,11 +414,19 @@ def load_transcript_lines(record: SessionRecord) -> list[str]:
                         message.get("content")
                     ):
                         if text.strip():
-                            lines.append(f"{message_type}> {_clean_preview_text(text)}")
+                            lines.append(f"{message_type}> {_clean_preview_text(text, preview_limit)}")
     except OSError:
         return []
 
     return _dedupe_lines(lines)
+
+
+def load_recent_messages(record: SessionRecord, count: int) -> list[str]:
+    if count == 0:
+        return []
+    return load_transcript_lines(
+        record, preview_limit=1000, include_reasoning=False
+    )[-count:]
 
 
 class RehApp(App[None]):
