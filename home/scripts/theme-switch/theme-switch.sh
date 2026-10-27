@@ -26,6 +26,10 @@ if [ "$target_variant" = "$CURRENT_POLARITY" ]; then
 fi
 
 original_state="$("$CAT_BIN" "$STATE_FILE" 2>/dev/null || printf '{}')"
+state_file_existed=0
+if [ -e "$STATE_FILE" ]; then
+	state_file_existed=1
+fi
 temp_file="$("$MKTEMP_BIN")"
 backup_file="$("$MKTEMP_BIN")"
 rebuild_script="$("$MKTEMP_BIN")"
@@ -35,15 +39,34 @@ printf '%s\n' "$original_state" |
 "$CP_BIN" "$temp_file" "$STATE_FILE"
 printf '%s\n' "$original_state" >"$backup_file"
 
+restore_original_state() {
+	if [ "$state_file_existed" -eq 1 ]; then
+		"$CP_BIN" "$backup_file" "$STATE_FILE"
+		git add "$STATE_FILE"
+	else
+		"$RM_BIN" -f "$STATE_FILE"
+		git reset -- "$STATE_FILE" >/dev/null 2>&1 || true
+	fi
+}
+
 cat >"$rebuild_script" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
 
 cd "$CONFIG_DIRECTORY"
 
+restore_original_state() {
+	if [ "$state_file_existed" -eq 1 ]; then
+		"$CP_BIN" "$backup_file" "$STATE_FILE"
+		git add "$STATE_FILE"
+	else
+		"$RM_BIN" -f "$STATE_FILE"
+		git reset -- "$STATE_FILE" >/dev/null 2>&1 || true
+	fi
+}
+
 restore_state() {
-	"$CP_BIN" "$backup_file" "$STATE_FILE"
-	git add "$STATE_FILE"
+	restore_original_state
 	rm -f "$backup_file" "$temp_file" "$rebuild_script"
 }
 
@@ -76,18 +99,14 @@ if [ "$DEBUG_THEME_SWITCH" -eq 1 ]; then
 		read -r
 		exit "$status"
 	'; then
-		"$CP_BIN" "$backup_file" "$STATE_FILE"
-		cd "$CONFIG_DIRECTORY"
-		git add "$STATE_FILE"
+		restore_original_state
 		rm -f "$backup_file" "$temp_file" "$rebuild_script"
 		"$NOTIFY_SEND" "Theme switch" "Failed to open rebuild terminal"
 		exit 1
 	fi
 else
 	if ! "$SETSID_BIN" -f "$BASH_BIN" "$rebuild_script" >/tmp/theme-switch.log 2>&1; then
-		"$CP_BIN" "$backup_file" "$STATE_FILE"
-		cd "$CONFIG_DIRECTORY"
-		git add "$STATE_FILE"
+		restore_original_state
 		rm -f "$backup_file" "$temp_file" "$rebuild_script"
 		"$NOTIFY_SEND" "Theme switch" "Failed to start theme switch"
 		exit 1

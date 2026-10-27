@@ -8,6 +8,7 @@ let
     export FOOTCLIENT_BIN="${pkgs.foot}/bin/footclient"
     export JQ_BIN="${pkgs.jq}/bin/jq"
     export NOTIFY_SEND="${pkgs.libnotify}/bin/notify-send"
+    export RM_BIN="${pkgs.coreutils}/bin/rm"
     export SETSID_BIN="${pkgs.util-linux}/bin/setsid"
     export CONFIG_DIRECTORY="${config.var.configDirectory}"
     export HOSTNAME_VALUE="${config.var.hostname}"

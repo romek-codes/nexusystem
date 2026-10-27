@@ -56,7 +56,6 @@
 
     gparted # partitions
     gnome-disk-utility # mounting iso
-    peazip # for zip and rar files
     qdirstat # Storage management
     resources # Task manager
     ddcui # External monitor settings via DDC/CI
