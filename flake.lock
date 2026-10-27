@@ -28,28 +28,6 @@
         "type": "github"
       }
     },
-    "agtx": {
-      "inputs": {
-        "flake-utils": "flake-utils",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1775263914,
-        "narHash": "sha256-esH/f/XHkTAZ2OrwBjdSokcnjtEwa/JupOo6W1mIUqk=",
-        "owner": "romek-codes",
-        "repo": "agtx",
-        "rev": "e015111de18c2da843da0ba38473fafcad34f589",
-        "type": "github"
-      },
-      "original": {
-        "owner": "romek-codes",
-        "ref": "romek/main",
-        "repo": "agtx",
-        "type": "github"
-      }
-    },
     "anyrun": {
       "inputs": {
         "flake-parts": "flake-parts_2",
@@ -2164,7 +2142,6 @@
     "root": {
       "inputs": {
         "affinity-nix": "affinity-nix",
-        "agtx": "agtx",
         "anyrun": "anyrun",
         "apple-fonts": "apple-fonts",
         "firefox-addons": "firefox-addons",

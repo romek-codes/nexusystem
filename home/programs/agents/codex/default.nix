@@ -59,12 +59,15 @@ in
         printf '%s\n' \
           'model = "gpt-6-sol"' \
           'model_reasoning_effort = "medium"' \
-          'vim_mode_default = true' > "$tmp_config"
+          'vim_mode_default = true' \
+          'sandbox_mode = "workspace-write"' \
+          'approval_policy = "on-request"' \
+          > "$tmp_config"
 
         if [ -f "$codex_config" ]; then
           ${pkgs.gawk}/bin/awk '
             /^\[/ { in_table = 1 }
-            !in_table && /^[[:space:]]*(model|model_reasoning_effort|vim_mode_default)[[:space:]]*=/ { next }
+            !in_table && /^[[:space:]]*(model|model_reasoning_effort|vim_mode_default|sandbox_mode|approval_policy)[[:space:]]*=/ { next }
             /^\[mcp_servers\.nixos(\.|\])/{ skip = 1; next }
             /^\[mcp_servers\.memory(\.|\])/{ skip = 1; next }
             /^\[/ { skip = 0 }
