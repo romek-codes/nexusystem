@@ -22,7 +22,7 @@ let
     pdf = [ "org.pwmt.zathura.desktop" ];
     terminal = [ "foot.desktop" ];
     discord = [ "discord.desktop" ];
-    archive = [ "xarchiver.desktop" ];
+    archive = [ "unar-extract.desktop" ];
   };
 
   mimeMap = {
@@ -88,10 +88,26 @@ let
     pdf = [ "application/pdf" ];
     terminal = [ "x-scheme-handler/terminal" ];
     archive = [
+      "application/vnd.rar"
+      "application/x-rar"
+      "application/x-rar-compressed"
+      "application/x-7z-compressed"
       "application/zip"
-      "application/rar"
-      "application/7z"
-      "application/*tar"
+      "application/x-zip-compressed"
+      "application/x-tar"
+      "application/x-compressed-tar"
+      "application/x-bzip-compressed-tar"
+      "application/x-xz-compressed-tar"
+      "application/gzip"
+      "application/x-gzip"
+      "application/x-bzip2"
+      "application/x-xz"
+      "application/x-lzma"
+      "application/vnd.ms-cab-compressed"
+      "application/x-cpio"
+      "application/x-arj"
+      "application/x-lha"
+      "application/x-xar"
     ];
     discord = [ "x-scheme-handler/discord" ];
   };

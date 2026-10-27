@@ -3,17 +3,29 @@
 let
   user = config.var.username;
   configDirectory = config.var.configDirectory;
+  openTerminalHere = pkgs.writeShellScriptBin "thunar-open-terminal-here" ''
+    target="''${1:-$PWD}"
+    if [ ! -d "$target" ]; then
+      target="$(${pkgs.coreutils}/bin/dirname -- "$target")"
+    fi
+    exec ${pkgs.uwsm}/bin/uwsm app -- ${pkgs.foot}/bin/foot --working-directory="$target"
+  '';
+  extractWithUnar = pkgs.writeShellScriptBin "thunar-extract-with-unar" ''
+    exec ${pkgs.python3}/bin/python3 ${./extract-with-unar.py} \
+      ${pkgs.unar}/bin/unar ${pkgs.unar}/bin/lsar \
+      ${pkgs.yad}/bin/yad ${pkgs.libnotify}/bin/notify-send "$@"
+  '';
 in {
   # ctrl + m to toggle the menubar
   home.packages = with pkgs; [
     thunar
     xfconf
     tumbler
-    thunar-archive-plugin
     thunar-volman
     thunar-media-tags-plugin
-    p7zip
-    xarchiver
+    unar
+    openTerminalHere
+    extractWithUnar
   ];
 
   gtk = {
@@ -42,36 +54,58 @@ in {
     XDG_ICON_DIR = "${pkgs.whitesur-icon-theme}/share/icons/WhiteSur";
   };
 
-  home.file.".config/xarchiver/xarchiverrc".text = ''
-    [xarchiver]
-    preferred_format=0
-    prefer_unzip=true
-    confirm_deletion=true
-    sort_filename_content=false
-    advanced_isearch=true
-    auto_expand=true
-    store_output=false
-    icon_size=2
-    show_archive_comment=false
-    show_sidebar=true
-    show_location_bar=true
-    show_toolbar=true
-    preferred_custom_cmd=
-    preferred_temp_dir=/tmp
-    preferred_extract_dir=/home/${user}/Downloads
-    allow_sub_dir=0
-    ensure_directory=true
-    overwrite=false
-    full_path=2
-    touch=false
-    fresh=false
-    update=false
-    store_path=false
-    updadd=true
-    freshen=false
-    recurse=true
-    solid_archive=false
-    remove_files=false
+  xdg.desktopEntries.unar-extract = {
+    name = "Extract with unar";
+    exec = "${extractWithUnar}/bin/thunar-extract-with-unar %f";
+    icon = "package-x-generic";
+    terminal = false;
+    noDisplay = true;
+    mimeType = [
+      "application/vnd.rar"
+      "application/x-rar"
+      "application/x-rar-compressed"
+      "application/x-7z-compressed"
+      "application/zip"
+      "application/x-zip-compressed"
+      "application/x-tar"
+      "application/x-compressed-tar"
+      "application/x-bzip-compressed-tar"
+      "application/x-xz-compressed-tar"
+      "application/gzip"
+      "application/x-gzip"
+      "application/x-bzip2"
+      "application/x-xz"
+      "application/x-lzma"
+      "application/vnd.ms-cab-compressed"
+      "application/x-cpio"
+      "application/x-arj"
+      "application/x-lha"
+      "application/x-xar"
+    ];
+  };
+
+  # Thunar may rewrite uca.xml when its custom-action editor is opened.
+  home.file.".config/Thunar/uca.xml".force = true;
+  home.file.".config/Thunar/uca.xml".text = ''
+    <?xml version="1.0" encoding="UTF-8"?>
+    <actions>
+      <action>
+        <icon>utilities-terminal</icon>
+        <name>Open Terminal Here</name>
+        <command>${openTerminalHere}/bin/thunar-open-terminal-here %f</command>
+        <description>Open Foot in the selected directory</description>
+        <directories/>
+        <patterns>*</patterns>
+      </action>
+      <action>
+        <icon>package-x-generic</icon>
+        <name>Extract Here (unar)</name>
+        <command>${extractWithUnar}/bin/thunar-extract-with-unar %F</command>
+        <description>Extract supported archives beside the archive</description>
+        <other-files/>
+        <patterns>*</patterns>
+      </action>
+    </actions>
   '';
 
   home.file.".config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml".force = true;
