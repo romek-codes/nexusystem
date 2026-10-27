@@ -8,7 +8,6 @@
 
   imports = [
     ./programs/agents/codex
-    ./programs/agtx
     ./programs/discord
     ./programs/librepods
     ./programs/lazygit

@@ -308,11 +308,12 @@ return {
 					"ltex",
 				},
 				preferred_servers = {
-					-- github.com/phpactor/phpactor/issues/807
-					-- github.com/phpactor/phpactor/issues/2420
-					-- php = { "phpactor" },
 					php = { "intelephense" },
 					nix = { "nixd" },
+					typescript = { "ts_ls", "eslint" },
+					typescriptreact = { "ts_ls", "eslint" },
+					javascript = { "ts_ls", "eslint" },
+					javascriptreact = { "ts_ls", "eslint" },
 				},
 				use_vim_lsp_config = true,
 			})
@@ -603,7 +604,13 @@ return {
 					always_show_tabline = true,
 					component_separators = "",
 					disabled_filetypes = {
-						statusline = { "AgenticChat", "AgenticInput", "AgenticCode", "AgenticFiles", "AgenticDiagnostics" },
+						statusline = {
+							"AgenticChat",
+							"AgenticInput",
+							"AgenticCode",
+							"AgenticFiles",
+							"AgenticDiagnostics",
+						},
 						winbar = { "AgenticChat", "AgenticInput", "AgenticCode", "AgenticFiles", "AgenticDiagnostics" },
 					},
 					section_separators = "",
@@ -828,7 +835,8 @@ return {
 							vim.fn.mkdir(inbox_dir, "p")
 							vim.cmd("edit " .. vim.fn.fnameescape(filepath))
 							local buf = vim.api.nvim_get_current_buf()
-							if vim.api.nvim_buf_line_count(buf) == 1
+							if
+								vim.api.nvim_buf_line_count(buf) == 1
 								and vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] == ""
 							then
 								local today = os.date("%Y-%m-%d")
@@ -872,7 +880,9 @@ return {
 			local Path = require("plenary.path")
 
 			local ok, workspacePaths = pcall(require, "obsidian-vaults")
-			if not ok then workspacePaths = {} end
+			if not ok then
+				workspacePaths = {}
+			end
 
 			local workspaces = {}
 			for _, workspaceInfo in ipairs(workspacePaths) do
@@ -1348,10 +1358,29 @@ return {
 		build = ":TSUpdate",
 		config = function()
 			local languages = {
-				"bash", "css", "diff", "html", "javascript", "jsdoc",
-				"json", "lua", "rust", "luadoc", "markdown", "markdown_inline",
-				"nix", "php", "python", "query", "regex", "toml", "tsx",
-				"typescript", "vim", "vimdoc", "yaml",
+				"bash",
+				"css",
+				"diff",
+				"html",
+				"javascript",
+				"jsdoc",
+				"json",
+				"lua",
+				"rust",
+				"luadoc",
+				"markdown",
+				"markdown_inline",
+				"nix",
+				"php",
+				"python",
+				"query",
+				"regex",
+				"toml",
+				"tsx",
+				"typescript",
+				"vim",
+				"vimdoc",
+				"yaml",
 			}
 			local treesitter = require("nvim-treesitter")
 
