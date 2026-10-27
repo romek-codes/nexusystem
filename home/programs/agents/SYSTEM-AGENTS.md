@@ -45,6 +45,14 @@
 - Prefer explicit commands over aliases in automation.
 - Common tools usually available: `rg`, `bat`, `jq`, `fzf`, `zoxide`, `eza`, `git`, `tmux`, `tldr`, `nvim`.
 
+## Previous agent sessions
+
+- When asked what was worked on recently or to pick up prior work, run `reh recent 10 --within 48h --messages 10 --json` (adjust the count or age when requested). It lists Codex and Claude sessions, transcript paths, and recent user/assistant messages.
+- Always check the configured Obsidian vault's `20 Human Journal/YYYY-MM-DD.md` notes for open work when answering a recent-work question or resuming work. Check today and the previous two calendar dates to cover the last 48 hours; skip dates with no note. If the user names a period such as "this week," use that period instead (Monday through today for this week). Follow links to task notes and verify their current state in `60 Tasks/`; journal `tasks` query blocks are views, not task entries.
+- For a status question, answer from `reh recent` and the journal when their output is sufficient. Open a transcript only when a material detail is missing or when actually resuming the work. Do not run extra parsers or commands merely to reconfirm a clear answer.
+- When asked to reopen prior sessions, run `reh reopen 2` (or the requested count) from the current tmux session. It opens each in a separate window of that session. `reh reopen 2 --within 48h --dry-run` shows the commands first.
+- These commands skip the calling agent's current session by default. Use `--include-current` only when that session is wanted.
+
 ## Git
 
 - Git LFS enabled.
