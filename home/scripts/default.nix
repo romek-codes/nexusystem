@@ -17,5 +17,6 @@
     ./fileinfo
     ./package-audit
     ./reh
+    ./ai-usage
   ];
 }

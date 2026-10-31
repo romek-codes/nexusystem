@@ -14,6 +14,11 @@
 - Use normal, explicit wording for warnings, destructive actions, irreversible changes, auth/security risk, or when brevity may confuse.
 - Keep code, commands, paths, errors, commit messages, and config keys exact.
 
+## Messages to other people (Teams, chat)
+
+- Deutsch, locker, wie ein Kollege, kein KI-Report-Ton.
+- Kurze, direkte Sätze. Fließtext, keine Bullets/Header.
+
 ## Environment
 
 - Assume NixOS + Home Manager.
@@ -53,6 +58,13 @@
 - When asked to reopen prior sessions, run `reh reopen 2` (or the requested count) from the current tmux session. It opens each in a separate window of that session. `reh reopen 2 --within 48h --dry-run` shows the commands first.
 - These commands skip the calling agent's current session by default. Use `--include-current` only when that session is wanted.
 
+## Ticket references (Jira, GitHub issues, etc.)
+
+- A ticket key cited in a journal note, memory, or another agent session's summary is a claim, not a verified fact — it can be wrong (copy-paste drift, two features sharing a commit, concurrent-session git collisions tangling two separate threads of work together).
+- Before any write that cites a ticket key — comment, worklog, status transition, link — fetch that ticket's current title/summary and check it actually matches the work being described. Mismatch → stop and flag it instead of posting.
+- The user approving the comment/worklog text does not cover this — they're approving the content, not re-deriving the key from scratch. The check is the agent's job, every time, not just on request.
+- Real incident (2026-10-28): a journal entry mislabeled an untracked invoice-cancel feature with the key of an unrelated duplicate-time-booking ticket (the two commits got tangled via a concurrent-session git collision earlier that day). A later session trusted the journal line at face value and posted a detailed test-plan comment to the wrong ticket — nobody, human or model, cross-checked the ticket's actual title before the write went out.
+
 ## Git
 
 - Git LFS enabled.
@@ -62,6 +74,14 @@
 - GPG signing may be enabled. Never disable signing or force unsigned commits.
 - If signing, pinentry, or auth needs manual confirmation, stop and wait.
 - Never add `Co-Authored-By` trailers for AI tools.
+
+### No unrequested publishing
+
+- Committing locally is always fine without asking.
+- Pushing is publishing — even to the user's own remote/fork. Never push unless specifically asked for that push. Same for opening a PR, or any other publish-visible action.
+- "PR is ready" in a Jira comment, commit message, or other draft text describes the fix, not permission to push or open the PR.
+- When in doubt which repo is the target (personal fork vs upstream), ask before pushing/opening anything.
+- If this gets overstepped, undo the visible action immediately (close PR, etc.) rather than waiting for further instruction.
 
 ## Safety
 
@@ -91,6 +111,13 @@ When triggered, and an Obsidian vault is configured for this host:
    own `AGENTS.md` rules), link it from the journal entry instead of
    duplicating its content there.
 4. If nothing vault-worthy happened, say so — don't invent a filler entry.
+
+## Usage budget (Claude & Codex rate limits)
+
+- `ai-usage` shows, in one shot: every cswap-managed Claude account's 5h/weekly usage, the local Codex account's 5h/weekly usage, Codex reset coupons, and a pace flag per weekly window (`ahead of pace` / `WON'T LAST TO RESET`, derived from usage-so-far vs. time-elapsed-in-window — not just "usage is high").
+- `ai-usage --check` is silent and exits `2` if any *active* account's weekly window is genuinely projected to run dry before its reset (not merely high usage); exits `0` otherwise. `ai-usage --json` for the full machine-readable data.
+- Before dispatching something that burns a large, hard-to-undo chunk of weekly budget in one go — a `Workflow` run, spawning more than a couple of parallel subagents/forks, or any action you already expect to be unusually expensive — run `ai-usage --check` first. If it exits `2`, tell the user which window is at risk (and by when) and ask for confirmation before proceeding, rather than silently spending into a multi-day dry spell before the weekly reset.
+- Routine single-agent work doesn't need this check — it's a gate for deliberately heavy dispatch decisions, not every tool call.
 
 ## Klarlist
 
