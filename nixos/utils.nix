@@ -125,7 +125,6 @@ in
     with pkgs;
     [
       bubblewrap
-      hyprland-qtutils
       fd
       bc
       gcc

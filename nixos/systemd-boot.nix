@@ -27,7 +27,6 @@
       "boot.shell_on_fail"
     ];
     consoleLogLevel = 0;
-    initrd.verbose = false;
 
     # cool themes:
     # rings, owl, dragon, colorful_sliced

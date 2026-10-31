@@ -67,8 +67,8 @@
   outputs =
     inputs@{ nixpkgs, ... }:
     let
-      happyRev = "df4cdae8e7fca04c0c65aef933bb28a01a346d77";
-      happyHash = "sha256-FUs/0gqm0rlpThqaOTC1otFPoAnFyFhBrKHcbGefO9o=";
+      happyRev = "cf91f63ed17d4b6188eddfe5150957f85961ca02";
+      happyHash = "sha256-NIblGtoXvfKUj75fysOCwl2yI+GlOTmec6Q0y4vhl3A=";
       sharedModules = [
         {
           nixpkgs = {
