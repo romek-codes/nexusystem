@@ -212,6 +212,8 @@ in
           disable_hyprland_logo = true;
           disable_splash_rendering = true;
           disable_autoreload = true;
+          key_press_enables_dpms = true;
+          mouse_move_enables_dpms = true;
           focus_on_activate = true;
           on_focus_under_fullscreen = 2;
           session_lock_xray = true; # Allows to see mpv background in hyprlock

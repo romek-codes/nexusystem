@@ -6,9 +6,10 @@
 
       general = {
         ignore_dbus_inhibit = false;
+        inhibit_sleep = 3;
         lock_cmd = "pidof hyprlock || lock";
-        before_sleep_cmd = "lock";
-        after_sleep_cmd = "hyprctl dispatch 'hl.dsp.dpms(\"on\")'";
+        before_sleep_cmd = "loginctl lock-session";
+        after_sleep_cmd = "hyprctl dispatch 'hl.dsp.dpms({ action = \"enable\" })'";
       };
 
       listener = [
