@@ -64,15 +64,21 @@ in
     pkgs.happy
     pkgs.mcp-nixos
     pkgs.mcp-server-memory
+    pkgs.playwright-mcp
     pkgs.rtk
+    pkgs.intelephense
+    pkgs.pyright
+    pkgs.typescript-language-server
   ];
 
   home.file.".claude/CLAUDE.md".text = systemAgents;
 
   home.file.".claude/settings.json".text = builtins.toJSON {
     model = "sonnet";
+    permissions = {
+      defaultMode = "auto";
+    };
     enabledPlugins = {
-      "superpowers@claude-plugins-official" = true;
       "frontend-design@claude-plugins-official" = true;
       "ponytail@ponytail" = true;
     };
@@ -91,7 +97,7 @@ in
     mkdir -p "$(dirname "${memoryFilePath}")"
 
     if [ -f "$claude_mcp" ]; then
-      ${pkgs.jq}/bin/jq 'del(.mcpServers.nixos) | del(.mcpServers.memory)' "$claude_mcp" > "$tmp"
+      ${pkgs.jq}/bin/jq 'del(.mcpServers.nixos) | del(.mcpServers.memory) | del(.mcpServers.playwright)' "$claude_mcp" > "$tmp"
     else
       printf '{"mcpServers":{}}' > "$tmp"
     fi
@@ -100,9 +106,11 @@ in
       --arg nixosCmd "${lib.getExe pkgs.mcp-nixos}" \
       --arg memoryCmd "${lib.getExe pkgs.mcp-server-memory}" \
       --arg memoryPath "${memoryFilePath}" \
+      --arg playwrightCmd "${lib.getExe pkgs.playwright-mcp}" \
       '.mcpServers = (.mcpServers // {})
        | .mcpServers.nixos = {"type": "stdio", "command": $nixosCmd, "args": []}
-       | .mcpServers.memory = {"type": "stdio", "command": $memoryCmd, "args": [], "env": {"MEMORY_FILE_PATH": $memoryPath}}' \
+       | .mcpServers.memory = {"type": "stdio", "command": $memoryCmd, "args": [], "env": {"MEMORY_FILE_PATH": $memoryPath}}
+       | .mcpServers.playwright = {"type": "stdio", "command": $playwrightCmd, "args": ["--isolated"]}' \
       "$tmp" > "$tmp.new"
 
     install -m 0600 "$tmp.new" "$claude_mcp"
