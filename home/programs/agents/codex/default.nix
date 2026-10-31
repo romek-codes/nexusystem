@@ -7,32 +7,7 @@
 let
   systemAgents = import ../system-agents.nix { inherit config; };
   memoryFilePath = "${config.home.homeDirectory}/.local/share/agent-memory/memory.json";
-  systemBwrapShim = pkgs.runCommandCC "codex-system-bwrap-shim" { } ''
-        cat > bwrap-shim.c <<'C'
-    #include <unistd.h>
-
-    int main(int argc, char **argv)
-    {
-        argv[0] = "/run/wrappers/bin/bwrap";
-        execv(argv[0], argv);
-        return 127;
-    }
-    C
-        $CC bwrap-shim.c -o $out
-  '';
-  codexWithSystemBwrap = pkgs.runCommand "codex-with-system-bwrap" { } ''
-    mkdir -p $out/bin
-
-    cp -a ${pkgs.codex}/share $out/share
-    cp -a ${pkgs.codex}/bin/. $out/bin/
-    chmod -R u+w $out/bin
-    rm -f $out/bin/codex
-    install -m 0755 ${pkgs.codex}/bin/.codex-wrapped $out/bin/codex
-
-    mkdir -p $out/bin/codex-resources
-    rm -f $out/bin/codex-resources/bwrap
-    install -m 0755 ${systemBwrapShim} $out/bin/codex-resources/bwrap
-  '';
+  codexLimits = pkgs.callPackage ../codex-limits.nix { };
 in
 {
   imports = [
@@ -40,11 +15,13 @@ in
   ];
 
   home.packages = [
-    codexWithSystemBwrap
+    pkgs.codex
     pkgs.codex-acp
+    codexLimits
     pkgs.happy
     pkgs.mcp-nixos
     pkgs.mcp-server-memory
+    pkgs.playwright-mcp
     pkgs.rtk
   ];
 
@@ -70,6 +47,7 @@ in
             !in_table && /^[[:space:]]*(model|model_reasoning_effort|vim_mode_default|sandbox_mode|approval_policy)[[:space:]]*=/ { next }
             /^\[mcp_servers\.nixos(\.|\])/{ skip = 1; next }
             /^\[mcp_servers\.memory(\.|\])/{ skip = 1; next }
+            /^\[mcp_servers\.playwright(\.|\])/{ skip = 1; next }
             /^\[/ { skip = 0 }
             !skip { print }
           ' "$codex_config" >> "$tmp_config"
@@ -85,6 +63,10 @@ in
 
     [mcp_servers.memory.env]
     MEMORY_FILE_PATH = "${memoryFilePath}"
+
+    [mcp_servers.playwright]
+    command = "${lib.getExe pkgs.playwright-mcp}"
+    args = ["--isolated"]
     EOF
 
         install -m 0600 "$tmp_config" "$codex_config"

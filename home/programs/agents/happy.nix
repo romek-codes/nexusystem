@@ -22,7 +22,7 @@ stdenv.mkDerivation (finalAttrs: {
       "@slopus/happy-wire"
     ];
     fetcherVersion = 3;
-    hash = "sha256-STnqzVxClUfuf2la2R6yeIrNbaXsTpT6tX9xUJoLsK4=";
+    hash = "sha256-ys/ue045qRPZlvqrHf0zMlgWQi4GkhC4OGASAyyxbI0=";
   };
 
   nativeBuildInputs = [
@@ -31,6 +31,29 @@ stdenv.mkDerivation (finalAttrs: {
     pnpm_10
     makeWrapper
   ];
+
+  postPatch = ''
+    # Upstream leaks "which: no bun in (...)" to the terminal: findBunGlobalCliPath()
+    # runs `which bun` via execSync without suppressing stdio, and execSync forwards
+    # child stderr to the parent by default. The sibling `which claude` probe a few
+    # lines up already suppresses stdio for this reason; apply the same fix here.
+    substituteInPlace packages/happy-cli/scripts/claude_version_utils.cjs \
+      --replace-fail \
+        "execSync(bunCheckCommand, { encoding: 'utf8' });" \
+        "execSync(bunCheckCommand, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });"
+
+    # findClaudeInPath() treats any `which claude` result without a .js/.cjs/.exe
+    # extension as an unspawnable npm shim (a Windows-only artifact) and discards
+    # it. On Unix that also matches a normal extension-less native binary -- e.g.
+    # the Nix-built claude-code binary -- so a perfectly good PATH match gets
+    # thrown away and happy falls through all the way to "Claude Code is not
+    # installed". The shim case only exists on win32; treat it as executable
+    # everywhere else.
+    substituteInPlace packages/happy-cli/scripts/claude_version_utils.cjs \
+      --replace-fail \
+        "const isExecutable = resolvedPath.endsWith('.js') || resolvedPath.endsWith('.cjs') || resolvedPath.endsWith('.exe');" \
+        "const isExecutable = process.platform !== 'win32' || resolvedPath.endsWith('.js') || resolvedPath.endsWith('.cjs') || resolvedPath.endsWith('.exe');"
+  '';
 
   buildPhase = ''
     runHook preBuild
