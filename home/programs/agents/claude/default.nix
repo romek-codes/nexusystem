@@ -3,6 +3,7 @@
 let
   systemAgents = import ../system-agents.nix { inherit config; };
   memoryFilePath = "${config.home.homeDirectory}/.local/share/agent-memory/memory.json";
+  claudeSwap = pkgs.callPackage ../../claude-swap.nix { };
   statusline = pkgs.writeShellScript "claude-statusline" ''
     input=$(cat)
 
@@ -61,6 +62,7 @@ in
   home.packages = [
     pkgs.claude-code
     pkgs.claude-agent-acp
+    claudeSwap
     pkgs.happy
     pkgs.mcp-nixos
     pkgs.mcp-server-memory
@@ -73,21 +75,11 @@ in
 
   home.file.".claude/CLAUDE.md".text = systemAgents;
 
-  home.file.".claude/settings.json".text = builtins.toJSON {
-    model = "sonnet";
-    permissions = {
-      defaultMode = "auto";
-    };
-    enabledPlugins = {
-      "frontend-design@claude-plugins-official" = true;
-      "ponytail@ponytail" = true;
-    };
-    statusLine = {
-      type = "command";
-      command = "${statusline}";
-    };
-    editorMode = "vim";
-  };
+  # Writable symlink into the repo so Claude (/voice, /config) can edit it without a rebuild.
+  home.file.".claude/settings.json".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.var.configDirectory}/home/programs/agents/claude/settings.json";
+  # Stable path for the statusLine command in settings.json.
+  home.file.".claude/statusline.sh".source = statusline;
 
   home.activation.claudeMcpNixos = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     claude_mcp="$HOME/.claude.json"

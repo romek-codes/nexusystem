@@ -1,0 +1,11 @@
+{
+  "model": "sonnet",
+  "permissions": { "defaultMode": "auto" },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "ponytail@ponytail": true
+  },
+  "statusLine": { "type": "command", "command": "/home/romek/.claude/statusline.sh" },
+  "editorMode": "vim",
+  "voiceEnabled": true
+}
