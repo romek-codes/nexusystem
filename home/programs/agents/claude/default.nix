@@ -1,7 +1,7 @@
 { lib, pkgs, config, ... }:
 
 let
-  systemAgents = import ../system-agents.nix { inherit config; };
+  systemAgents = import ../system-agents.nix { inherit config; liveImports = true; };
   memoryFilePath = "${config.home.homeDirectory}/.local/share/agent-memory/memory.json";
   claudeSwap = pkgs.callPackage ../../claude-swap.nix { };
   statusline = pkgs.writeShellScript "claude-statusline" ''
