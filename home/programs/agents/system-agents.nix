@@ -1,4 +1,6 @@
-{ config }:
+# liveImports: emit `@path` imports for jira.md/work.md (Claude Code reads them at session start,
+# no rebuild needed to edit them). Codex has no import syntax, so it keeps them inlined.
+{ config, liveImports ? false }:
 let
   baseInstructions = builtins.readFile ./SYSTEM-AGENTS.md;
   configDirectory = toString config.var.configDirectory;
