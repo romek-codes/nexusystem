@@ -238,6 +238,13 @@ in
       };
 
       window_rule = [
+        # Playwright MCP browser: visible, but never steals focus
+        {
+          no_initial_focus = true;
+          suppress_event = "activate activatefocus";
+          match.class = "^(chromium-browser)$";
+          match.title = ".*Google Chrome for Testing$";
+        }
         {
           float = true;
           match.tag = "modal";
