@@ -8,6 +8,7 @@
     ./fonts.nix
     ./home-manager.nix
     ./codex.nix
+    ./agent-permissions.nix
     ./docker.nix
     ./nix.nix
     ./systemd-boot.nix
