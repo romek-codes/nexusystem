@@ -10,13 +10,7 @@ let
   light = "#${config.lib.stylix.colors.base06}";
   accent = "#${config.lib.stylix.colors.base0D}";
   tmuxConf = lib.readFile ./tmux.conf;
-
-  agentCapture = pkgs.writeShellScript "tmux-agent-capture" ''
-    WIN_ID=$1
-    ROWS=$2
-    N=$(tmux capture-pane -p -t "$WIN_ID" | awk 'NF{l=NR} END{print l+0}')
-    [ "$N" -gt 0 ] && tmux capture-pane -ep -t "$WIN_ID" | head -n "$N" | tail -n "$ROWS"
-  '';
+  warn = "#${config.lib.stylix.colors.base0A}";
 
   # For overriding all the stylix styles.
   styleConf = ''
@@ -26,11 +20,12 @@ let
     set -g status-left-length 50
     set -g status-right "#{host} %H:%M"
     set -g status-right-length 50
-    set -g window-status-format " #I|#W "
+    set -g window-status-format " #I|#W#{?window_bell_flag, !,} "
     set -g window-status-current-format "#[fg=${accent},bg=${dark}] #I|#W* "
     set-window-option -g window-status-style "fg=${light},bg=${dark}"
-    # bell
-    set-window-option -g window-status-bell-style "fg=${accent},bg=${dark}"
+    # bell: agents (claude/codex) ring BEL when they wait for input
+    set-window-option -g window-status-bell-style "fg=${dark},bg=${warn},bold"
+    bind-key a next-window -a
 
     # style for window titles with activity
     set-window-option -g window-status-activity-style "fg=${accent},bg=${dark}"

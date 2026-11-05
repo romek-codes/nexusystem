@@ -63,8 +63,8 @@ in
           ${pkgs.gawk}/bin/awk '
             /^\[/ { in_table = 1; in_tui = ($0 ~ /^\[tui\][[:space:]]*$/) }
             !in_table && /^[[:space:]]*(model|model_reasoning_effort|vim_mode_default|sandbox_mode|approval_policy|approvals_reviewer)[[:space:]]*=/ { next }
-            in_tui && /^[[:space:]]*vim_mode_default[[:space:]]*=/ { next }
-            in_tui && /^\[tui\]/ { skip = 0; print; print "vim_mode_default = true"; tui_seen = 1; next }
+            in_tui && /^[[:space:]]*(vim_mode_default|notifications|notification_method|notification_condition)[[:space:]]*=/ { next }
+            in_tui && /^\[tui\]/ { skip = 0; print; print "vim_mode_default = true"; print "notifications = true"; print "notification_method = \"bel\""; print "notification_condition = \"always\""; tui_seen = 1; next }
             /^\[mcp_servers\.nixos(\.|\])/{ skip = 1; next }
             /^\[mcp_servers\.memory(\.|\])/{ skip = 1; next }
             /^\[mcp_servers\.playwright(\.|\])/{ skip = 1; next }
@@ -72,10 +72,10 @@ in
             /^\[/ { skip = 0 }
             !skip && $0 == "" && blank { next }
             !skip { blank = ($0 == ""); print }
-            END { if (!tui_seen) printf "\n[tui]\nvim_mode_default = true\n" }
+            END { if (!tui_seen) printf "\n[tui]\nvim_mode_default = true\nnotifications = true\nnotification_method = \"bel\"\nnotification_condition = \"always\"\n" }
           ' "$codex_config" >> "$tmp_config"
         else
-          printf '\n[tui]\nvim_mode_default = true\n' >> "$tmp_config"
+          printf '\n[tui]\nvim_mode_default = true\nnotifications = true\nnotification_method = "bel"\nnotification_condition = "always"\n' >> "$tmp_config"
         fi
 
         cat >> "$tmp_config" <<EOF
