@@ -48,5 +48,6 @@
     "command": "~/.claude/statusline.sh"
   },
   "editorMode": "vim",
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "preferredNotifChannel": "terminal_bell"
 }

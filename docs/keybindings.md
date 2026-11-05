@@ -50,6 +50,7 @@
 | Move pane (vim keys) | CTRL + SPACE, H/J/K/L |
 | Search text in vim mode | CTRL + SPACE, [ |
 | Reload config | CTRL + SPACE, R |
+| Jump to next window with a waiting agent (bell) | CTRL + SPACE, A |
 
 ### Browser (vimium)
 | Description | Keybinding |
