@@ -4,6 +4,7 @@ let
   systemAgents = import ../system-agents.nix { inherit config; liveImports = true; };
   memoryFilePath = "${config.home.homeDirectory}/.local/share/agent-memory/memory.json";
   claudeSwap = pkgs.callPackage ../../claude-swap.nix { };
+  guard = pkgs.callPackage ../guard.nix { };
   statusline = pkgs.writeShellScript "claude-statusline" ''
     input=$(cat)
 
@@ -80,6 +81,8 @@ in
     config.lib.file.mkOutOfStoreSymlink "${config.var.configDirectory}/home/programs/agents/claude/settings.json";
   # Stable path for the statusLine command in settings.json.
   home.file.".claude/statusline.sh".source = statusline;
+  # Stable path for the PreToolUse Bash hook in settings.json.
+  home.file.".claude/guard.sh".source = guard;
 
   home.activation.claudeMcpNixos = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     claude_mcp="$HOME/.claude.json"
