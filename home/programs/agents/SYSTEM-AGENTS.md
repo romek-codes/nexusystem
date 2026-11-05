@@ -50,6 +50,10 @@
 - Prefer explicit commands over aliases in automation.
 - Common tools usually available: `rg`, `bat`, `jq`, `fzf`, `zoxide`, `eza`, `git`, `tmux`, `tldr`, `nvim`.
 
+## Playwright MCP browser
+
+- Hyprland places the browser automatically on the highest empty workspace of the focused monitor (9, then 8, ...; another monitor if all are full), without focus. Do not move, focus, or resize it via `hyprctl`; just tell the user which workspace if they need to watch.
+
 ## Previous agent sessions
 
 - When asked what was worked on recently or to pick up prior work, run `reh recent 10 --within 48h --messages 10 --json` (adjust the count or age when requested). It lists Codex and Claude sessions, transcript paths, and recent user/assistant messages.
