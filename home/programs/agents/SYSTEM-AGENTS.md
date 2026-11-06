@@ -50,6 +50,12 @@
 - Prefer explicit commands over aliases in automation.
 - Common tools usually available: `rg`, `bat`, `jq`, `fzf`, `zoxide`, `eza`, `git`, `tmux`, `tldr`, `nvim`.
 
+## Clipboard (commands the user must run themselves)
+
+- When something has to be run by the user (interactive login, `! <command>` in the prompt, a command the sandbox or permission classifier blocks), do not just print it. Put the exact text on the clipboard, then say it is copied and what it does.
+- Wayland. Write the text to a file in the scratchpad, then run with the sandbox disabled: `setsid nohup sh -c 'wl-copy --type text/plain < FILE' >/dev/null 2>&1 < /dev/null & disown`. `--type text/plain` is required: `wl-copy` guesses MIME types from file extensions (`.sql` → `application/sql`) and the cliphist watcher then drops the entry. `setsid` is required, otherwise the `wl-copy` serving process dies with the tool call.
+- Verify in a separate call: `wl-paste --list-types` shows `text/plain`, `wl-paste | head -1` shows the text. Never claim "copied" from a sandboxed run; the sandbox has no compositor socket and `wl-copy` silently does nothing there.
+
 ## Playwright MCP browser
 
 - Hyprland places the browser automatically on the highest empty workspace of the focused monitor (9, then 8, ...; another monitor if all are full), without focus. Do not move, focus, or resize it via `hyprctl`; just tell the user which workspace if they need to watch.
