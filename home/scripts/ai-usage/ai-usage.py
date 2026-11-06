@@ -2,10 +2,12 @@
 import json
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 WEEK_HOURS = 7 * 24
 AHEAD_OF_PACE_MARGIN_PCT = 10
+WORK_START, WORK_END = 8, 18  # only Mon-Fri within these hours count as time passing
+MIN_ELAPSED_WORK_HOURS = 8
 
 
 def run_json(cmd):
@@ -36,25 +38,48 @@ def fmt_countdown(resets_at):
     return (f"{d}d {h}h" if d else f"{h}h {m}m")
 
 
+def work_seconds(start, end):
+    """Seconds between start and end inside working hours (Mon-Fri, WORK_START-WORK_END, local)."""
+    start, end = start.astimezone(), end.astimezone()
+    total = 0.0
+    day = start.replace(hour=0, minute=0, second=0, microsecond=0)
+    while day < end:
+        if day.weekday() < 5:
+            lo = max(start, day.replace(hour=WORK_START))
+            hi = min(end, day.replace(hour=WORK_END))
+            total += max(0.0, (hi - lo).total_seconds())
+        day += timedelta(days=1)
+        day = day.replace(hour=0)
+    return total
+
+
 def pace(used_pct, resets_at, window_hours):
-    """codex-limits doesn't compute pace itself (cswap does) -- derive it the same way:
-    compare used% against the % of the window that has already elapsed, then
-    extrapolate the current rate forward to reset."""
+    """Derive pace ourselves (only Mon-Fri WORK_START-WORK_END counts as time passing): compare
+    used% against the % of working time already elapsed in the window, then
+    extrapolate the current rate to reset. The observed rate is shrunk toward an even
+    pace with the weight of MIN_ELAPSED_WORK_HOURS, so a few early hours can't swing the
+    projection wildly. Below that much working time the result is also marked
+    provisional and never triggers the throttle."""
     reset = parse_iso(resets_at)
     if reset is None or used_pct is None:
         return None
-    seconds_left = (reset - datetime.now(timezone.utc)).total_seconds()
-    window_seconds = window_hours * 3600
-    elapsed = window_seconds - seconds_left
-    if elapsed <= 0:
+    now = datetime.now(timezone.utc)
+    start = reset - timedelta(hours=window_hours)
+    total = work_seconds(start, reset)
+    elapsed = work_seconds(start, min(now, reset))
+    if total <= 0 or elapsed <= 0:
         return None
-    expected_pct = elapsed / window_seconds * 100
-    projected_pct = used_pct / elapsed * window_seconds
+    expected_pct = elapsed / total * 100
+    prior = MIN_ELAPSED_WORK_HOURS * 3600
+    rate = (used_pct + 100 / total * prior) / (elapsed + prior)  # % per working second
+    projected_pct = used_pct + rate * (total - elapsed)
     return {
         "expectedUsedPct": round(expected_pct, 1),
         "aheadOfPace": (used_pct - expected_pct) > AHEAD_OF_PACE_MARGIN_PCT,
         "projectedPctAtReset": round(projected_pct, 1),
         "willLastToReset": projected_pct <= 100,
+        "elapsedWorkHours": round(elapsed / 3600, 1),
+        "provisional": elapsed < MIN_ELAPSED_WORK_HOURS * 3600,
     }
 
 
@@ -66,9 +91,16 @@ def pace(used_pct, resets_at, window_hours):
 #   WILL RUN OUT EARLY -- at this rate, usage is projected to pass 100% before reset,
 #                        i.e. you'd be stuck with 0% for however long is left afterward.
 def describe_pace(entry):
+    verdict = _verdict(entry)
+    if verdict and entry.get("provisional"):
+        verdict += f" [provisional, only {entry['elapsedWorkHours']:.0f}h work time elapsed]"
+    return verdict
+
+
+def _verdict(entry):
     will_last = entry.get("willLastToReset")
     if will_last is None:
-        return None
+        return "pace n/a"
     if will_last is False:
         detail = ""
         projected = entry.get("projectedPctAtReset")
@@ -106,13 +138,21 @@ def build():
             "fiveHourResetsIn": five.get("countdown"),
             "weeklyUsedPct": week.get("pct"),
             "weeklyResetsIn": week.get("countdown"),
-            "expectedUsedPct": week.get("expectedPct"),
-            "aheadOfPace": week.get("aheadOfPace"),
-            "willLastToReset": week.get("willLastToReset"),
-            "projectedExhaustionAt": week.get("projectedExhaustionAt"),
+            # cswap's own pace fields count weekends and are often missing; derive locally.
+            **(pace(week.get("pct"), week.get("resetsAt"), WEEK_HOURS) or {}),
+            # per-model weekly limits (e.g. Fable) can run dry before the overall one
+            "scoped": [
+                {"name": sc.get("name"), "weeklyUsedPct": sc.get("pct"), "weeklyResetsIn": sc.get("countdown"),
+                 **(pace(sc.get("pct"), sc.get("resetsAt"), WEEK_HOURS) or {})}
+                for sc in usage.get("scoped") or []
+            ],
         }
         accounts.append(entry)
-        if entry["active"] and entry["willLastToReset"] is False:
+        if entry["active"]:
+            for sc in entry["scoped"]:
+                if sc.get("willLastToReset") is False and not sc.get("provisional"):
+                    throttle_reasons.append(f"claude:{entry['label']} {sc['name']} weekly window won't last to reset")
+        if entry["active"] and entry.get("willLastToReset") is False and not entry.get("provisional"):
             throttle_reasons.append(f"claude:{entry['label']} weekly window won't last to reset")
 
     windows = codex.get("windows", {})
@@ -127,7 +167,7 @@ def build():
         "coupons": (codex.get("coupons") or {}).get("available"),
         **codex_week_pace,
     }
-    if codex_entry.get("willLastToReset") is False:
+    if codex_entry.get("willLastToReset") is False and not codex_entry.get("provisional"):
         throttle_reasons.append("codex weekly window won't last to reset")
 
     return {
@@ -153,6 +193,12 @@ def print_human(result):
             f"      7d: {a['weeklyUsedPct']}% used{expected_suffix(a)}, "
             f"resets in {a['weeklyResetsIn']}{verdict_suffix}"
         )
+        for sc in a["scoped"]:
+            sc_verdict = describe_pace(sc)
+            print(
+                f"      7d {sc['name']}: {sc['weeklyUsedPct']}% used{expected_suffix(sc)}"
+                f"{f' -- {sc_verdict}' if sc_verdict else ''}"
+            )
 
     print("\nCodex:")
     c = result["codex"]
