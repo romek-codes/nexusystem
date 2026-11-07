@@ -1,8 +1,6 @@
-# liveImports: emit `@path` imports for jira.md/work.md (Claude Code reads them at session start,
-# no rebuild needed to edit them). Codex has no import syntax, so it keeps them inlined.
-{ config, liveImports ? false }:
+# Host-specific instructions. The shared instructions are linked directly from SYSTEM-AGENTS.md.
+{ config }:
 let
-  baseInstructions = builtins.readFile ./SYSTEM-AGENTS.md;
   configDirectory = toString config.var.configDirectory;
   obsidianVaults = config.var.obsidianVaults or [ ];
   brunoCollections = config.var.brunoCollections or [ ];
@@ -19,9 +17,7 @@ let
         map (collection: "- `${toString collection.path}`${if collection ? name then " (${collection.name})" else ""}") brunoCollections
       );
 in
-baseInstructions
-+ ''
-
+''
 ## Host configuration
 
 - NixOS configuration directory: `${configDirectory}`
