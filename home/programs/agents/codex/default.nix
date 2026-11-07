@@ -5,7 +5,7 @@
   ...
 }:
 let
-  systemAgents = import ../system-agents.nix { inherit config; };
+  hostInstructions = import ../system-agents.nix { inherit config; };
   memoryFilePath = "${config.home.homeDirectory}/.local/share/agent-memory/memory.json";
   codexLimits = pkgs.callPackage ../codex-limits.nix { };
   # Jira write tools on the atlassian MCP server always ask (work host only).
@@ -43,7 +43,8 @@ in
     pkgs.rtk
   ];
 
-  home.file.".codex/AGENTS.md".text = systemAgents;
+  home.file.".codex/AGENTS.md".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.var.configDirectory}/home/programs/agents/SYSTEM-AGENTS.md";
   home.file.".codex/rules/guard.rules".source = ./guard.rules;
   home.activation.codexMcpNixos = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         codex_config="$HOME/.codex/config.toml"
@@ -58,11 +59,29 @@ in
           'approval_policy = "on-request"' \
           'approvals_reviewer = "auto_review"' \
           > "$tmp_config"
+        ${pkgs.python3}/bin/python3 - "$codex_config" >> "$tmp_config" <<'PY'
+    import json
+    import sys
+    import tomllib
+
+    host_instructions = ${builtins.toJSON hostInstructions}
+    marker = "\n\n<!-- nexusystem host configuration -->\n"
+    try:
+        with open(sys.argv[1], "rb") as config_file:
+            existing = tomllib.load(config_file).get("developer_instructions", "")
+    except (FileNotFoundError, tomllib.TOMLDecodeError):
+        existing = ""
+
+    if not isinstance(existing, str):
+        existing = ""
+    personal = existing.split(marker, 1)[0]
+    print("developer_instructions = " + json.dumps(personal + marker + host_instructions))
+    PY
 
         if [ -f "$codex_config" ]; then
           ${pkgs.gawk}/bin/awk '
             /^\[/ { in_table = 1; in_tui = ($0 ~ /^\[tui\][[:space:]]*$/) }
-            !in_table && /^[[:space:]]*(model|model_reasoning_effort|vim_mode_default|sandbox_mode|approval_policy|approvals_reviewer)[[:space:]]*=/ { next }
+            !in_table && /^[[:space:]]*(model|model_reasoning_effort|vim_mode_default|sandbox_mode|approval_policy|approvals_reviewer|developer_instructions)[[:space:]]*=/ { next }
             in_tui && /^[[:space:]]*(vim_mode_default|notifications|notification_method|notification_condition)[[:space:]]*=/ { next }
             in_tui && /^\[tui\]/ { skip = 0; print; print "vim_mode_default = true"; print "notifications = true"; print "notification_method = \"bel\""; print "notification_condition = \"always\""; tui_seen = 1; next }
             /^\[mcp_servers\.nixos(\.|\])/{ skip = 1; next }

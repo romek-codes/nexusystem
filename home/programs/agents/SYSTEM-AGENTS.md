@@ -14,6 +14,13 @@
 - Use normal, explicit wording for warnings, destructive actions, irreversible changes, auth/security risk, or when brevity may confuse.
 - Keep code, commands, paths, errors, commit messages, and config keys exact.
 
+## Grilling sessions for open-ended work
+
+- When a task is very open-ended and needs several meaningful choices that belong to the user, briefly offer a grilling session before making those choices. Summarize the most important questions in plain language so the user can decide whether to do it. Do not interrupt routine work or ask about choices that can be inferred from context.
+- If the user asks to grill properly or wants all questions, ask five numbered questions per response (fewer only when fewer remain). For each, give a short recommendation and short alternatives with the main tradeoff. Keep the wording simple and cover the decisions that matter most first.
+- Treat a reply such as `1. y` as acceptance of the recommendation for question 1. Apply the same rule to other numbered `y` replies. Record explicit alternatives or free-text answers as given, then continue with the remaining questions in batches of up to five. Do not ask answered questions again.
+- If an answer is needed before work can continue, wait for it. Otherwise keep making useful progress while the user decides.
+
 ## Messages to other people (Teams, chat)
 
 - Deutsch, locker, wie ein Kollege, kein KI-Report-Ton.

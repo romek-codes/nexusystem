@@ -1,7 +1,7 @@
 { lib, pkgs, config, ... }:
 
 let
-  systemAgents = import ../system-agents.nix { inherit config; liveImports = true; };
+  hostInstructions = import ../system-agents.nix { inherit config; };
   memoryFilePath = "${config.home.homeDirectory}/.local/share/agent-memory/memory.json";
   claudeSwap = pkgs.callPackage ../../claude-swap.nix { };
   guard = pkgs.callPackage ../guard.nix { };
@@ -74,7 +74,9 @@ in
     pkgs.typescript-language-server
   ];
 
-  home.file.".claude/CLAUDE.md".text = systemAgents;
+  home.file.".claude/CLAUDE.md".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.var.configDirectory}/home/programs/agents/SYSTEM-AGENTS.md";
+  home.file.".claude/rules/host-configuration.md".text = hostInstructions;
 
   # Writable symlink into the repo so Claude (/voice, /config) can edit it without a rebuild.
   home.file.".claude/settings.json".source =
