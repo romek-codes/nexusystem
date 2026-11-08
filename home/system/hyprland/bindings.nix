@@ -9,10 +9,7 @@
   ...
 }:
 let
-  helpers = import ../../../helpers { inherit lib; };
   lua = lib.generators.mkLuaInline;
-  lidSwitchAction = helpers.resolveLidSwitchAction
-    (config.var.lidSwitchAction or "suspend");
   bind = key: dispatcher: {
     _args = [
       key
@@ -111,8 +108,7 @@ in
       (bindWithFlags "XF86AudioLowerVolume" (exec "sound-down") lockedRepeating) # Sound Down
       (bindWithFlags "XF86MonBrightnessUp" (exec "brightness-up") lockedRepeating) # Brightness Up
       (bindWithFlags "XF86MonBrightnessDown" (exec "brightness-down") lockedRepeating) # Brightness Down
-    ] ++ lib.optional (config.var.isLaptop && lidSwitchAction != null && lidSwitchAction != "")
-      (bindWithFlags "switch:Lid Switch" (exec lidSwitchAction) locked);
+    ];
 
   };
 }

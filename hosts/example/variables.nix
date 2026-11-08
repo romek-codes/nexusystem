@@ -87,11 +87,9 @@
       autoGarbageCollector = true;
       # Is the host device a laptop?
       isLaptop = false;
-      # What to do when the laptop lid is closed in Hyprland. Only relevant if isLaptop = true.
-      # Presets: "nothing", "suspend", "lock", "hibernate", "hybrid-sleep", "poweroff"
+      # What logind does when the laptop lid is closed (also at the greeter/TTY).
+      # Any logind.conf HandleLidSwitch value: "nothing"/"ignore", "suspend", "lock", "hibernate", "hybrid-sleep", "poweroff", ...
       # Default: "suspend" (lock on suspend is handled automatically by hypridle's before_sleep_cmd)
-      # Advanced: raw shell commands still work, e.g.
-      # lidSwitchAction = "loginctl lock-session";
       lidSwitchAction = "suspend";
       # Do you want to game on this device?
       withGames = false;

@@ -15,6 +15,9 @@ let
   extraLocale = config.var.extraLocale;
   autoUpgrade = config.var.autoUpgrade;
   displaylinkSupport = config.var.displaylinkSupport or false;
+  lidSwitchAction =
+    let action = config.var.lidSwitchAction or "suspend";
+    in if helpers.isEmpty action || action == "nothing" then "ignore" else action;
   mainBrowser = builtins.head config.var.browsers;
   mainBrowserBinary = helpers.getOrBasename helpers.browserBinaryMap mainBrowser;
   mainEditor = builtins.head config.var.editors;
@@ -165,6 +168,8 @@ in
   services.logind.settings = {
     Login = {
       HandlePowerKey = "ignore";
+      # Per host via config.var.lidSwitchAction; ExternalPower inherits, Docked defaults to ignore.
+      HandleLidSwitch = lidSwitchAction;
     };
   };
 
