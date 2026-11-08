@@ -1,6 +1,7 @@
 id = "nexusystem/shortcuts"
 name = "Nexusystem shortcuts"
 version = "1.0.0"
+plugin_api = 3
 min_noctalia = "5.0.0"
 author = "nexusystem"
 description = "Control-center shortcuts with nexusystem labels and notifications."

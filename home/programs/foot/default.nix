@@ -9,6 +9,7 @@
       };
       # BEL from agents inside tmux: urgency hint + desktop notification when unfocused
       bell = {
+        system = "no";
         urgent = "yes";
         notify = "yes";
       };

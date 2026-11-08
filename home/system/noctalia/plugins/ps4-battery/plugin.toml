@@ -1,6 +1,7 @@
 id = "nexusystem/ps4-battery"
 name = "PS4 Battery"
 version = "1.0.0"
+plugin_api = 3
 min_noctalia = "5.0.0"
 author = "nexusystem"
 description = "Shows PlayStation controller battery from UPower."
@@ -13,7 +14,7 @@ entry = "bar.luau"
 [[widget.setting]]
 key = "interval_ms"
 type = "int"
-label = "Update interval"
+label_key = "settings.interval_ms.label"
 default = 30000
 min = 5000
 max = 600000
@@ -22,5 +23,5 @@ step = 1000
 [[widget.setting]]
 key = "command"
 type = "string"
-label = "Battery command"
+label_key = "settings.command.label"
 default = "upower -e | grep -q ps_controller && for c in $(upower -e | grep ps_controller); do upower -i \"$c\" | awk '/model:/{m=$2} /percentage:/{gsub(/%/,\"\",$2); p=$2} /state:/{s=$2} END{printf \"{\\\"model\\\":\\\"%s\\\",\\\"percentage\\\":%d,\\\"state\\\":\\\"%s\\\"}\\n\", m, p, s}'; done || true"

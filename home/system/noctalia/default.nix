@@ -4,10 +4,17 @@
   inputs,
   config,
   lib,
+  pkgs,
   startCommand,
   ...
 }:
 let
+  # Noctalia only plays wav; convert the freedesktop ogg. +15dB: the source peaks
+  # at ~10% FS vs ~56% for noctalia's bundled sound, and noctalia attenuates UI sounds hard.
+  attentionWav = pkgs.runCommand "window-attention.wav" { nativeBuildInputs = [ pkgs.ffmpeg-headless ]; } ''
+    ffmpeg -i ${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/window-attention.oga -af volume=15dB -f wav $out
+  '';
+
   transparentButtons = config.theme.bar-transparentButtons;
 
   accent = "#${config.lib.stylix.colors.base0D}";
@@ -150,12 +157,12 @@ in
 
     settings = {
       plugins = {
+        auto_update = false;
         source = [
           {
             name = "nexusystem";
             kind = "path";
             location = "${./plugins}";
-            auto_update = false;
             enabled = true;
           }
         ];
@@ -172,7 +179,6 @@ in
       };
 
       shell = {
-        ui_scale = 1.0;
         corner_radius_scale = 1.0;
         font_family = lib.mkForce font;
         avatar_path = "${config.home.homeDirectory}/.face.icon";
@@ -181,7 +187,6 @@ in
         offline_mode = false;
         telemetry_enabled = false;
         settings_show_advanced = true;
-        middle_click_opens_widget_settings = true;
         clipboard_enabled = false;
         screen_time_enabled = true;
 
@@ -190,10 +195,6 @@ in
           copy_to_clipboard = false;
           freeze_screen = false;
           pipe_to_command = false;
-        };
-
-        services = {
-          ddcutil = true;
         };
 
         panel = {
@@ -211,6 +212,9 @@ in
         #   alpha = if transparent then 0.0 else 0.35;
         # };
       };
+
+      accessibility.ui_scale = 1.0;
+      brightness.enable_ddcutil = true;
 
       bar = {
         main = {
@@ -255,8 +259,8 @@ in
 
       widget = {
         workspaces = {
-          display = "id";
-          minimal = true;
+          label_source = "id";
+          show_labels = true;
           labels_only_when_occupied = false;
           hide_when_empty = false;
           max_label_chars = 2;
@@ -362,6 +366,11 @@ in
 
       lockscreen_widgets = {
         enabled = false;
+      };
+
+      audio = {
+        enable_sounds = true;
+        notification_sound = "${attentionWav}";
       };
 
       notification = {

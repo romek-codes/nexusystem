@@ -53,7 +53,7 @@ local function render(result)
 end
 
 function update()
-  noctalia.runAsync(barWidget.getConfig("command"), render, 2000)
+  noctalia.runAsync(noctalia.getConfig("command"), render, 2000)
 end
 
 function onClick()
@@ -61,5 +61,5 @@ function onClick()
 end
 
 barWidget.setVisible(false)
-noctalia.setUpdateInterval(barWidget.getConfig("interval_ms"))
+noctalia.setUpdateInterval(noctalia.getConfig("interval_ms"))
 update()

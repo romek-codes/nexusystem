@@ -1,0 +1,6 @@
+{
+  "settings": {
+    "interval_ms": { "label": "Update interval" },
+    "command": { "label": "Battery command" }
+  }
+}
