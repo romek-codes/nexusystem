@@ -30,12 +30,16 @@ let
   vaults = map (v: v.path) (config.var.obsidianVaults or [ ]);
 in
 {
-  environment.etc."claude-code/managed-settings.json".text = builtins.toJSON {
+  environment.etc."claude-code/managed-settings.json" = {
+    # Real file, not a symlink into /etc/static (Claude Code warns about links leaving /etc/claude-code).
+    mode = "0644";
+    text = builtins.toJSON {
     permissions = {
       allow =
         lib.concatMap (p: [ "Bash(${p})" "Bash(${p} *)" ]) allowed
         ++ map (v: "Edit(/${v}/**)") vaults;
       additionalDirectories = vaults;
+    };
     };
   };
 
