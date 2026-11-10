@@ -60,6 +60,8 @@ in
     (import ../skills/hallmark.nix { target = ".claude"; })
   ];
 
+  home.sessionPath = [ "$HOME/.local/bin" ];
+
   home.packages = [
     pkgs.claude-code
     pkgs.claude-agent-acp
@@ -94,7 +96,7 @@ in
     mkdir -p "$(dirname "${memoryFilePath}")"
 
     if [ -f "$claude_mcp" ]; then
-      ${pkgs.jq}/bin/jq 'del(.mcpServers.nixos) | del(.mcpServers.memory) | del(.mcpServers.playwright)' "$claude_mcp" > "$tmp"
+      ${pkgs.jq}/bin/jq 'del(.mcpServers.nixos) | del(.mcpServers.memory) | del(.mcpServers.playwright) | del(.mcpServers.coolify)' "$claude_mcp" > "$tmp"
     else
       printf '{"mcpServers":{}}' > "$tmp"
     fi
@@ -104,10 +106,13 @@ in
       --arg memoryCmd "${lib.getExe pkgs.mcp-server-memory}" \
       --arg memoryPath "${memoryFilePath}" \
       --arg playwrightCmd "${lib.getExe pkgs.playwright-mcp}" \
+      --arg coolifyScript 'export COOLIFY_ACCESS_TOKEN="$(tr -d "[:space:]" < "$HOME/.config/coolify/token")"; exec ${pkgs.nodejs}/bin/npx -y @masonator/coolify-mcp' \
+      --arg sh "${pkgs.runtimeShell}" \
       '.mcpServers = (.mcpServers // {})
        | .mcpServers.nixos = {"type": "stdio", "command": $nixosCmd, "args": []}
        | .mcpServers.memory = {"type": "stdio", "command": $memoryCmd, "args": [], "env": {"MEMORY_FILE_PATH": $memoryPath}}
-       | .mcpServers.playwright = {"type": "stdio", "command": $playwrightCmd, "args": ["--isolated"]}' \
+       | .mcpServers.playwright = {"type": "stdio", "command": $playwrightCmd, "args": ["--isolated"]}
+       | .mcpServers.coolify = {"type": "stdio", "command": $sh, "args": ["-c", $coolifyScript], "env": {"COOLIFY_BASE_URL": "https://coolify.romek.codes"}}' \
       "$tmp" > "$tmp.new"
 
     install -m 0600 "$tmp.new" "$claude_mcp"
