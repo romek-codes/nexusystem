@@ -310,6 +310,8 @@ return {
 				preferred_servers = {
 					php = { "intelephense" },
 					nix = { "nixd" },
+					-- marksman hit 6+ GB RAM on a 9 MB vault; obsidian.nvim covers links
+					markdown = {},
 					typescript = { "ts_ls", "eslint" },
 					typescriptreact = { "ts_ls", "eslint" },
 					javascript = { "ts_ls", "eslint" },
