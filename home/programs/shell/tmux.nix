@@ -26,6 +26,9 @@ let
     # bell: agents (claude/codex) ring BEL when they wait for input
     set-window-option -g window-status-bell-style "fg=${dark},bg=${warn},bold"
     bind-key a next-window -a
+    # outer terminal title = "session: window" (shown in bell notifications)
+    set -g set-titles on
+    set -g set-titles-string "#S: #W"
 
     # style for window titles with activity
     set-window-option -g window-status-activity-style "fg=${accent},bg=${dark}"

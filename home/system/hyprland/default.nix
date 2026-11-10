@@ -245,6 +245,11 @@ in
           match.class = "^(chromium-browser)$";
           match.title = ".*Google Chrome for Testing$";
         }
+        # foot bell (agent finished) sets urgency; never let it pull focus
+        {
+          suppress_event = "activate activatefocus";
+          match.class = "^(foot|footclient)$";
+        }
         {
           float = true;
           match.tag = "modal";
