@@ -110,7 +110,7 @@ in
 
     [mcp_servers.playwright]
     command = "${lib.getExe pkgs.playwright-mcp}"
-    args = ["--isolated"]
+    args = ["--isolated", "--init-script", "${../playwright-highlight.js}"]
     ${atlassianToml}
     EOF
 

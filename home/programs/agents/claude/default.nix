@@ -106,12 +106,13 @@ in
       --arg memoryCmd "${lib.getExe pkgs.mcp-server-memory}" \
       --arg memoryPath "${memoryFilePath}" \
       --arg playwrightCmd "${lib.getExe pkgs.playwright-mcp}" \
+      --arg highlightJs "${../playwright-highlight.js}" \
       --arg coolifyScript 'export COOLIFY_ACCESS_TOKEN="$(tr -d "[:space:]" < "$HOME/.config/coolify/token")"; exec ${pkgs.nodejs}/bin/npx -y @masonator/coolify-mcp' \
       --arg sh "${pkgs.runtimeShell}" \
       '.mcpServers = (.mcpServers // {})
        | .mcpServers.nixos = {"type": "stdio", "command": $nixosCmd, "args": []}
        | .mcpServers.memory = {"type": "stdio", "command": $memoryCmd, "args": [], "env": {"MEMORY_FILE_PATH": $memoryPath}}
-       | .mcpServers.playwright = {"type": "stdio", "command": $playwrightCmd, "args": ["--isolated"]}
+       | .mcpServers.playwright = {"type": "stdio", "command": $playwrightCmd, "args": ["--isolated", "--init-script", $highlightJs]}
        | .mcpServers.coolify = {"type": "stdio", "command": $sh, "args": ["-c", $coolifyScript], "env": {"COOLIFY_BASE_URL": "https://coolify.romek.codes"}}' \
       "$tmp" > "$tmp.new"
 
