@@ -21,6 +21,7 @@ let
 
     [mcp_servers.atlassian]
     url = "https://mcp.atlassian.com/v1/mcp/authv2"
+    default_tools_approval_mode = "writes"
     ${lib.concatMapStrings (t: ''
 
       [mcp_servers.atlassian.tools.${t}]
@@ -87,14 +88,17 @@ in
             /^\[mcp_servers\.nixos(\.|\])/{ skip = 1; next }
             /^\[mcp_servers\.memory(\.|\])/{ skip = 1; next }
             /^\[mcp_servers\.playwright(\.|\])/{ skip = 1; next }
+            /^\[apps\._default\]$/ { skip = 0; apps_default_seen = 1; in_apps_default = 1; print; print "default_tools_approval_mode = \"writes\""; print "approvals_reviewer = \"user\""; next }
+            /^\[/ { in_apps_default = 0 }
+            in_apps_default && /^[[:space:]]*(default_tools_approval_mode|approvals_reviewer)[[:space:]]*=/ { next }
             ${lib.optionalString (atlassianToml != "") ''/^\[mcp_servers\.atlassian(\.|\])/{ skip = 1; next }''}
             /^\[/ { skip = 0 }
             !skip && $0 == "" && blank { next }
             !skip { blank = ($0 == ""); print }
-            END { if (!tui_seen) printf "\n[tui]\nvim_mode_default = true\nnotifications = true\nnotification_method = \"bel\"\nnotification_condition = \"always\"\n" }
+            END { if (!tui_seen) printf "\n[tui]\nvim_mode_default = true\nnotifications = true\nnotification_method = \"bel\"\nnotification_condition = \"always\"\n"; if (!apps_default_seen) printf "\n[apps._default]\ndefault_tools_approval_mode = \"writes\"\napprovals_reviewer = \"user\"\n" }
           ' "$codex_config" >> "$tmp_config"
         else
-          printf '\n[tui]\nvim_mode_default = true\nnotifications = true\nnotification_method = "bel"\nnotification_condition = "always"\n' >> "$tmp_config"
+          printf '\n[tui]\nvim_mode_default = true\nnotifications = true\nnotification_method = "bel"\nnotification_condition = "always"\n\n[apps._default]\ndefault_tools_approval_mode = "writes"\napprovals_reviewer = "user"\n' >> "$tmp_config"
         fi
 
         cat >> "$tmp_config" <<EOF

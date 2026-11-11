@@ -1,4 +1,4 @@
-# Nix-managed. Publishing actions always ask; strictest matching rule wins across files.
-prefix_rule(pattern=["git", "push"], decision="prompt", justification="push needs explicit approval", match=["git push origin main"])
-prefix_rule(pattern=["gh", "pr", ["create", "merge", "ready"]], decision="prompt", justification="PR actions need explicit approval", match=["gh pr create --fill"], not_match=["gh pr view 1"])
-prefix_rule(pattern=["gh", "release"], decision="prompt", justification="releases need explicit approval")
+# Nix-managed. Publishing is done by the user outside Codex.
+prefix_rule(pattern=["git", "push"], decision="forbidden", justification="push from Lazygit or a shell outside Codex", match=["git push origin main"])
+prefix_rule(pattern=["gh", "pr", ["create", "merge", "ready"]], decision="forbidden", justification="PR publishing is done by the user", match=["gh pr create --fill"], not_match=["gh pr view 1"])
+prefix_rule(pattern=["gh", "release"], decision="forbidden", justification="releases are done by the user")
