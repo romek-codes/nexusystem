@@ -129,6 +129,17 @@ When triggered, and an Obsidian vault is configured for this host:
    duplicating its content there.
 4. If nothing vault-worthy happened, say so — don't invent a filler entry.
 
+### Journal entry content
+
+An open `- [ ]` is only for something the user must act on or must notice a trigger for, and nobody else will catch it.
+
+- Done entries: one line per outcome plus the ticket key. Handoffs go in the done line ("Kommentar an <Assignee>, Rollout-Schritte stehen drin"), not as an open item. No test matrices, no cause stories.
+- Open item only if the next step is the user's, or it waits on someone with a trigger the user must act on (e.g. "PR merged -> deploy to testing and test"). Keep one line with the trigger.
+- Next step belongs to someone else (assignee deploys/promotes, colleague decides): no open item.
+- Skip: routine housekeeping (stale branches, worktrees), "tell X" when X sees it in Jira/PR anyway, cleanup of unused things with no consequence, "optional"/nice-to-have items.
+- Low-priority items only when the user named them as such; don't add them on own judgment.
+- Time: state it on the entry, booked (`30 Min gebucht`) or not (`ca. 30 Min, nicht gebucht`). Work-host booking and estimate rules are in the Jira instructions.
+
 ## Usage budget (Claude & Codex rate limits)
 
 - `ai-usage` shows, in one shot: every cswap-managed Claude account's 5h/weekly usage, the local Codex account's 5h/weekly usage, Codex reset coupons, and a pace flag per weekly window (`ahead of pace` / `WON'T LAST TO RESET`, derived from usage-so-far vs. time-elapsed-in-window — not just "usage is high").
