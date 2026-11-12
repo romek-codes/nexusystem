@@ -1,5 +1,18 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 
+let
+  # Turn-done / approval notifications; repo path so edits apply without a rebuild.
+  notify = [
+    {
+      hooks = [
+        {
+          type = "command";
+          command = "${pkgs.python3}/bin/python3 ${config.var.configDirectory}/home/programs/agents/agent-notify.py codex";
+        }
+      ];
+    }
+  ];
+in
 {
   # Codex's wrapped binary execs /run/wrappers/bin/bwrap directly, so keep
   # the wrapper entry around for that stable path. bubblewrap 0.12.0 dropped
@@ -26,5 +39,7 @@
         ];
       }
     ];
+    hooks.Stop = notify;
+    hooks.PermissionRequest = notify;
   };
 }

@@ -37,6 +37,37 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/romek/Workspace/nexusystem/home/programs/agents/agent-notify.py claude"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/romek/Workspace/nexusystem/home/programs/agents/agent-notify.py claude"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/romek/Workspace/nexusystem/home/programs/agents/agent-notify.py claude"
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {
@@ -49,5 +80,5 @@
   },
   "editorMode": "vim",
   "voiceEnabled": true,
-  "preferredNotifChannel": "terminal_bell"
+  "preferredNotifChannel": "notifications_disabled"
 }
