@@ -1,0 +1,1388 @@
+diff --git a/config/src/config_requirements.rs b/config/src/config_requirements.rs
+index 961e3c3d78..b0b95aaf83 100644
+--- a/config/src/config_requirements.rs
++++ b/config/src/config_requirements.rs
+@@ -4985,6 +4985,7 @@ command = "python3 /enterprise/hooks/pre.py"
+                     decision: Decision::Forbidden,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 }],
+             }
+         );
+diff --git a/config/src/requirements_exec_policy.rs b/config/src/requirements_exec_policy.rs
+index 4bdd425236..2ba046fc25 100644
+--- a/config/src/requirements_exec_policy.rs
++++ b/config/src/requirements_exec_policy.rs
+@@ -2,6 +2,7 @@ use codex_execpolicy::Decision;
+ use codex_execpolicy::Policy;
+ use codex_execpolicy::RequirementsExecPolicy;
+ use codex_execpolicy::RuleRef;
++use codex_execpolicy::RuleReviewer;
+ use codex_execpolicy::rule::PatternToken;
+ use codex_execpolicy::rule::PrefixPattern;
+ use codex_execpolicy::rule::PrefixRule;
+@@ -23,6 +24,12 @@ pub struct RequirementsExecPolicyToml {
+ pub struct RequirementsExecPolicyPrefixRuleToml {
+     pub pattern: Vec<RequirementsExecPolicyPatternTokenToml>,
+     pub decision: Option<RequirementsExecPolicyDecisionToml>,
++    /// Optional reviewer override for prompt rules.
++    ///
++    /// This mirrors reviewer on the Starlark prefix_rule(...) builtin.
++    /// A reviewer only has meaning for rules that request approval, so it is
++    /// rejected for non-prompt decisions during conversion.
++    pub reviewer: Option<RuleReviewer>,
+     pub justification: Option<String>,
+ }
+ 
+@@ -82,6 +89,11 @@ pub enum RequirementsExecPolicyParseError {
+         "rules prefix_rule at index {rule_index} has decision 'allow', which is not permitted in requirements.toml: Codex merges these rules with other config and uses the most restrictive result (use 'prompt' or 'forbidden')"
+     )]
+     AllowDecisionNotAllowed { rule_index: usize },
++
++    #[error(
++        "rules prefix_rule at index {rule_index} has a reviewer, but reviewer is only valid with decision 'prompt'"
++    )]
++    ReviewerRequiresPromptDecision { rule_index: usize },
+ }
+ 
+ impl RequirementsExecPolicyToml {
+@@ -123,6 +135,11 @@ impl RequirementsExecPolicyToml {
+                     return Err(RequirementsExecPolicyParseError::MissingDecision { rule_index });
+                 }
+             };
++            if rule.reviewer.is_some() && decision != Decision::Prompt {
++                return Err(
++                    RequirementsExecPolicyParseError::ReviewerRequiresPromptDecision { rule_index },
++                );
++            }
+             let justification = rule.justification.clone();
+ 
+             let (first_token, remaining_tokens) = pattern_tokens
+@@ -138,6 +155,7 @@ impl RequirementsExecPolicyToml {
+                         rest: rest.clone(),
+                     },
+                     decision,
++                    reviewer: rule.reviewer,
+                     justification: justification.clone(),
+                 });
+                 rules_by_program.insert(head.clone(), rule);
+@@ -199,3 +217,7 @@ fn parse_pattern_token(
+         }),
+     }
+ }
++
++#[cfg(test)]
++#[path = "requirements_exec_policy_tests.rs"]
++mod tests;
+diff --git a/config/src/requirements_exec_policy_tests.rs b/config/src/requirements_exec_policy_tests.rs
+new file mode 100644
+index 0000000000..c63241bc6b
+--- /dev/null
++++ b/config/src/requirements_exec_policy_tests.rs
+@@ -0,0 +1,62 @@
++use super::*;
++use codex_execpolicy::rule::PrefixRule;
++
++#[test]
++fn prompt_reviewer_is_deserialized_and_propagated_to_prefix_rule() {
++    let parsed: RequirementsExecPolicyToml = toml::from_str(
++        r#"
++prefix_rules = [
++    { pattern = [{ token = "git" }, { token = "push" }], decision = "prompt", reviewer = "auto_review" },
++]
++"#,
++    )
++    .expect("requirements rules should deserialize");
++
++    assert_eq!(
++        parsed.prefix_rules[0].reviewer,
++        Some(RuleReviewer::AutoReview)
++    );
++
++    let policy = parsed.to_policy().expect("prompt reviewer should be valid");
++    let rules = policy
++        .rules()
++        .get_vec("git")
++        .expect("git prefix rule should exist");
++    let rule = rules[0]
++        .as_any()
++        .downcast_ref::<PrefixRule>()
++        .expect("rule should be a prefix rule");
++
++    assert_eq!(rule.reviewer, Some(RuleReviewer::AutoReview));
++}
++
++#[test]
++fn user_reviewer_deserializes_from_requirements_toml() {
++    let parsed: RequirementsExecPolicyToml = toml::from_str(
++        r#"
++prefix_rules = [
++    { pattern = [{ token = "git" }], decision = "prompt", reviewer = "user" },
++]
++"#,
++    )
++    .expect("requirements rules should deserialize");
++
++    assert_eq!(parsed.prefix_rules[0].reviewer, Some(RuleReviewer::User));
++}
++
++#[test]
++fn reviewer_is_rejected_for_non_prompt_decisions() {
++    let parsed: RequirementsExecPolicyToml = toml::from_str(
++        r#"
++prefix_rules = [
++    { pattern = [{ token = "rm" }], decision = "forbidden", reviewer = "user" },
++]
++"#,
++    )
++    .expect("requirements rules should deserialize");
++
++    assert!(matches!(
++        parsed.to_policy(),
++        Err(RequirementsExecPolicyParseError::ReviewerRequiresPromptDecision { rule_index: 0 })
++    ));
++}
+diff --git a/core/src/apply_patch.rs b/core/src/apply_patch.rs
+index e58c95657c..7c79768605 100644
+--- a/core/src/apply_patch.rs
++++ b/core/src/apply_patch.rs
+@@ -51,6 +51,7 @@ pub(crate) fn prepare_apply_patch(
+                 auto_approved: false,
+                 exec_approval_requirement: ExecApprovalRequirement::NeedsApproval {
+                     reason: None,
++                    reviewer: None,
+                     proposed_execpolicy_amendment: None,
+                 },
+             })
+diff --git a/core/src/config/config_loader_tests.rs b/core/src/config/config_loader_tests.rs
+index 5e0c5b4435..0d3a350b52 100644
+--- a/core/src/config/config_loader_tests.rs
++++ b/core/src/config/config_loader_tests.rs
+@@ -4572,6 +4572,7 @@ prefix_rules = [
+                         any_of: None,
+                     }],
+                     decision: Some(RequirementsExecPolicyDecisionToml::Forbidden),
++                    reviewer: None,
+                     justification: None,
+                 }],
+             }
+@@ -4601,6 +4602,7 @@ prefix_rules = [
+                             any_of: None,
+                         }],
+                         decision: Some(RequirementsExecPolicyDecisionToml::Forbidden),
++                        reviewer: None,
+                         justification: None,
+                     },
+                     RequirementsExecPolicyPrefixRuleToml {
+@@ -4615,6 +4617,7 @@ prefix_rules = [
+                             },
+                         ],
+                         decision: Some(RequirementsExecPolicyDecisionToml::Prompt),
++                        reviewer: None,
+                         justification: Some("review changes before push or commit".to_string()),
+                     },
+                 ],
+@@ -4644,6 +4647,7 @@ prefix_rules = [
+                     decision: Decision::Forbidden,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 }],
+             }
+         );
+@@ -4670,6 +4674,7 @@ prefix_rules = [
+                     decision: Decision::Prompt,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 }],
+             }
+         );
+@@ -4682,6 +4687,7 @@ prefix_rules = [
+                     decision: Decision::Prompt,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 }],
+             }
+         );
+@@ -4766,6 +4772,7 @@ prefix_rules = []
+                     decision: Decision::Forbidden,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 }],
+             }
+         );
+@@ -4805,6 +4812,7 @@ prefix_rules = []
+                     decision: Decision::Forbidden,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 }],
+             }
+         );
+@@ -4820,6 +4828,7 @@ prefix_rules = []
+                     decision: Decision::Prompt,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 }],
+             }
+         );
+diff --git a/core/src/exec_policy.rs b/core/src/exec_policy.rs
+index c72c87d9d4..f3e0d737dc 100644
+--- a/core/src/exec_policy.rs
++++ b/core/src/exec_policy.rs
+@@ -17,9 +17,11 @@ use codex_execpolicy::Policy;
+ use codex_execpolicy::PolicyParser;
+ use codex_execpolicy::RequirementsExecPolicy;
+ use codex_execpolicy::RuleMatch;
++use codex_execpolicy::RuleReviewer;
+ use codex_execpolicy::blocking_append_allow_prefix_rule;
+ use codex_execpolicy::blocking_append_network_rule;
+ use codex_protocol::approvals::ExecPolicyAmendment;
++use codex_protocol::config_types::ApprovalsReviewer;
+ use codex_protocol::config_types::WindowsSandboxLevel;
+ use codex_protocol::models::PermissionProfile;
+ use codex_protocol::permissions::FileSystemSandboxKind;
+@@ -413,6 +415,10 @@ impl ExecPolicyManager {
+                 let prompt_is_rule = evaluation.matched_rules.iter().any(|rule_match| {
+                     is_policy_match(rule_match) && rule_match.decision() == Decision::Prompt
+                 });
++                let reviewer = evaluation.prompt_reviewer().map(|reviewer| match reviewer {
++                    RuleReviewer::User => ApprovalsReviewer::User,
++                    RuleReviewer::AutoReview => ApprovalsReviewer::AutoReview,
++                });
+                 match prompt_is_rejected_by_policy(approval_policy, prompt_is_rule) {
+                     Some(reason) if prompt_is_rule => ExecApprovalRequirement::Forbidden {
+                         reason: reason.to_string(),
+@@ -429,7 +435,8 @@ impl ExecPolicyManager {
+                         ),
+                     },
+                     None => ExecApprovalRequirement::NeedsApproval {
+-                        reason: derive_prompt_reason(command, &evaluation),
++                        reason: derive_prompt_reason(command, &evaluation, reviewer),
++                        reviewer,
+                         proposed_execpolicy_amendment: requested_amendment.or_else(|| {
+                             if auto_amendment_allowed {
+                                 try_derive_execpolicy_amendment_for_prompt_rules(
+@@ -1042,8 +1049,17 @@ fn prefix_rule_would_approve_all_commands(
+ }
+ 
+ /// Only return a reason when a policy rule drove the prompt decision.
+-fn derive_prompt_reason(command_args: &[String], evaluation: &Evaluation) -> Option<String> {
++fn derive_prompt_reason(
++    command_args: &[String],
++    evaluation: &Evaluation,
++    reviewer: Option<ApprovalsReviewer>,
++) -> Option<String> {
+     let command = render_shlex_command(command_args);
++    let approval_description = match reviewer {
++        Some(ApprovalsReviewer::User) => "requires human approval",
++        Some(ApprovalsReviewer::AutoReview) => "requires automatic approval review",
++        None => "requires approval",
++    };
+ 
+     let most_specific_prompt = evaluation
+         .matched_rules
+@@ -1060,11 +1076,11 @@ fn derive_prompt_reason(command_args: &[String], evaluation: &Evaluation) -> Opt
+         .max_by_key(|(matched_prefix_len, _)| *matched_prefix_len);
+ 
+     match most_specific_prompt {
+-        Some((_matched_prefix_len, Some(justification))) => {
+-            Some(format!("`{command}` requires approval: {justification}"))
+-        }
++        Some((_matched_prefix_len, Some(justification))) => Some(format!(
++            "`{command}` {approval_description}: {justification}"
++        )),
+         Some((_matched_prefix_len, None)) => {
+-            Some(format!("`{command}` requires approval by policy"))
++            Some(format!("`{command}` {approval_description} by policy"))
+         }
+         None => None,
+     }
+diff --git a/core/src/exec_policy/model_policy_tests.rs b/core/src/exec_policy/model_policy_tests.rs
+index b094db40e5..845156461b 100644
+--- a/core/src/exec_policy/model_policy_tests.rs
++++ b/core/src/exec_policy/model_policy_tests.rs
+@@ -151,6 +151,7 @@ async fn cyber_policy_requires_approval_for_broad_wrapped_and_resolved_prefixes(
+         assert_eq!(
+             requirement,
+             ExecApprovalRequirement::NeedsApproval {
++                reviewer: None,
+                 reason: None,
+                 proposed_execpolicy_amendment: None,
+             },
+diff --git a/core/src/exec_policy_tests.rs b/core/src/exec_policy_tests.rs
+index c17b910a26..cbca729f78 100644
+--- a/core/src/exec_policy_tests.rs
++++ b/core/src/exec_policy_tests.rs
+@@ -324,6 +324,7 @@ async fn loads_policies_from_policy_subdirectory() {
+                 decision: Decision::Forbidden,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         policy.check_multiple(command.iter(), &|_| Decision::Allow)
+@@ -638,6 +639,7 @@ async fn loads_policies_from_multiple_config_layers() -> anyhow::Result<()> {
+                 decision: Decision::Forbidden,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         policy.check_multiple([vec!["rm".to_string()]].iter(), &|_| Decision::Allow)
+@@ -650,6 +652,7 @@ async fn loads_policies_from_multiple_config_layers() -> anyhow::Result<()> {
+                 decision: Decision::Prompt,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         policy.check_multiple([vec!["ls".to_string()]].iter(), &|_| Decision::Allow)
+@@ -793,6 +796,7 @@ async fn proposes_full_command_amendment_for_heredoc_prompts() {
+             prefix_rule: None,
+         },
+         ExecApprovalRequirement::NeedsApproval {
++            reviewer: None,
+             reason: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "bash".to_string(),
+@@ -824,6 +828,7 @@ async fn heredoc_prompt_replaces_unrelated_requested_prefix_with_full_command()
+             ]),
+         },
+         ExecApprovalRequirement::NeedsApproval {
++            reviewer: None,
+             reason: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "bash".to_string(),
+@@ -851,6 +856,7 @@ async fn heredoc_prompt_replaces_inner_requested_prefix_with_full_command() {
+             prefix_rule: Some(vec!["python3".to_string()]),
+         },
+         ExecApprovalRequirement::NeedsApproval {
++            reviewer: None,
+             reason: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "bash".to_string(),
+@@ -943,6 +949,7 @@ EOF"#
+         },
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "zsh".to_string(),
+                 "-lc".to_string(),
+@@ -1000,6 +1007,53 @@ async fn exec_approval_requirement_prefers_execpolicy_match() {
+         },
+         ExecApprovalRequirement::NeedsApproval {
+             reason: Some("`rm` requires approval by policy".to_string()),
++            reviewer: None,
++            proposed_execpolicy_amendment: None,
++        },
++    )
++    .await;
++}
++
++#[tokio::test]
++async fn exec_approval_requirement_carries_user_reviewer_from_prompt_rule() {
++    assert_exec_approval_requirement_for_command(
++        ExecApprovalRequirementScenario {
++            policy_src: Some(
++                r#"prefix_rule(pattern=["rm"], decision="prompt", reviewer="user", justification="human checkpoint")"#
++                    .to_string(),
++            ),
++            command: vec!["rm".to_string()],
++            approval_policy: AskForApproval::OnRequest,
++            permission_profile: PermissionProfile::Disabled,
++            sandbox_permissions: SandboxPermissions::UseDefault,
++            prefix_rule: None,
++        },
++        ExecApprovalRequirement::NeedsApproval {
++            reason: Some("`rm` requires human approval: human checkpoint".to_string()),
++            reviewer: Some(ApprovalsReviewer::User),
++            proposed_execpolicy_amendment: None,
++        },
++    )
++    .await;
++}
++
++#[tokio::test]
++async fn exec_approval_requirement_carries_auto_review_reviewer_from_prompt_rule() {
++    assert_exec_approval_requirement_for_command(
++        ExecApprovalRequirementScenario {
++            policy_src: Some(
++                r#"prefix_rule(pattern=["rm"], decision="prompt", reviewer="auto_review")"#
++                    .to_string(),
++            ),
++            command: vec!["rm".to_string()],
++            approval_policy: AskForApproval::OnRequest,
++            permission_profile: PermissionProfile::Disabled,
++            sandbox_permissions: SandboxPermissions::UseDefault,
++            prefix_rule: None,
++        },
++        ExecApprovalRequirement::NeedsApproval {
++            reason: Some("`rm` requires automatic approval review by policy".to_string()),
++            reviewer: Some(ApprovalsReviewer::AutoReview),
+             proposed_execpolicy_amendment: None,
+         },
+     )
+@@ -1016,6 +1070,7 @@ async fn git_status_obeys_approval_policy_and_explicit_rules() {
+             AskForApproval::UnlessTrusted,
+             None,
+             ExecApprovalRequirement::NeedsApproval {
++                reviewer: None,
+                 reason: None,
+                 proposed_execpolicy_amendment: amendment.clone(),
+             },
+@@ -1105,6 +1160,7 @@ prefix_rule(pattern=["git"], decision="prompt")
+             prefix_rule: None,
+         },
+         ExecApprovalRequirement::NeedsApproval {
++            reviewer: None,
+             reason: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 disallowed_git_path,
+@@ -1132,6 +1188,7 @@ async fn requested_prefix_rule_can_approve_absolute_path_commands() {
+         },
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "cargo".to_string(),
+                 "install".to_string(),
+@@ -1318,6 +1375,7 @@ async fn exec_approval_requirement_prompts_for_inline_additional_permissions_und
+         },
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "touch".to_string(),
+                 "requested-dir/requested-but-unused.txt".to_string(),
+@@ -1340,6 +1398,7 @@ async fn exec_approval_requirement_prompts_for_known_safe_escalation_under_on_re
+         },
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "echo".to_string(),
+                 "hello".to_string(),
+@@ -1523,6 +1582,7 @@ async fn exec_approval_requirement_falls_back_to_heuristics() {
+         requirement,
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(command))
+         }
+     );
+@@ -1550,6 +1610,7 @@ async fn empty_bash_lc_script_falls_back_to_original_command() {
+         requirement,
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(command)),
+         }
+     );
+@@ -1581,6 +1642,7 @@ async fn whitespace_bash_lc_script_falls_back_to_original_command() {
+         requirement,
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(command)),
+         }
+     );
+@@ -1612,6 +1674,7 @@ async fn request_rule_uses_prefix_rule() {
+         requirement,
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "cargo".to_string(),
+                 "install".to_string(),
+@@ -1646,6 +1709,7 @@ async fn request_rule_falls_back_when_prefix_rule_does_not_approve_all_commands(
+         requirement,
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "rm".to_string(),
+                 "-rf".to_string(),
+@@ -1684,6 +1748,7 @@ async fn heuristics_apply_when_other_commands_match_policy() {
+             .await,
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "orange".to_string()
+             ]))
+@@ -1757,6 +1822,7 @@ async fn proposed_execpolicy_amendment_is_present_for_single_command_without_pol
+         },
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(command)),
+         },
+     )
+@@ -1780,6 +1846,7 @@ async fn proposed_execpolicy_amendment_is_present_for_multi_command_scripts() {
+         },
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "cargo".to_string(),
+                 "build".to_string(),
+@@ -1809,6 +1876,7 @@ async fn proposed_execpolicy_amendment_uses_first_no_match_in_multi_command_scri
+         },
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec![
+                 "apple".to_string(),
+             ])),
+@@ -2034,6 +2102,7 @@ fn derive_requested_execpolicy_amendment_returns_none_when_policy_matches() {
+         decision: Decision::Prompt,
+         resolved_program: None,
+         justification: None,
++        reviewer: None,
+     }];
+     assert_eq!(
+         None,
+@@ -2045,6 +2114,7 @@ fn derive_requested_execpolicy_amendment_returns_none_when_policy_matches() {
+         decision: Decision::Allow,
+         resolved_program: None,
+         justification: None,
++        reviewer: None,
+     }];
+     assert_eq!(
+         None,
+@@ -2056,6 +2126,7 @@ fn derive_requested_execpolicy_amendment_returns_none_when_policy_matches() {
+         decision: Decision::Forbidden,
+         resolved_program: None,
+         justification: None,
++        reviewer: None,
+     }];
+     assert_eq!(
+         None,
+@@ -2082,6 +2153,7 @@ async fn dangerous_rm_rf_requires_approval_in_danger_full_access() {
+         },
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(command)),
+         },
+     )
+@@ -2106,6 +2178,7 @@ async fn dangerous_rm_rf_in_shell_loop_requires_approval_in_danger_full_access()
+             prefix_rule: None,
+         },
+         ExecApprovalRequirement::NeedsApproval {
++            reviewer: None,
+             reason: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(command)),
+         },
+@@ -2124,6 +2197,7 @@ async fn forced_rm_requires_approval_or_specific_rejection_on_all_platforms() {
+     let dangerous_command = vec_str(&["rm", "-rf", "/important/data"]);
+     assert_eq!(
+         ExecApprovalRequirement::NeedsApproval {
++            reviewer: None,
+             reason: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(vec_str(&[
+                 "rm",
+@@ -2200,6 +2274,7 @@ async fn verify_approval_requirement_for_unsafe_powershell_command() {
+                 safe" should require approval."#,
+             ExecApprovalRequirement::NeedsApproval {
+                 reason: None,
++                reviewer: None,
+                 proposed_execpolicy_amendment: expected_amendment.clone(),
+             },
+         )
+diff --git a/core/src/exec_policy_windows_tests.rs b/core/src/exec_policy_windows_tests.rs
+index e078d57e23..03db8a6ee7 100644
+--- a/core/src/exec_policy_windows_tests.rs
++++ b/core/src/exec_policy_windows_tests.rs
+@@ -192,6 +192,7 @@ async fn unmatched_dangerous_powershell_inner_commands_require_approval() {
+         },
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: Some(ExecPolicyAmendment::new(inner_command)),
+         },
+     )
+diff --git a/core/src/mcp_tool_call.rs b/core/src/mcp_tool_call.rs
+index 6bf51b9ab1..4f8eff2ff1 100644
+--- a/core/src/mcp_tool_call.rs
++++ b/core/src/mcp_tool_call.rs
+@@ -32,6 +32,7 @@ use codex_analytics::build_track_events_context;
+ use codex_api::HostedFileUploadContext;
+ use codex_config::ConfigLayerSource;
+ use codex_config::types::AppToolApproval;
++use codex_protocol::config_types::ApprovalsReviewer;
+ use codex_connectors::AppToolPolicy;
+ use codex_connectors::AppToolPolicyEvaluator;
+ use codex_connectors::AppToolPolicyInput;
+@@ -1532,6 +1533,16 @@ async fn maybe_request_mcp_tool_approval(
+         metadata.connector_id.as_deref(),
+         metadata.link_id.as_deref(),
+     );
++    // An explicit `approval_mode = "prompt"` asks the user even when auto-review
++    // is the configured reviewer, like `reviewer = "user"` on exec-policy rules.
++    // Managed requirements that force auto-review still win in guardian routing.
++    let prompts_user = policy.mode == AppToolApproval::Prompt;
++    let approvals_reviewer = if prompts_user {
++        ApprovalsReviewer::User
++    } else {
++        approvals_reviewer
++    };
++    let strict_auto_review = strict_auto_review && !prompts_user;
+     if !strict_auto_review
+         && mcp_permission_prompt_is_auto_approved(
+             config.approval_policy.value(),
+diff --git a/core/src/session/tests/guardian_tests.rs b/core/src/session/tests/guardian_tests.rs
+index 669d529856..5f673e16d5 100644
+--- a/core/src/session/tests/guardian_tests.rs
++++ b/core/src/session/tests/guardian_tests.rs
+@@ -1266,6 +1266,7 @@ async fn guardian_subagent_does_not_inherit_parent_exec_policy_rules() {
+                 decision: Decision::Forbidden,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         }
+     );
+diff --git a/core/src/tools/orchestrator.rs b/core/src/tools/orchestrator.rs
+index a1a88e4454..7f8f08a1d1 100644
+--- a/core/src/tools/orchestrator.rs
++++ b/core/src/tools/orchestrator.rs
+@@ -25,6 +25,7 @@ use crate::tools::sandboxing::ensure_native_sandbox;
+ use crate::tools::sandboxing::sandbox_override_for_first_attempt;
+ use crate::tools::sandboxing::unsandboxed_execution_allowed;
+ use codex_otel::ToolDecisionSource;
++use codex_protocol::config_types::ApprovalsReviewer;
+ use codex_protocol::error::CodexErrorDetails;
+ use codex_protocol::error::SandboxErr;
+ use codex_protocol::exec_output::ExecToolCallOutput;
+@@ -164,6 +165,19 @@ impl ToolOrchestrator {
+         let requirement = tool.exec_approval_requirement(req).unwrap_or_else(|| {
+             default_exec_approval_requirement(approval_policy, &file_system_sandbox_policy)
+         });
++        // An exec-policy rule may pin the reviewer for this request. A user
++        // reviewer also opts the request out of strict auto-review; managed
++        // requirements that force auto-review still win in guardian routing.
++        let reviewer = requirement.reviewer();
++        let strict_auto_review =
++            strict_auto_review && reviewer != Some(ApprovalsReviewer::User);
++        let review_context = || {
++            let mut context = GuardianReviewContext::from(&tool_ctx.step_context);
++            if let Some(reviewer) = reviewer {
++                context.approvals_reviewer = reviewer;
++            }
++            context
++        };
+         match &requirement {
+             ExecApprovalRequirement::Skip { .. } => {
+                 if strict_auto_review {
+@@ -173,7 +187,7 @@ impl ToolOrchestrator {
+                             ToolError::Rejected(format!("could not prepare approval action: {err}"))
+                         })?;
+                     let approval_ctx = ApprovalContext {
+-                        review_context: GuardianReviewContext::from(&tool_ctx.step_context),
++                        review_context: review_context(),
+                         cancellation_token: Some(tool_ctx.cancellation_token.clone()),
+                         call_id: tool_ctx.call_id.clone(),
+                         tool_name: tool_ctx.tool_name.clone(),
+@@ -207,7 +221,7 @@ impl ToolOrchestrator {
+                         ToolError::Rejected(format!("could not prepare approval action: {err}"))
+                     })?;
+                 let approval_ctx = ApprovalContext {
+-                    review_context: GuardianReviewContext::from(&tool_ctx.step_context),
++                    review_context: review_context(),
+                     cancellation_token: Some(tool_ctx.cancellation_token.clone()),
+                     call_id: tool_ctx.call_id.clone(),
+                     tool_name: tool_ctx.tool_name.clone(),
+@@ -516,7 +530,7 @@ impl ToolOrchestrator {
+                         *additional_permissions = None;
+                     }
+                     let approval_ctx = ApprovalContext {
+-                        review_context: GuardianReviewContext::from(&tool_ctx.step_context),
++                        review_context: review_context(),
+                         cancellation_token: Some(tool_ctx.cancellation_token.clone()),
+                         call_id: tool_ctx.call_id.clone(),
+                         tool_name: tool_ctx.tool_name.clone(),
+diff --git a/core/src/tools/runtimes/apply_patch_tests.rs b/core/src/tools/runtimes/apply_patch_tests.rs
+index 8c5d7693a2..4fdd3e3cf4 100644
+--- a/core/src/tools/runtimes/apply_patch_tests.rs
++++ b/core/src/tools/runtimes/apply_patch_tests.rs
+@@ -88,6 +88,7 @@ async fn approval_action_preserves_patch_path_uris() {
+         changes: Arc::new(HashMap::new()),
+         exec_approval_requirement: ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: None,
+         },
+         additional_permissions: None,
+@@ -125,6 +126,7 @@ async fn permission_request_payload_uses_apply_patch_hook_name_and_aliases() {
+         changes: Arc::new(HashMap::new()),
+         exec_approval_requirement: ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: None,
+         },
+         additional_permissions: None,
+diff --git a/core/src/tools/sandboxing.rs b/core/src/tools/sandboxing.rs
+index d49273beb3..a0e6572042 100644
+--- a/core/src/tools/sandboxing.rs
++++ b/core/src/tools/sandboxing.rs
+@@ -16,6 +16,7 @@ use codex_file_system::FileSystemSandboxContext;
+ use codex_file_system::WindowsSandboxSelection;
+ use codex_network_proxy::NetworkProxy;
+ use codex_protocol::approvals::ExecPolicyAmendment;
++use codex_protocol::config_types::ApprovalsReviewer;
+ use codex_protocol::config_types::WindowsSandboxLevel;
+ use codex_protocol::error::CodexErr;
+ use codex_protocol::permissions::FileSystemSandboxKind;
+@@ -164,6 +165,10 @@ pub(crate) enum ExecApprovalRequirement {
+     /// Approval required for this tool call.
+     NeedsApproval {
+         reason: Option<String>,
++        /// Optional per-request reviewer selected by a matching exec-policy rule.
++        ///
++        /// When omitted, approval routing falls back to the turn-level reviewer.
++        reviewer: Option<ApprovalsReviewer>,
+         /// Proposed execpolicy amendment to skip future approvals for similar commands
+         /// See core/src/exec_policy.rs for more details on how proposed_execpolicy_amendment is determined.
+         proposed_execpolicy_amendment: Option<ExecPolicyAmendment>,
+@@ -186,6 +191,13 @@ impl ExecApprovalRequirement {
+             _ => None,
+         }
+     }
++
++    pub fn reviewer(&self) -> Option<ApprovalsReviewer> {
++        match self {
++            Self::NeedsApproval { reviewer, .. } => *reviewer,
++            Self::Skip { .. } | Self::Forbidden { .. } => None,
++        }
++    }
+ }
+ 
+ /// - Never: do not ask
+@@ -221,6 +233,7 @@ pub(crate) fn default_exec_approval_requirement(
+     } else if needs_approval {
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: None,
+         }
+     } else {
+diff --git a/core/src/tools/sandboxing_tests.rs b/core/src/tools/sandboxing_tests.rs
+index a4839cfd33..86711b45d1 100644
+--- a/core/src/tools/sandboxing_tests.rs
++++ b/core/src/tools/sandboxing_tests.rs
+@@ -69,6 +69,7 @@ fn restricted_sandbox_requires_exec_approval_on_request() {
+         ),
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: None,
+         }
+     );
+@@ -149,6 +150,7 @@ fn default_exec_approval_requirement_keeps_prompt_when_granular_allows_sandbox_a
+         requirement,
+         ExecApprovalRequirement::NeedsApproval {
+             reason: None,
++            reviewer: None,
+             proposed_execpolicy_amendment: None,
+         }
+     );
+diff --git a/execpolicy/README.md b/execpolicy/README.md
+index 557e46fbed..cd4474f0d0 100644
+--- a/execpolicy/README.md
++++ b/execpolicy/README.md
+@@ -2,9 +2,11 @@
+ 
+ ## Overview
+ 
+-- Policy engine and CLI built around `prefix_rule(pattern=[...], decision?, justification?, match?, not_match?)` plus `host_executable(name=..., paths=[...])`.
++- Policy engine and CLI built around `prefix_rule(pattern=[...], decision?, reviewer?, justification?, match?, not_match?)` plus `host_executable(name=..., paths=[...])`.
+ - This release covers the prefix-rule subset of the execpolicy language plus host executable metadata; a richer language will follow.
+ - Tokens are matched in order; any `pattern` element may be a list to denote alternatives. `decision` defaults to `allow`; valid values: `allow`, `prompt`, `forbidden`.
++- `reviewer` is an optional reviewer override for `decision = "prompt"` rules. Valid values are `user` and `auto_review`; rules without it inherit the caller's configured reviewer. It is rejected for `allow` and `forbidden` rules.
++- Managed `allowed_approvals_reviewers` constraints still apply; a disallowed rule override is ignored and the configured reviewer is inherited.
+ - `justification` is an optional human-readable rationale for why a rule exists. It can be provided for any `decision` and may be surfaced in different contexts (for example, in approval prompts or rejection messages). When `decision = "forbidden"` is used, include a recommended alternative in the `justification`, when appropriate (e.g., ``"Use `jj` instead of `git`."``).
+ - `match` / `not_match` supply example invocations that are validated at load time (think of them as unit tests); examples can be token arrays or strings (strings are tokenized with `shlex`).
+ - The CLI always prints the JSON serialization of the evaluation result.
+@@ -17,6 +19,7 @@
+ prefix_rule(
+     pattern = ["cmd", ["alt1", "alt2"]], # ordered tokens; list entries denote alternatives
+     decision = "prompt",                 # allow | prompt | forbidden; defaults to allow
++    reviewer = "user",                   # user | auto_review; prompt rules only
+     justification = "explain why this rule exists",
+     match = [["cmd", "alt1"], "cmd alt2"],           # examples that must match this rule
+     not_match = [["cmd", "oops"], "cmd alt3"],       # examples that must not match this rule
+@@ -81,7 +84,8 @@ cargo run -p codex-execpolicy -- check --rules path/to/policy.rules git status
+         "matchedPrefix": ["<token>", "..."],
+         "decision": "allow|prompt|forbidden",
+         "resolvedProgram": "/absolute/path/to/program",
+-        "justification": "..."
++        "justification": "...",
++        "reviewer": "user|auto_review"
+       }
+     }
+   ],
+@@ -92,6 +96,8 @@ cargo run -p codex-execpolicy -- check --rules path/to/policy.rules git status
+ - When no rules match, `matchedRules` is an empty array and `decision` is omitted.
+ - `matchedRules` lists every rule whose prefix matched the command; `matchedPrefix` is the exact prefix that matched.
+ - `resolvedProgram` is omitted unless an absolute executable path matched via basename fallback.
++- `reviewer` is omitted unless a matching prompt rule explicitly overrides the caller's configured reviewer.
+ - The effective `decision` is the strictest severity across all matches (`forbidden` > `prompt` > `allow`).
++- For matching prompt rules that specify different reviewers, `user` takes precedence over `auto_review`.
+ 
+ Note: `execpolicy` commands are still in preview. The API may have breaking changes in the future.
+diff --git a/execpolicy/src/lib.rs b/execpolicy/src/lib.rs
+index 293e275058..31b7cc2717 100644
+--- a/execpolicy/src/lib.rs
++++ b/execpolicy/src/lib.rs
+@@ -31,3 +31,4 @@ pub use rule::Rule;
+ pub use rule::RuleMatch;
+ pub use rule::RuleRef;
+ pub use sandbox_migration::prefix_rule_migration;
++pub use rule::RuleReviewer;
+diff --git a/execpolicy/src/parser.rs b/execpolicy/src/parser.rs
+index 33262db1b3..4387358751 100644
+--- a/execpolicy/src/parser.rs
++++ b/execpolicy/src/parser.rs
+@@ -32,6 +32,7 @@ use crate::rule::PatternToken;
+ use crate::rule::PrefixPattern;
+ use crate::rule::PrefixRule;
+ use crate::rule::RuleRef;
++use crate::rule::RuleReviewer;
+ use crate::rule::validate_match_examples;
+ use crate::rule::validate_not_match_examples;
+ 
+@@ -257,6 +258,16 @@ fn parse_network_rule_decision(raw: &str) -> Result<Decision> {
+     }
+ }
+ 
++fn parse_rule_reviewer(raw: &str) -> Result<RuleReviewer> {
++    match raw {
++        "user" => Ok(RuleReviewer::User),
++        "auto_review" => Ok(RuleReviewer::AutoReview),
++        other => Err(Error::InvalidRule(format!(
++            "reviewer must be one of user, auto_review (got {other})"
++        ))),
++    }
++}
++
+ fn error_location_from_file_span(span: FileSpan) -> ErrorLocation {
+     let resolved = span.resolve_span();
+     ErrorLocation {
+@@ -352,12 +363,20 @@ fn policy_builtins(builder: &mut GlobalsBuilder) {
+         r#match: Option<UnpackList<Value<'v>>>,
+         not_match: Option<UnpackList<Value<'v>>>,
+         justification: Option<&'v str>,
++        reviewer: Option<&'v str>,
+         eval: &mut Evaluator<'v, '_, '_>,
+     ) -> anyhow::Result<NoneType> {
+         let decision = match decision {
+             Some(raw) => Decision::parse(raw)?,
+             None => Decision::Allow,
+         };
++        let reviewer = reviewer.map(parse_rule_reviewer).transpose()?;
++        if reviewer.is_some() && decision != Decision::Prompt {
++            return Err(Error::InvalidRule(
++                "reviewer can only be used with decision = \"prompt\"".to_string(),
++            )
++            .into());
++        }
+ 
+         let justification = match justification {
+             Some(raw) if raw.trim().is_empty() => {
+@@ -398,6 +417,7 @@ fn policy_builtins(builder: &mut GlobalsBuilder) {
+                     },
+                     decision,
+                     justification: justification.clone(),
++                    reviewer,
+                 }) as RuleRef
+             })
+             .collect();
+diff --git a/execpolicy/src/policy.rs b/execpolicy/src/policy.rs
+index 78790517fd..c76857354e 100644
+--- a/execpolicy/src/policy.rs
++++ b/execpolicy/src/policy.rs
+@@ -9,6 +9,7 @@ use crate::rule::PrefixPattern;
+ use crate::rule::PrefixRule;
+ use crate::rule::RuleMatch;
+ use crate::rule::RuleRef;
++use crate::rule::RuleReviewer;
+ use crate::rule::normalize_network_rule_host;
+ use codex_utils_absolute_path::AbsolutePathBuf;
+ use multimap::MultiMap;
+@@ -141,6 +142,7 @@ impl Policy {
+             },
+             decision,
+             justification: None,
++            reviewer: None,
+         });
+ 
+         self.rules_by_program.insert(first_token.clone(), rule);
+@@ -392,6 +394,38 @@ pub struct Evaluation {
+ }
+ 
+ impl Evaluation {
++    /// Returns the explicit reviewer requested by matching prompt rules.
++    ///
++    /// When multiple prompt rules match, a user reviewer wins over auto-review.
++    /// None means that no matching prompt rule overrides the caller's
++    /// configured reviewer.
++    pub fn prompt_reviewer(&self) -> Option<RuleReviewer> {
++        let mut reviewer = None;
++
++        for rule_match in &self.matched_rules {
++            let RuleMatch::PrefixRuleMatch {
++                decision,
++                reviewer: Some(rule_reviewer),
++                ..
++            } = rule_match
++            else {
++                continue;
++            };
++
++            if *decision != Decision::Prompt {
++                continue;
++            }
++
++            if *rule_reviewer == RuleReviewer::User {
++                return Some(RuleReviewer::User);
++            }
++
++            reviewer = Some(RuleReviewer::AutoReview);
++        }
++
++        reviewer
++    }
++
+     pub fn is_match(&self) -> bool {
+         self.matched_rules
+             .iter()
+diff --git a/execpolicy/src/rule.rs b/execpolicy/src/rule.rs
+index 6642cb1d9c..60facfdc6f 100644
+--- a/execpolicy/src/rule.rs
++++ b/execpolicy/src/rule.rs
+@@ -11,6 +11,16 @@ use std::any::Any;
+ use std::fmt::Debug;
+ use std::sync::Arc;
+ 
++/// Selects who should review an approval request produced by a prompt rule.
++///
++/// Rules without an explicit reviewer inherit the caller's configured reviewer.
++#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
++#[serde(rename_all = "snake_case")]
++pub enum RuleReviewer {
++    User,
++    AutoReview,
++}
++
+ /// Matches a single command token, either a fixed string or one of several allowed alternatives.
+ #[derive(Clone, Debug, Eq, PartialEq)]
+ pub enum PatternToken {
+@@ -74,6 +84,9 @@ pub enum RuleMatch {
+         /// (e.g., prompt reasons or rejection messages).
+         #[serde(skip_serializing_if = "Option::is_none")]
+         justification: Option<String>,
++        /// Optional reviewer override for prompt rules.
++        #[serde(skip_serializing_if = "Option::is_none")]
++        reviewer: Option<RuleReviewer>,
+     },
+     HeuristicsRuleMatch {
+         command: Vec<String>,
+@@ -95,12 +108,14 @@ impl RuleMatch {
+                 matched_prefix,
+                 decision,
+                 justification,
++                reviewer,
+                 ..
+             } => Self::PrefixRuleMatch {
+                 matched_prefix,
+                 decision,
+                 resolved_program: Some(resolved_program.clone()),
+                 justification,
++                reviewer,
+             },
+             other => other,
+         }
+@@ -112,6 +127,7 @@ pub struct PrefixRule {
+     pub pattern: PrefixPattern,
+     pub decision: Decision,
+     pub justification: Option<String>,
++    pub reviewer: Option<RuleReviewer>,
+ }
+ 
+ #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+@@ -234,6 +250,7 @@ impl Rule for PrefixRule {
+                 decision: self.decision,
+                 resolved_program: None,
+                 justification: self.justification.clone(),
++                reviewer: self.reviewer,
+             })
+     }
+ 
+diff --git a/execpolicy/tests/basic.rs b/execpolicy/tests/basic.rs
+index f6a86adb27..0b19585028 100644
+--- a/execpolicy/tests/basic.rs
++++ b/execpolicy/tests/basic.rs
+@@ -18,6 +18,7 @@ use codex_execpolicy::PrefixPattern;
+ use codex_execpolicy::PrefixRule;
+ use codex_execpolicy::RuleMatch;
+ use codex_execpolicy::RuleRef;
++use codex_execpolicy::RuleReviewer;
+ use codex_execpolicy::blocking_append_allow_prefix_rule;
+ use codex_utils_absolute_path::AbsolutePathBuf;
+ use pretty_assertions::assert_eq;
+@@ -159,6 +160,7 @@ prefix_rule(
+                 decision: Decision::Allow,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         evaluation
+@@ -191,6 +193,7 @@ prefix_rule(
+                 decision: Decision::Forbidden,
+                 resolved_program: None,
+                 justification: Some("destructive command".to_string()),
++                reviewer: None,
+             }],
+         },
+         evaluation
+@@ -220,6 +223,7 @@ prefix_rule(
+                 decision: Decision::Allow,
+                 resolved_program: None,
+                 justification: Some("safe and commonly used".to_string()),
++                reviewer: None,
+             }],
+         },
+         evaluation
+@@ -246,6 +250,122 @@ prefix_rule(
+     );
+ }
+ 
++#[test]
++fn prompt_rule_reviewer_is_attached_to_matches() -> Result<()> {
++    let policy_src = r#"
++prefix_rule(
++    pattern = ["git", "push"],
++    decision = "prompt",
++    reviewer = "auto_review",
++)
++    "#;
++    let mut parser = PolicyParser::new();
++    parser.parse("test.rules", policy_src)?;
++    let policy = parser.build();
++
++    let evaluation = policy.check(&tokens(&["git", "push", "origin", "main"]), &allow_all);
++    assert_eq!(
++        Evaluation {
++            decision: Decision::Prompt,
++            matched_rules: vec![RuleMatch::PrefixRuleMatch {
++                matched_prefix: tokens(&["git", "push"]),
++                decision: Decision::Prompt,
++                resolved_program: None,
++                justification: None,
++                reviewer: Some(RuleReviewer::AutoReview),
++            }],
++        },
++        evaluation
++    );
++    assert_eq!(evaluation.prompt_reviewer(), Some(RuleReviewer::AutoReview));
++    let serialized = serde_json::to_value(&evaluation)?;
++    assert_eq!(
++        serialized["matchedRules"][0]["prefixRuleMatch"]["reviewer"],
++        "auto_review"
++    );
++    Ok(())
++}
++
++#[test]
++fn prompt_rule_user_reviewer_wins_over_auto_review() -> Result<()> {
++    let policy_src = r#"
++prefix_rule(
++    pattern = ["git"],
++    decision = "prompt",
++    reviewer = "auto_review",
++)
++prefix_rule(
++    pattern = ["git", "push"],
++    decision = "prompt",
++    reviewer = "user",
++)
++    "#;
++    let mut parser = PolicyParser::new();
++    parser.parse("test.rules", policy_src)?;
++    let policy = parser.build();
++
++    let evaluation = policy.check(&tokens(&["git", "push", "origin", "main"]), &allow_all);
++    assert_eq!(evaluation.prompt_reviewer(), Some(RuleReviewer::User));
++    Ok(())
++}
++
++#[test]
++fn prompt_rule_without_reviewer_inherits_configured_reviewer() -> Result<()> {
++    let policy_src = r#"
++prefix_rule(
++    pattern = ["git", "push"],
++    decision = "prompt",
++)
++    "#;
++    let mut parser = PolicyParser::new();
++    parser.parse("test.rules", policy_src)?;
++    let policy = parser.build();
++
++    let evaluation = policy.check(&tokens(&["git", "push", "origin", "main"]), &allow_all);
++    assert_eq!(evaluation.prompt_reviewer(), None);
++    Ok(())
++}
++
++#[test]
++fn reviewer_is_rejected_for_non_prompt_decisions() {
++    for decision in ["allow", "forbidden"] {
++        let policy_src = format!(
++            r#"prefix_rule(
++    pattern = ["git"],
++    decision = "{decision}",
++    reviewer = "user",
++)"#
++        );
++        let mut parser = PolicyParser::new();
++        let err = parser
++            .parse("test.rules", &policy_src)
++            .expect_err("reviewer should require a prompt decision");
++        assert!(
++            err.to_string()
++                .contains("reviewer can only be used with decision = \"prompt\"")
++        );
++    }
++}
++
++#[test]
++fn reviewer_rejects_unknown_values() {
++    let policy_src = r#"
++prefix_rule(
++    pattern = ["git"],
++    decision = "prompt",
++    reviewer = "guardian",
++)
++    "#;
++    let mut parser = PolicyParser::new();
++    let err = parser
++        .parse("test.rules", policy_src)
++        .expect_err("unknown reviewer should fail");
++    assert!(
++        err.to_string()
++            .contains("reviewer must be one of user, auto_review")
++    );
++}
++
+ #[test]
+ fn add_prefix_rule_extends_policy() -> Result<()> {
+     let mut policy = Policy::empty();
+@@ -260,6 +380,7 @@ fn add_prefix_rule_extends_policy() -> Result<()> {
+             },
+             decision: Decision::Prompt,
+             justification: None,
++            reviewer: None,
+         })],
+         rules
+     );
+@@ -273,6 +394,7 @@ fn add_prefix_rule_extends_policy() -> Result<()> {
+                 decision: Decision::Prompt,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         evaluation
+@@ -321,6 +443,7 @@ prefix_rule(
+                 },
+                 decision: Decision::Prompt,
+                 justification: None,
++                reviewer: None,
+             }),
+             RuleSnapshot::Prefix(PrefixRule {
+                 pattern: PrefixPattern {
+@@ -329,6 +452,7 @@ prefix_rule(
+                 },
+                 decision: Decision::Forbidden,
+                 justification: None,
++                reviewer: None,
+             }),
+         ],
+         git_rules
+@@ -343,6 +467,7 @@ prefix_rule(
+                 decision: Decision::Prompt,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         status_eval
+@@ -358,12 +483,14 @@ prefix_rule(
+                     decision: Decision::Prompt,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 },
+                 RuleMatch::PrefixRuleMatch {
+                     matched_prefix: tokens(&["git", "commit"]),
+                     decision: Decision::Forbidden,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 },
+             ],
+         },
+@@ -398,6 +525,7 @@ prefix_rule(
+             },
+             decision: Decision::Allow,
+             justification: None,
++            reviewer: None,
+         })],
+         bash_rules
+     );
+@@ -409,6 +537,7 @@ prefix_rule(
+             },
+             decision: Decision::Allow,
+             justification: None,
++            reviewer: None,
+         })],
+         sh_rules
+     );
+@@ -422,6 +551,7 @@ prefix_rule(
+                 decision: Decision::Allow,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         bash_eval
+@@ -436,6 +566,7 @@ prefix_rule(
+                 decision: Decision::Allow,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         sh_eval
+@@ -470,6 +601,7 @@ prefix_rule(
+             },
+             decision: Decision::Allow,
+             justification: None,
++            reviewer: None,
+         })],
+         rules
+     );
+@@ -483,6 +615,7 @@ prefix_rule(
+                 decision: Decision::Allow,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         npm_i
+@@ -500,6 +633,7 @@ prefix_rule(
+                 decision: Decision::Allow,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         npm_install
+@@ -531,6 +665,7 @@ prefix_rule(
+                 decision: Decision::Allow,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         },
+         match_eval
+@@ -559,6 +694,7 @@ fn strictest_decision_wins_across_matches() -> Result<()> {
+ prefix_rule(
+     pattern = ["git"],
+     decision = "prompt",
++    reviewer = "user",
+ )
+ prefix_rule(
+     pattern = ["git", "commit"],
+@@ -579,12 +715,14 @@ prefix_rule(
+                     decision: Decision::Prompt,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: Some(RuleReviewer::User),
+                 },
+                 RuleMatch::PrefixRuleMatch {
+                     matched_prefix: tokens(&["git", "commit"]),
+                     decision: Decision::Forbidden,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 },
+             ],
+         },
+@@ -624,18 +762,21 @@ prefix_rule(
+                     decision: Decision::Prompt,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 },
+                 RuleMatch::PrefixRuleMatch {
+                     matched_prefix: tokens(&["git"]),
+                     decision: Decision::Prompt,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 },
+                 RuleMatch::PrefixRuleMatch {
+                     matched_prefix: tokens(&["git", "commit"]),
+                     decision: Decision::Forbidden,
+                     resolved_program: None,
+                     justification: None,
++                    reviewer: None,
+                 },
+             ],
+         },
+@@ -773,7 +914,7 @@ fn host_executable_resolution_uses_basename_rule_when_allowed() -> Result<()> {
+     let git_path_literal = starlark_string(&git_path);
+     let policy_src = format!(
+         r#"
+-prefix_rule(pattern = ["git", "status"], decision = "prompt")
++prefix_rule(pattern = ["git", "status"], decision = "prompt", reviewer = "user")
+ host_executable(name = "git", paths = ["{git_path_literal}"])
+ "#
+     );
+@@ -797,9 +938,11 @@ host_executable(name = "git", paths = ["{git_path_literal}"])
+                 decision: Decision::Prompt,
+                 resolved_program: Some(absolute_path(&git_path)),
+                 justification: None,
++                reviewer: Some(RuleReviewer::User),
+             }],
+         }
+     );
++    assert_eq!(evaluation.prompt_reviewer(), Some(RuleReviewer::User));
+     Ok(())
+ }
+ 
+@@ -919,6 +1062,7 @@ prefix_rule(pattern = ["git"], decision = "prompt")
+                 decision: Decision::Prompt,
+                 resolved_program: Some(absolute_path(&git_path)),
+                 justification: None,
++                reviewer: None,
+             }],
+         }
+     );
+@@ -956,6 +1100,7 @@ host_executable(name = "git", paths = ["{git_path_literal}"])
+                 decision: Decision::Allow,
+                 resolved_program: None,
+                 justification: None,
++                reviewer: None,
+             }],
+         }
+     );

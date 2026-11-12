@@ -1,4 +1,5 @@
-# Nix-managed. Publishing is done by the user outside Codex.
-prefix_rule(pattern=["git", "push"], decision="forbidden", justification="push from Lazygit or a shell outside Codex", match=["git push origin main"])
-prefix_rule(pattern=["gh", "pr", ["create", "merge", "ready"]], decision="forbidden", justification="PR publishing is done by the user", match=["gh pr create --fill"], not_match=["gh pr view 1"])
-prefix_rule(pattern=["gh", "release"], decision="forbidden", justification="releases are done by the user")
+# Nix-managed. Publishing always asks the user, even with auto-review on
+# (reviewer = "user" needs the patched codex, see reviewer-override.patch).
+prefix_rule(pattern=["git", "push"], decision="prompt", reviewer="user", justification="push needs explicit approval", match=["git push origin main"])
+prefix_rule(pattern=["gh", "pr", ["create", "merge", "ready"]], decision="prompt", reviewer="user", justification="PR actions need explicit approval", match=["gh pr create --fill"], not_match=["gh pr view 1"])
+prefix_rule(pattern=["gh", "release"], decision="prompt", reviewer="user", justification="releases need explicit approval")

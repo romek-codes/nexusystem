@@ -47,7 +47,11 @@ in
     sandbox_workspace_write.writable_roots = vaults;
   };
 
-  environment.etc."codex/rules/allow.rules".text = lib.concatMapStrings (
-    p: "prefix_rule(pattern=${builtins.toJSON (words p)}, decision=\"allow\")\n"
-  ) allowed;
+  # Codex skips symlinked .rules files, so copy instead of linking.
+  environment.etc."codex/rules/allow.rules" = {
+    mode = "0444";
+    text = lib.concatMapStrings (
+      p: "prefix_rule(pattern=${builtins.toJSON (words p)}, decision=\"allow\")\n"
+    ) allowed;
+  };
 }

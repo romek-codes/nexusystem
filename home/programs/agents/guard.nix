@@ -1,7 +1,8 @@
 # PreToolUse guard for shell commands, shared by Claude Code and Codex.
 # Usage: guard.sh [claude|codex] < hook-json
 # Codex does not support permissionDecision "ask" in PreToolUse. Configured
-# tool approval modes handle external writes; publishing remains blocked.
+# tool approval modes handle external writes; publishing goes to the user via
+# reviewer = "user" prompt rules in codex/guard.rules (patched codex).
 { writeShellScript, jq, gnugrep }:
 writeShellScript "agent-guard" ''
   agent="''${1:-claude}"
@@ -54,17 +55,12 @@ writeShellScript "agent-guard" ''
   end="([[:space:];&|)]|$)"
   opts="([[:space:]]+(-[Cc][[:space:]]+$q|--[a-z-]+(=$q)?|-[a-zA-Z]+))"
 
-  # The user handles publishing outside Codex.
-  if [ "$agent" = codex ] && printf '%s' "$cmd" | ${gnugrep}/bin/grep -qE \
-    "''${start}(git$opts*[[:space:]]+push|gh[[:space:]]+(pr[[:space:]]+(create|merge|ready)|release))$end"; then
-    block "pushes, PR actions, and releases are done by the user"
-  fi
-
   # Git global options in front of push (git -C x push) miss prefix rules.
-  # Claude asks here; Codex is blocked above.
+  # Claude asks here. Codex can't ask from a hook, so it is sent back to a
+  # plain `git push`, which guard.rules routes to the user.
   if printf '%s' "$cmd" | ${gnugrep}/bin/grep -qE "''${start}git$opts+[[:space:]]+push$end"; then
     if [ "$agent" = codex ]; then
-      block "pushes are done by the user outside Codex"
+      block "run a plain 'git push' from the repo directory (no git options before push) so it goes to user approval"
     fi
     ask "git push needs explicit approval"
   fi

@@ -8,25 +8,53 @@ let
   hostInstructions = import ../system-agents.nix { inherit config; };
   memoryFilePath = "${config.home.homeDirectory}/.local/share/agent-memory/memory.json";
   codexLimits = pkgs.callPackage ../codex-limits.nix { };
-  # Jira write tools on the atlassian MCP server always ask (work host only).
-  atlassianWriteTools = [
-    "addOrEditJiraIssueComment"
-    "editJiraIssue"
-    "createJiraIssue"
-    "transitionJiraIssue"
-    "executeWrite"
-    "executeDestructive"
+  # Local port of openai/codex#31061 (prefix_rule reviewer = "user"), so publish
+  # rules in guard.rules reach the user while auto-review handles the rest.
+  # Also: MCP tools with approval_mode = "prompt" (Atlassian writes) ask the user.
+  # Drop once upstream ships it; the patch fails loudly on a codex bump.
+  codex = pkgs.codex.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ./reviewer-override.patch ];
+  });
+  # Atlassian tools ask the user unless listed as read-only here (work host only).
+  # Fail-safe: write tool names drift between endpoints and versions, reads are
+  # easy to spot. Unknown tools ask.
+  atlassianReadTools = [
+    "atlassianUserInfo"
+    "fetch"
+    "getAccessibleAtlassianResources"
+    "getCompassComponent"
+    "getCompassComponents"
+    "getCompassCustomFieldDefinitions"
+    "getConfluenceCommentChildren"
+    "getConfluencePage"
+    "getConfluencePageDescendants"
+    "getConfluencePageFooterComments"
+    "getConfluencePageInlineComments"
+    "getConfluenceSpaces"
+    "getContentFormatGuide"
+    "getIssueLinkTypes"
+    "getJiraIssue"
+    "getJiraIssueRemoteIssueLinks"
+    "getJiraIssueTypeMetaWithFields"
+    "getJiraProjectIssueTypesMetadata"
+    "getPagesInConfluenceSpace"
+    "getTransitionsForJiraIssue"
+    "getVisibleJiraProjects"
+    "lookupJiraAccountId"
+    "search"
+    "searchConfluenceUsingCql"
+    "searchJiraIssuesUsingJql"
   ];
   atlassianToml = lib.optionalString (config.var.hostname == "work") ''
 
     [mcp_servers.atlassian]
     url = "https://mcp.atlassian.com/v1/mcp/authv2"
-    default_tools_approval_mode = "writes"
+    default_tools_approval_mode = "prompt"
     ${lib.concatMapStrings (t: ''
 
       [mcp_servers.atlassian.tools.${t}]
-      approval_mode = "prompt"
-    '') atlassianWriteTools}'';
+      approval_mode = "auto"
+    '') atlassianReadTools}'';
 in
 {
   imports = [
@@ -34,8 +62,9 @@ in
   ];
 
   home.packages = [
-    pkgs.codex
-    pkgs.codex-acp
+    codex
+    # Stock codex can't parse reviewer = "user" in guard.rules.
+    (pkgs.codex-acp.override { inherit codex; })
     codexLimits
     pkgs.happy
     pkgs.mcp-nixos
@@ -46,7 +75,11 @@ in
 
   home.file.".codex/AGENTS.md".source =
     config.lib.file.mkOutOfStoreSymlink "${config.var.configDirectory}/home/programs/agents/SYSTEM-AGENTS.md";
-  home.file.".codex/rules/guard.rules".source = ./guard.rules;
+  # Codex skips symlinked .rules files, so copy instead of home.file.
+  home.activation.codexGuardRules = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    run rm -f "$HOME/.codex/rules/guard.rules"
+    run install -Dm444 ${./guard.rules} "$HOME/.codex/rules/guard.rules"
+  '';
   home.activation.codexMcpNixos = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         codex_config="$HOME/.codex/config.toml"
         tmp_config="$(mktemp)"
